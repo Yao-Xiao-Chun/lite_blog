@@ -480,3 +480,14 @@ func (this *IndexController) ArticleClick(){
 	}
 	this.ServeJSON()
 }
+
+
+
+/**
+	评论登录
+ */
+// @router /blog/pages/?:key [get] 评论
+func (this *IndexController) CommitArticle(){
+
+	this.Redirect("/",302)
+}

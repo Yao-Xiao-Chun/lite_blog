@@ -84,5 +84,11 @@ func CreateReview(review LiteReview) error  {
 	 }
 
 	 /**
-
+		统计今天新增的条数
 	  */
+	  func GetWhereReviewCount(str string)(count int,err error){
+
+	  	var review []LiteReview
+
+	  	return count,db.Where("created_at > ?",str).Find(&review).Count(&count).Error
+	  }

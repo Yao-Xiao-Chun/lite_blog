@@ -9,6 +9,21 @@
 <script src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+
+<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+        id: '', // 可选。默认为 location.href
+        owner: 'biekanwonicheng',
+        repo: 'mywork',
+        oauth: {
+            client_id: '62c6cd2e9f1f4dad2de0',
+            client_secret: 'e508f0db74f507b845c68ae017e003480188458e',
+        },
+    })
+    gitment.render('container')
+</script>
 <script>
     layui.config({
         base: '/static/static/js/'

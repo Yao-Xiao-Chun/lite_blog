@@ -1,6 +1,10 @@
 package controllers
 
-import "mywork/models"
+import (
+	"mywork/models"
+	"time"
+	"github.com/astaxie/beego/logs"
+)
 
 type AdminIndexController struct {
 
@@ -22,6 +26,8 @@ func (this *AdminIndexController)AdminIndex(){
 func (this *AdminIndexController)AdminMain(){
 
 	this.getTimeLines()
+
+	this.countMessage()
 
 	this.TplName = "admin/main.html"
 }
@@ -117,3 +123,21 @@ func (this *AdminIndexController) GetUserMessage(){
 
 	this.TplName = "admin/user/edit.html"
 }
+
+
+
+/**
+	统计今天新增的留言数量
+	后台
+ */
+ func (this *AdminIndexController) countMessage(){
+
+ 	//获取今天的时间
+ 	timeStr := time.Now().Format("2006-01-02 00:00:00")
+ 	logs.Info(timeStr)
+
+ 	count,_:= models.GetWhereReviewCount(timeStr)
+
+ 	this.Data["reviewCount"] = count
+
+ }

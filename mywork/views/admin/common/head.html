@@ -17,7 +17,7 @@
     <ul class="layui-nav layui-layout-right kit-nav">
         <li class="layui-nav-item">
             <a href="javascript:;">
-                <img src="/static/images/info-img.png" class="layui-nav-img">{{ .AdminUsers.Nikename}}
+                <img {{if .AdminUsers.Head_img}} src="/{{.AdminUsers.Head_img}}"{{else}}src="/static/images/info-img.png"{{end}} class="layui-nav-img">{{ .AdminUsers.Nikename}}
             </a>
             <dl class="layui-nav-child">
                 <dd><a href="javascript:;" id="Lay_message">基本资料</a></dd>
@@ -27,3 +27,4 @@
         <li class="layui-nav-item"><a href="/admin/loginout"><i class="fa fa-sign-out" aria-hidden="true"></i> 注销</a></li>
     </ul>
 </div>
+
