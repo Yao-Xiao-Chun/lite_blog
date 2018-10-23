@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>闲言轻博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{template "common/comm.html"}}
+</head>
+<body class="lay-blog">
+{{template "common/head.html" .}}
+<div class="container-wrap">
+    <div class="container">
+        <div class="contar-wrap">
+            <div class="item">
+                <div class="item-box">
+                    <ul class="layui-timeline">
+                        {{range $key,$val := .line}}
+
+                        <li class="layui-timeline-item" data-id="{{$val.tid}}">
+                            <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                            <div class="layui-timeline-content layui-text">
+                                <h3 class="layui-timeline-title">{{$val.code}}</h3>
+                                <p>
+                                    {{str2html $val.content}}
+                                </p>
+                            </div>
+
+                        </li>
+                        {{end}}
+
+
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        {{if gt .count 10}}
+            <div class="item-btn">
+                <button class="layui-btn layui-btn-normal layui-page-next" data-count="{{.count}}">下一页</button>
+            </div>
+        {{end}}
+    </div>
+</div>
+
+
+{{template "common/footer.html".}}
+
+
+</body>
+</html>

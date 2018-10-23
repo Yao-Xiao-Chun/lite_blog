@@ -1,0 +1,19 @@
+
+go get github.com/satori/go.uuid   -- 获取uuid的用户包
+
+go get  github.com/jinzhu/gorm     -- 获取gorm中的orm
+
+go get  github.com/go-sql-driver/mysql --获取mysql 驱动包
+
+
+1.golang.org/x/net/html golang中国下载 放入src目录
+2.go install golang.org/x/net/html     安装
+
+go get github.com/PuerkitoBio/goquery  --文章截取包
+
+go get github.com/dchest/captcha --验证码包
+
+
+go get github.com/molizz/goip   -- 地址转换包  没用
+
+go get github.com/tabalt/ipquery

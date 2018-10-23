@@ -1,0 +1,211 @@
+<div class="footer">
+    <p>
+        <span>&copy; 2018</span>
+        <span><a href="http://www.layui.com" target="_blank">layui.com</a></span>
+        <span>MIT license</span>
+    </p>
+    <p><span>前端基于贤心+后端Beego框架</span></p>
+</div>
+<script src="/static/layui/layui.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+<script>
+    layui.config({
+        base: '/static/static/js/'
+    }).use('blog');
+
+    layui.use(['form', 'jquery','laypage'], function() {
+        var laypage = layui.laypage;
+        var lay = layui.layer;
+        //总页数大于页码总数 --留言分页
+        laypage.render({
+            elem: 'review'
+            ,count: "{{.RePage}}" //数据总数
+            ,jump: function(obj){
+                layer.load();
+                var page = obj.curr;
+                if(page > 0){
+
+                    $.ajax({
+                       url:'/message/review/page?page='+page,
+                       type:'get',
+                       dataType:'json',
+                       success:function (response) {
+
+                           if(response.code == "0"){
+                               $('.info-box').html('');
+                               $(response.data).each(function (index,val) {
+                                    $('.info-box').append('<div class="info-item">\n' +
+                                            '<img class="info-img" src="/static/static/images/info-img.png" alt="">\n' +
+                                            '<div class="info-text">\n' +
+                                            '<p class="title count">\n' +
+                                            '<span class="name">'+val.Address+'</span>\n' +
+                                            '<span class="info-img like"><i class="layui-icon layui-icon-praise"></i>'+val.Click+'</span>\n' +
+                                            '</p>\n' +
+                                            '<p class="info-intr">'+val.Message+'</p>\n' +
+                                            '</div>\n' +
+                                            '</div>');
+                               });
+                           }
+
+                       },
+                        error:function (err) {
+                            console.log(err);
+                        }
+                    });
+                    layer.closeAll('loading');
+                }else {
+                    return false;
+                }
+            }
+        });
+
+        $('.layui-page-next').click(function (e) {
+            lay.load();
+            //同时禁止再次点击
+            $('.layui-page-next').attr('disabled','disabled');
+
+            //获取最后一个id
+            var id = $('.layui-timeline').children('li:last-child').attr("data-id");
+
+
+            //获取下一页 ajax请求
+
+            $.ajax({
+                url:'/time/page?id='+id,
+                type:'get',
+                dataType:'json',
+                success:function (response) {
+
+                    if(response.code == '0'){
+
+                        $.each(response.data,function (index,val) {
+
+                            $('.layui-timeline').append(' <li class="layui-timeline-item" data-id="'+val.tid+'">\n' +
+                                    '                            <i class="layui-icon layui-timeline-axis">&#xe63f;</i>\n' +
+                                    '                            <div class="layui-timeline-content layui-text">\n' +
+                                    '                                <h3 class="layui-timeline-title">'+val.code+'</h3>\n' +
+                                    '                                <p>\n' +val.content+
+                                    '</p>\n' +
+                                    '</div>\n' +
+                                    '\n' +
+                                    '</li>');
+                        });
+
+                        $('.layui-page-next').removeAttr('disabled');
+                        layer.closeAll('loading');
+
+                    }else{
+
+                        lay.msg('没有数据了，别点了，要哭了*——*');
+                        layer.closeAll('loading');
+                    }
+
+                },
+                error:function (err) {
+                    
+                }
+            });
+
+        });
+        /*文章页面下一页*/
+        $('.lay-page-article').click(function (e) {
+            lay.load();
+            //同时禁止再次点击
+            $('.lay-page-article').attr('disabled','disabled');
+
+            //获取最后一个id
+            var id = $('.layui-article:last-child').attr("data-id");
+
+            var category_id = "{{.is_category}}";
+
+            //获取下一页 ajax请求
+
+            $.ajax({
+                url:'/article?id='+id+"&category="+category_id,
+                type:'get',
+                dataType:'json',
+                success:function (response) {
+
+                    if(response.code == '0'){
+
+                        $.each(response.data,function (index,val) {
+                            var str = '';
+                            if(val.img != ''){
+
+                                str = '<img src="/'+val.img+'" title="'+val.title+'" style="width:200px ;height:130px;">';
+                            }
+                            $('.contar-wrap').append('<div class="item layui-article" data-id="'+val.id+'">\n' +
+                                    '                <div class="item-box  layer-photos-demo1 layer-photos-demo">\n' +
+                                    '                    <h3><a href="/article/info?id='+val.id+'">'+val.title+'</a></h3>\n' +
+                                    '                    <h5><i class="layui-icon  "></i> 时间：<span style="color: #01AAED;">'+val.created_time+'</span>\n' +
+                                    '                        <span style="margin-left: 40px;">\n' +
+                                    '                            <i class="layui-icon "></i>\n' +
+                                    '                            标签：<span style="color: #01AAED;">'+val.tags.Mnames+'</span>\n' +
+                                    '                        </span>\n' +
+                                    '                        <span style="float: right;">\n' +
+                                    '                            <i class="layui-icon  "></i>\n' +
+                                    '                            作者：<a href="#" style="color: #01AAED;"><span>'+val.author+'</span></a>\n' +
+                                    '                        </span>\n' +
+                                    '\n' +
+                                    '                    </h5>\n' +
+                                    '                    <p>'+val.descript+'</p>\n' +str+
+                                    '                </div>\n' +
+                                    '                <div class="comment count">\n' +
+                                    '                    <a href="details.html#comment">评论</a>\n' +
+                                    '                    <a href="javascript:void(0);" class="article_click" data-id="'+val.id+'" class="like">点赞</a>\n' +
+                                    '                </div>\n' +
+                                    '            </div>');
+                        });
+
+                        $('.lay-page-article').removeAttr('disabled');
+                        layer.closeAll('loading');
+
+                    }else{
+
+                        lay.msg('没有数据了，别点了，要哭了*——*');
+
+                        layer.closeAll('loading');
+                    }
+
+                },
+                error:function (err) {
+
+                }
+            });
+
+        });
+
+        function articleClick(e) {
+
+            var _self = $(e);
+
+            var id = _self.attr("data-id");
+
+            console.log(id);
+        }
+
+        $('.article_click').live('click',function () {
+            console.log($(this).attr('data-id'));
+            var id = $(this).attr('data-id');
+
+            if(id == '' || id == undefined){
+                return false;
+            }
+
+            $.ajax({
+                url:'/article/click?aid='+id,
+                type:'get',
+                dataType:'json',
+                success:function () {
+
+                    console.log('点赞成功');
+                },
+                error:function (err) {
+
+                }
+            })
+        });
+
+    });
+</script>

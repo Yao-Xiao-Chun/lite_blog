@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文章列表</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>文章列表</legend>
+</fieldset>
+
+
+
+<oktoolbar>
+    <button class="layui-btn layui-btn-normal" id="batchEnabled">
+        <i class="iconfont icon-shangsheng"></i>批量启用
+    </button>
+    <button class="layui-btn layui-btn-warm" id="batchDisabled">
+        <i class="iconfont icon-web-icon-"></i>批量停用
+    </button>
+    <button class="layui-btn layui-btn-danger" id="batchDel">
+        <i class="layui-icon layui-icon-delete"></i>批量删除
+    </button>
+    <button class="layui-btn" id="addUser">
+        <i class="layui-icon"></i>创建文章
+    </button>
+
+</oktoolbar>
+
+
+
+<div class="layui-form" style="min-height: 200px;margin: 10px;">
+    <table class="layui-table" >
+        <colgroup>
+            <col width="50">
+            <col width="100">
+            <col width="200">
+            <col width="100">
+            <col width="200">
+            <col width="70">
+            <col width="70">
+            <col width="70">
+            <col width="80">
+            <col width="80">
+            <col width="100">
+            <col width="150">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>aid</th>
+            <th>所属栏目</th>
+            <th>标题</th>
+            <th>作者</th>
+            <th>标签</th>
+            <th>原创</th>
+            <th>显示</th>
+            <th>置顶</th>
+            <th>点击数</th>
+            <th>阅读量</th>
+            <th>发布时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+     <tr>
+            <td>贤心</td>
+            <td>汉族</td>
+            <td>1989-10-14</td>
+            <td>人生似修行</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-sm"><i class="layui-icon"></i></button>
+                    <button class="layui-btn layui-btn-sm"><i class="layui-icon"></i></button>
+                    <button class="layui-btn layui-btn-sm"><i class="layui-icon"></i></button>
+
+                </div>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+    <div id="demo0"></div>
+</div>
+
+
+
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layedit', 'laydate','laypage'], function() {
+            var form = layui.form,
+                    laypage = layui.laypage,
+                    layer = layui.layer;
+
+            //总页数低于页码总数
+            laypage.render({
+                elem: 'demo0'
+                ,count: "{{.page}}" //数据总数
+                ,jump:function (obj) {
+
+                    layer.load();
+                    var page = obj.curr;
+
+                    var limit = obj.pages;
+
+                    $.ajax({
+                       url:'/admin/article/listinfo?page='+page+'&size='+limit,
+                       type:'get',
+                       dataType:'json',
+                       success:function (response) {
+                           $('tbody').html('');
+                            if(response.code == "0"){
+
+                                $.each(response.data,function (index,val) {
+                                    if(val.is_top == "1"){
+
+                                        val.is_top = "<i class=\"layui-icon layui-icon-ok\">&#xe605;</i>";
+                                    }else{
+                                        val.is_top = "<i class=\"layui-icon layui-icon-close\">&#x1006;</i>";
+                                    }
+
+                                    if(val.is_copy == "1"){
+
+                                        val.is_copy = "<i class=\"layui-icon layui-icon-ok\">&#xe605;</i>";
+                                    }else{
+                                        val.is_copy = "<i class=\"layui-icon layui-icon-close\">&#x1006;</i>";
+                                    }
+
+                                    if(val.status == "1"){
+
+                                        val.status = "<i class=\"layui-icon layui-icon-ok\">&#xe605;</i>";
+                                    }else{
+                                        val.status = "<i class=\"layui-icon layui-icon-close\">&#x1006;</i>";
+                                    }
+
+                                    $('tbody').append('<tr>\n' +
+                                            '            <td>'+val.id+'</td>\n' +
+                                            '            <td>'+val.level.Menu_name+'</td>\n' +
+                                            '            <td><a href="#">'+val.title+'<a></td>\n' +
+                                            '            <td>'+val.author+'</td>\n' +
+                                            '            <td>'+val.tages.Mnames+'</td>\n' +
+                                            '            <td>'+val.is_copy+'</td>\n' +
+                                            '            <td>'+val.status+'</td>\n' +
+                                            '            <td>'+val.is_top+'</td>\n' +
+                                            '            <td>'+val.click+'</td>\n' +
+                                            '            <td>'+val.read+'</td>\n' +
+                                            '            <td>'+val.time+'</td>\n' +
+                                            '            <td>\n' +
+                                            '                <div class="layui-btn-group">\n' +
+                                            '                    <button class="layui-btn layui-btn-sm edit-user" title="编辑"  data-id="'+val.id+'"><i class="layui-icon"></i></button>\n' +
+                                            '                    <button class="layui-btn layui-btn-sm del-user" title="删除"  data-id="'+val.id+'"><i class="layui-icon"></i></button>\n' +
+                                            '\n' +
+                                            '                </div>\n' +
+                                            '            </td>\n' +
+                                            '        </tr>');
+                                });
+                            }
+                           layer.closeAll('loading');
+                       },
+                       error:function (err) {
+
+                           console.log(err);
+
+                       }
+                    });
+
+                }
+            });
+
+            $('#addUser').click(function () {
+                //弹出新增窗口
+                layer.open({
+                    type: 2,
+                    title: '新增文章',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/article/add'
+                });
+
+            });
+
+            //删除本条数据
+            $('.del-user').live("click",function () {
+
+                var id =   $(this).attr("data-id");
+                //询问框
+                layer.confirm('确定删除此篇文章？', {
+                    btn: ['确定','取消'] //按钮
+                ,skin: 'layui-layer-molv' },
+                        function(){
+                            layer.load();
+                            $.ajax({
+                               url:"/admin/article/delete?id="+id,
+                               type:"get",
+                               dataType:"json",
+                               success:function (response) {
+
+                                   if(response.code == "0"){
+                                       layer.msg('删除成功', {icon: 1});
+                                       location.reload();
+                                   }else{
+                                       layer.msg(response.errmsg);
+                                   }
+                               },
+                               error:function (err) {
+
+                                   console.log(err)
+                               }
+                            });
+
+
+                    layer.closeAll("loading")
+
+                }, function(){
+
+            });
+
+            });
+
+            /**
+             *  处理编辑用户的js
+             */
+            $('.edit-user').live("click",function () {
+                var id = $(this).attr("data-id");
+
+                if(id == ''){
+
+                    layer.msg("非法请求，参数丢失");
+
+                    return false;
+                }
+                //弹出新增窗口
+                layer.open({
+                    type: 2,
+                    title: '文章详情',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/article/edit?id='+id
+                });
+
+            });
+
+
+        });
+
+
+    </script>
+</body>
+
+</html>

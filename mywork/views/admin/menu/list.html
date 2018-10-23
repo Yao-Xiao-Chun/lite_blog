@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>菜单</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>菜单列表</legend>
+</fieldset>
+
+
+
+<oktoolbar>
+    {{/*<button class="layui-btn layui-btn-normal" id="batchEnabled">
+        <i class="iconfont icon-shangsheng"></i>批量启用
+    </button>
+    <button class="layui-btn layui-btn-warm" id="batchDisabled">
+        <i class="iconfont icon-web-icon-"></i>批量停用
+    </button>
+    <button class="layui-btn layui-btn-danger" id="batchDel">
+        <i class="layui-icon layui-icon-delete"></i>批量删除
+    </button>*/}}
+    <button class="layui-btn" id="addUser">
+        <i class="layui-icon"></i>添加菜单
+    </button>
+
+</oktoolbar>
+
+
+
+<div class="layui-form" style="min-height: 200px;margin: 10px;">
+    <table class="layui-table" >
+        <colgroup>
+            <col width="150">
+            <col width="200">
+            <col width="200">
+
+            <col width="200">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>名称</th>
+            <th>状态</th>
+            <th>排序</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{range $key,$val := .list}}
+        <tr>
+            <td>{{$val.id}}</td>
+            <td>{{str2html $val.name}}</td>
+
+            <td>{{$val.status}}</td>
+            <td>{{$val.sort}}</td>
+            <td>
+                <div class="layui-btn-group">
+                    <button class="layui-btn layui-btn-sm addmenus" title="新增子类" data-id="{{$val.id}}"><i class="layui-icon"></i></button>
+                    <button class="layui-btn layui-btn-sm edit-user" title="编辑" data-id="{{$val.id}}"><i class="layui-icon"></i></button>
+                    <button class="layui-btn layui-btn-sm del-user" title="删除" data-id="{{$val.id}}"><i class="layui-icon"></i></button>
+
+                </div>
+            </td>
+        </tr>
+        {{end}}
+
+        </tbody>
+    </table>
+    <div id="demo0"></div>
+</div>
+
+
+
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layedit', 'laydate','laypage'], function() {
+            var form = layui.form,
+                    laypage = layui.laypage,
+                    layer = layui.layer;
+
+
+
+            $('#addUser').click(function () {
+                //弹出新增窗口
+                layer.open({
+                    type: 2,
+                    title: '创建菜单',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/menu/add'
+                });
+
+            });
+
+            $('.addmenus').click(function () {
+                //弹出新增窗口
+                var id = $(this).attr('data-id');
+                layer.open({
+                    type: 2,
+                    title: '创建菜单',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/menu/add?id='+id
+                });
+
+            });
+            //删除本条数据
+            $('.del-user').live("click",function () {
+
+                var id =   $(this).attr("data-id");
+                //询问框
+                layer.confirm('确定删除该标签？', {
+                    btn: ['确定','取消'] //按钮
+                ,skin: 'layui-layer-molv' },
+                        function(){
+                            layer.load();
+                            $.ajax({
+                               url:"/admin/menu/del?id="+id,
+                               type:"get",
+                               dataType:"json",
+                               success:function (response) {
+
+                                   if(response.code == "0"){
+                                       layer.msg('删除成功', {icon: 1});
+                                       //刷新当前页面
+                                       location.reload();
+                                   }else{
+                                       layer.msg(response.errmsg);
+                                   }
+                               },
+                               error:function (err) {
+
+                                   console.log(err)
+                               }
+                            });
+
+
+                    layer.closeAll("loading")
+
+                }, function(){
+
+            });
+
+            });
+
+            /**
+             *  处理编辑用户的js
+             */
+            $('.edit-user').live("click",function () {
+
+                var id = $(this).attr("data-id");
+
+                if(id == ''){
+
+                    layer.msg("非法请求，参数丢失");
+
+                    return false;
+                }
+                //弹出新增窗口
+                layer.open({
+                    type: 2,
+                    title: '单独标签',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/menu/edit?id='+id
+                });
+
+            });
+
+
+        });
+
+
+    </script>
+</body>
+
+</html>

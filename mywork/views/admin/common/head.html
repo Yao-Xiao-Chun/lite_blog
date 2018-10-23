@@ -1,0 +1,29 @@
+<div class="layui-header">
+    <div class="layui-logo">Golang-轻博客后台</div>
+    <div class="layui-logo kit-logo-mobile">K</div>
+    <ul class="layui-nav layui-layout-left kit-nav">
+        <li class="layui-nav-item"><a href="javascript:;" >文章管理</a></li>
+        <li class="layui-nav-item"><a href="/" target="_blank">前台首页</a></li>
+        <li class="layui-nav-item"><a href="javascript:;" id="pay"><i class="fa fa-gratipay" aria-hidden="true"></i> 测试图标</a></li>
+        <li class="layui-nav-item">
+            <a href="javascript:;">其它系统</a>
+            <dl class="layui-nav-child">
+                <dd><a href="javascript:;">邮件管理</a></dd>
+                <dd><a href="javascript:;">消息管理</a></dd>
+                <dd><a href="javascript:;">授权管理</a></dd>
+            </dl>
+        </li>
+    </ul>
+    <ul class="layui-nav layui-layout-right kit-nav">
+        <li class="layui-nav-item">
+            <a href="javascript:;">
+                <img src="/static/images/info-img.png" class="layui-nav-img">{{ .AdminUsers.Nikename}}
+            </a>
+            <dl class="layui-nav-child">
+                <dd><a href="javascript:;" id="Lay_message">基本资料</a></dd>
+                <dd><a href="javascript:;">安全设置</a></dd>
+            </dl>
+        </li>
+        <li class="layui-nav-item"><a href="/admin/loginout"><i class="fa fa-sign-out" aria-hidden="true"></i> 注销</a></li>
+    </ul>
+</div>

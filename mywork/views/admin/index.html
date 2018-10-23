@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Golang-轻博客后台</title>
+   {{template "admin/common/common.html"}}
+</head>
+
+<body>
+    <div class="layui-layout layui-layout-admin kit-layout-admin">
+
+        {{template "admin/common/head.html" .}}
+
+        {{template "admin/common/menu.html" .}}
+        <div class="layui-body" id="container">
+            <!-- 内容主体区域 -->
+            <div style="padding: 15px;">主体内容加载中,请稍等...</div>
+        </div>
+
+        <div class="layui-footer">
+            <!-- 底部固定区域 -->
+            2018 &copy;
+            <a href="#">轻博客-管理后台</a> MIT license
+
+        </div>
+    </div>
+   {{template "admin/common/foot.html"}}
+</body>
+
+</html>

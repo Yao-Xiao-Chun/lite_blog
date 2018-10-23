@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>修改时间线</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>修改时间线</legend>
+</fieldset>
+
+<form class="layui-form">
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">标题</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input" value="{{.lines.title}}">
+        </div>
+    </div>
+    <input type="hidden" name="id" value="{{.lines.id}}">
+    <input type="hidden" name="token" value="{{.lines.token}}">
+    <div class="layui-inline layui-form-item">
+        <label class="layui-form-label">选择时间</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" id="date" placeholder="请选择当前时间" type="text">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">启用状态</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用" value="" {{if eq .lines.status "1"}} checked {{end}} >
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">编辑器</label>
+        <div class="layui-input-block " id="editor" style="width: 50%;">
+
+        </div>
+    </div>
+</form>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function() {
+        var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        var status = "{{.lines.status}}";
+        form.on('switch', function(data){
+
+            if (data.elem.checked){
+
+                status = '1';
+            }else{
+
+                status = '0';
+            }
+
+        });
+
+        /* //创建一个编辑器
+         var editIndex = layedit.build('LAY_demo_editor');*/
+
+        //自定义验证规则
+        form.verify({
+            title: function(value) {
+                if (value.length < 5) {
+                    return '标题不能为空';
+                }
+            },
+
+        });
+        var E = window.wangEditor
+        var editor = new E('#editor')
+
+
+        editor.customConfig.pasteFilterStyle = true; //关闭粘贴样式过滤
+        editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+        // 或者 var editor = new E( document.getElementById('editor') )
+        editor.create()
+        editor.txt.html('<p>{{.lines.content}}</p>')
+        //监听提交
+        form.on('submit(demo1)', function(data) {
+            //获取文本编辑器里面的内容
+            data.field.content =editor.txt.html();
+            data.field.title = $('input[name="title"]').val();
+            var id = $('input[name="id"]').val();
+            var strs = {'title':data.field.title,"content":data.field.content,"status":status,"id":id};
+            $.ajax({
+                url:'/admin/formtime/{{.lines.token}}',
+                data:strs,
+               // data:'title='+data.field.title+'&content='+data.field.content+'&status='+status+'&id='+id,
+                type:'post',
+                dataType:'json',
+                success:function (response) {
+
+                   if(response.code == '0'){
+
+                       layer.msg(response.msg);
+                       window.location.reload()
+
+                   }else{
+
+                       layer.msg(response.msg);
+                   }
+
+
+                },
+                error:function (error) {
+
+                    console.log(error);
+                }
+            });
+
+
+
+        });
+
+
+
+
+    });
+
+
+</script>
+
+</body>
+
+</html>

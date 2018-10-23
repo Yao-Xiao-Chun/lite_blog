@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>留言-闲言轻博客</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    {{template "common/comm.html"}}
+</head>
+<body class="lay-blog">
+        {{template "common/head.html" .}}
+		<div class="container-wrap">
+			<div class="container container-message">
+				<div class="contar-wrap" id="contar-wrap">
+					<form class="layui-form" action="">
+						{{ .xsrfdata }}
+                        <div class="layui-form-item layui-form-text">
+							  <textarea  class="layui-textarea" id="LAY-msg-content" placeholder="评论字数不超过300字" style="resize:none" name="review"></textarea>
+						</div>
+					</form>
+					<div class="item-btn">
+                        <input type=hidden name=captchaId value="{{.CaptchaId}}">
+                        <img id=image src="/captcha/{{.CaptchaId}}.png"  onclick="reload()" alt="Captcha image" style="float: left;cursor: pointer;">
+						<input type="text" name="ver_code" lay-verfiy="required" value="" class="layui-input" style="width: 120px;height: 38px;float: left;margin-left: 10px;" />
+						<button class="layui-btn layui-btn-normal" id="review-form">提交</button>
+					</div>
+					
+					<div id="LAY-msg-box">
+						<div class="info-box">
+                           {{/* {{range $key,$v := .viewList}}
+
+							<div class="info-item">
+								<img class="info-img" src="/static/static/images/info-img.png" alt="">
+								<div class="info-text">
+									<p class="title count">
+										<span class="name">{{$v.Address}}</span>
+										<span class="info-img like"><i class="layui-icon layui-icon-praise"></i>{{$v.Click}}</span>
+									</p>
+									<p class="info-intr">{{$v.Message}}</p>
+								</div>
+							</div>
+                                    {{end}}*/}}
+						</div>
+					</div>
+
+					<div id="review" class="paging"></div>
+				</div>
+			</div>
+		</div>
+        <script type="text/javascript">
+            function setSrcQuery(e, q) {
+                var src  = e.src;
+                var p = src.indexOf('?');
+                if (p >= 0) {
+                    src = src.substr(0, p);
+                }
+                e.src = src + "?" + q
+            }
+
+            function reload() {
+                setSrcQuery(document.getElementById('image'), "reload=" + (new Date()).getTime());
+                return false;
+            }
+
+
+
+
+
+        </script>
+		{{template "common/footer.html" .}}
+		<script type="text/javascript">
+            $('#review-form').click(function () {
+
+                var _xsrf = $('input[name="_xsrf"]').val();
+
+                var text = $('textarea[name="review"]').val();
+
+                var captchaId = $('input[name="captchaId"]').val();
+
+                var ver_code = $('input[name="ver_code"]').val();
+
+                var strs = {"_xsrf":_xsrf,"text":text,"captchaId":captchaId,"ver_code":ver_code,"token":"{{.Uuid}}"};
+				console.log(strs)
+                if(_xsrf != '' && text != '' && captchaId != '' && ver_code != ''){
+                    $.ajax(
+                        {
+							url:'/message/review',
+                        	data:strs,
+							type:'post',
+							dataType:'json',
+							success:function (response) {
+								if(response.code == "0" ){
+								    layer.msg('留言成功',{time: 3000, icon:6,},function () {
+                                        location.reload();
+                                    });
+								    location.reload();
+								}else{
+								    layer.msg(response.errmsg,{time: 3000, icon:6,},function () {
+                                        location.reload();
+                                    });
+
+
+								}
+                            },
+							error:function (err) {
+
+                            }
+                        });
+
+				}else{
+                    layer.msg('留言内容或验证码没有输入');
+                    return false;
+				}
+
+
+            });
+		</script>
+
+        </div>
+
+
+
+
+</body>

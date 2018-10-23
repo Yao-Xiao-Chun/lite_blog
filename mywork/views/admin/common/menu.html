@@ -1,0 +1,88 @@
+{{/*左边菜单列*/}}
+<div class="layui-side layui-bg-black kit-side">
+    <div class="layui-side-scroll">
+        <div class="kit-side-fold"><i class="fa fa-navicon" aria-hidden="true"></i></div>
+        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+        <ul class="layui-nav layui-nav-tree" lay-filter="kitNavbar" kit-navbar>
+            <li class="layui-nav-item">
+                <a class="" href="javascript:;"><i class="fa fa-plug" aria-hidden="true"></i><span> 菜单管理</span></a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'/admin/menu',icon:'&#xe6c6;',title:'菜单列表',id:'1'}">
+                            <i class="layui-icon">&#xe6c6;</i>
+                            <span> 菜单列表</span>
+                        </a>
+                    </dd>
+
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'https://www.baidu.com',icon:'&#xe658;',title:'百度一下',id:'5'}"><i class="layui-icon">&#xe658;</i><span> 百度一下</span></a>
+                    </dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item layui-nav-itemed">
+                <a href="javascript:;">
+                    <i class="fa fa-plug" aria-hidden="true"></i><span> 文章管理</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'/admin/addtime',icon:'&#xe658;',title:'时间线',id:'6'}">
+                            <i class="layui-icon">&#xe658;</i>
+                            <span> 新增时间线</span>
+                        </a>
+                    </dd>
+                    <dd><a href="javascript:;" kit-target data-options="{url:'/admin/article/list',icon:'&#xe658;',title:'文章列表',id:'7'}"><i class="layui-icon">&#xe658;</i><span> 文章列表</span></a></dd>
+
+                </dl>
+            </li>
+            <li class="layui-nav-item ">
+                <a href="javascript:;">
+                    <i class="fa fa-plug" aria-hidden="true"></i><span> 用户管理</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'/admin/user',icon:'&#xe658;',title:'用户列表',id:'11'}">
+                            <i class="layui-icon">&#xe658;</i>
+                            <span> 用户列表</span>
+                        </a>
+                    </dd>
+
+
+                </dl>
+            </li>
+            <li class="layui-nav-item ">
+                <a href="javascript:;">
+                    <i class="fa fa-plug" aria-hidden="true"></i><span> 标签管理</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'/admin/tag',icon:'&#xe658;',title:'标签列表',id:'101'}">
+                            <i class="layui-icon">&#xe658;</i>
+                            <span> 标签列表</span>
+                        </a>
+                    </dd>
+
+
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <i class="fa fa-plug" aria-hidden="false"></i><span> 留言</span>
+                </a>
+                <dl class="layui-nav-child">
+                    <dd>
+                        <a href="javascript:;" kit-target data-options="{url:'/admin/review',icon:'&#xe658;',title:'留言管理',id:'103'}">
+                            <i class="layui-icon">&#xe658;</i>
+                            <span> 留言管理</span>
+                        </a>
+                    </dd>
+
+
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:;" data-url="/views/form.html" data-name="form" kit-loader><i class="fa fa-plug" aria-hidden="true"></i><span> 表单(page)</span></a>
+            </li>
+        </ul>
+    </div>
+</div>
+        {{/*伏见老贼丧天良，我与黑猫共存亡*/}}

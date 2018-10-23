@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户列表</title>
+
+    {{template "admin/common/common.html"}}
+
+</head>
+
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>编辑用户</legend>
+</fieldset>
+
+<form class="layui-form">
+    <input type="hidden" name="id" value="{{.userinfo.id}}">
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">用户昵称</label>
+        <div class="layui-input-block">
+
+            <input type="text" name="title" value="{{.userinfo.title}}"  lay-verify="title" autocomplete="off" placeholder="请输入昵称" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">账户：</label>
+        <div class="layui-input-block">
+            <input type="text" name="account" value="{{.userinfo.account}}" readonly="readonly"  required  lay-verify="account" autocomplete="off" placeholder="请输入账户" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">密码：</label>
+        <div class="layui-input-block">
+            <input type="password" name="password" value="{{.userinfo.password}}" required lay-verify="" autocomplete="off" placeholder="请输入密码" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-block">
+            <input type="text" name="email" value="{{.userinfo.email}}" lay-verify="email" autocomplete="off" placeholder="邮箱" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-inline layui-form-item">
+        <label class="layui-form-label">选择时间</label>
+        <div class="layui-input-inline">
+            <input class="layui-input" name="create_at" id="date" placeholder="请选择当前时间" type="text">
+        </div>
+    </div>
+
+    <div class="layui-form-item" style="width: 50%;">
+        <label class="layui-form-label">设置头像</label>
+
+        <div class="layui-upload">
+            <button type="button" class="layui-btn" id="test1">上传图片</button>
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" id="demo2" {{if .userinfo.head_img}}src="/{{.userinfo.head_img}}"{{end}} style="width: 150px;height: 80px;margin-left: 100px;">
+                <p id="demoText"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">启用状态</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用" value="1" {{if eq .userinfo.status 1}} checked {{end}}>
+        </div>
+    </div>
+    <input type="hidden" name="title_img" value="{{.userinfo.head_img}}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">后台登录</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="is_admin" lay-skin="switch" lay-text="是|否" value="1"  {{if eq .userinfo.is_admin 1}} checked {{end}}>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1" id="demo1">保存修改</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate','upload'], function() {
+        var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                upload = layui.upload,
+                laydate = layui.laydate;
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/admin/upload/article'
+            ,multiple: true,
+            before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    console.log(result)
+                    $('#demo2').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+
+                //上传成功
+                $('input[name="title_img"]').val(res.path);//上传前情况上一次的数据
+
+                return layer.msg('上传成功');
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+
+        //自定义验证规则
+        form.verify({
+            title: function(value) {
+                if (value.length < 5) {
+                    return '标题至少得5个字符啊';
+                }
+            },
+            password: [/(.+){6,12}$/, '密码必须6到12位'],
+
+        });
+
+        var status = '0';
+
+        form.on('switch', function(data){
+            console.log(data)
+            if (data.elem.checked){
+
+                status = '1';
+            }else{
+
+                status = '0';
+            }
+
+        });
+
+
+        //监听提交
+        form.on('submit(demo1)', function(data) {
+            var json = JSON.stringify(data.field);
+            $.ajax({
+                url:'/admin/user/update',
+                data:'data='+json,
+                type:'post',
+                dataType:'json',
+                success:function (response) {
+
+                    console.log(response);
+
+                    if(response.code > 0){
+                        layer.msg(response.errmsg);
+                    }else{
+
+                        layer.msg(response.errmsg);
+                    }
+
+
+                },
+                error:function (error) {
+
+                    console.log(error);
+                }
+            });
+
+            return false;
+            console.log(data.field);
+
+
+
+
+
+
+        });
+
+
+
+
+
+
+    });
+
+
+</script>
+
+</body>
+
+</html>

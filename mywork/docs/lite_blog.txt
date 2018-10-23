@@ -1,0 +1,38 @@
+
+ lite_blog博客数据表
+
+ 文章表 (lite_article)
+
+ id int not null 主键，自增
+
+ created_at
+
+ updated_at
+
+ deleted_at
+
+ title  varchar 255 not null 文章标题
+
+ tag varchar 255 null 文章标签
+
+ pid int not null default：0 所属分类
+
+ img varchar 255 null 展示图片，文章预览页
+
+ content text null 文章内容
+
+ comment int null 普通索引 评论id 关联 lite_comment.aid
+
+ priority int not null default:0 排序
+
+ top int null 置顶
+
+ create_name varchar 255 not null 创建者名称
+
+ uid int not null 当前用户
+
+ status int not null default:1 文章启用状态
+
+ num int not null default:0 点赞数
+
+ read_num int not null default:0 阅读量

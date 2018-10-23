@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>标签</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>标签详情</legend>
+</fieldset>
+
+<form class="layui-form">
+    <div class="layui-form-item"  style="width: 50%;">
+        <label class="layui-form-label">标签名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="tag_name"  lay-verify="requird" autocomplete="off" placeholder="标签名称" value="{{.tag.tag_name}}" class="layui-input">
+        </div>
+    </div>
+
+    <input type="hidden" name="tid" value="{{.tag.tid}}">
+    <div class="layui-form-item">
+        <label class="layui-form-label">启用状态</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="status" lay-skin="switch" lay-text="启用|禁用" value="1"   {{if eq .tag.status 1}} checked {{end}}>
+        </div>
+    </div>
+
+
+</form>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate'], function() {
+        var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        var status = {{.tag.status}};
+        form.on('switch', function(data){
+
+            if (data.elem.checked){
+
+                status = '1';
+            }else{
+
+                status = '0';
+            }
+
+        });
+
+
+
+        //自定义验证规则
+        form.verify({
+            tag_name: function(value) {
+                if (value.length < 1) {
+                    return '标签不能为空';
+                }
+            },
+
+        });
+
+
+        //监听提交
+        form.on('submit(demo1)', function(data) {
+            //获取文本编辑器里面的内容
+            var tag = $('input[name="tag_name"]').val();
+            var tid = $('input[name="tid"]').val();
+            console.log(status);
+            $.ajax({
+                url:'/admin/tag/update',
+                data:'tag_name='+tag+'&status='+status+'&tid='+tid,
+                type:'post',
+                dataType:'json',
+                success:function (response) {
+
+                   if(response.code == '0'){
+
+                       layer.msg('更新成功');
+
+                      location.reload();
+
+                   }else{
+
+                       layer.msg(response.msg);
+                   }
+
+
+                },
+                error:function (error) {
+
+                    console.log(error);
+                }
+            });
+
+
+
+        });
+
+
+
+
+    });
+
+
+</script>
+
+</body>
+
+</html>

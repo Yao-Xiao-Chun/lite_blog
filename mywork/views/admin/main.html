@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试页</title>
+    {{template "admin/common/common.html"}}
+    <style>
+        .info-box {
+            height: 85px;
+            background-color: white;
+            background-color: #ecf0f5;
+        }
+        
+        .info-box .info-box-icon {
+            border-top-left-radius: 2px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 2px;
+            display: block;
+            float: left;
+            height: 85px;
+            width: 85px;
+            text-align: center;
+            font-size: 45px;
+            line-height: 85px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-box .info-box-content {
+            padding: 5px 10px;
+            margin-left: 85px;
+        }
+        
+        .info-box .info-box-content .info-box-text {
+            display: block;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+        }
+        
+        .info-box .info-box-content .info-box-number {
+            display: block;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .major {
+            font-weight:bold;
+            color: #01AAED;
+        }
+        
+        .main {
+            margin-top: 25px;
+        }
+        
+        .main .layui-row {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layui-fluid main">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md3">
+                <div class="info-box">
+                    <span class="info-box-icon" style="background-color:#00c0ef !important;color:white;"><i class="fa fa-ambulance" aria-hidden="true"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">CPU Traffic</span>
+                        <span class="info-box-number">90%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="info-box">
+                    <span class="info-box-icon" style="background-color:#dd4b39 !important;color:white;"><i class="fa fa-google-plus" aria-hidden="true"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Likes</span>
+                        <span class="info-box-number">25,412</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="info-box">
+                    <span class="info-box-icon" style="background-color:#00a65a !important;color:white;"><i class="fa fa-shopping-bag" aria-hidden="true"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Sales</span>
+                        <span class="info-box-number">654</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md3">
+                <div class="info-box">
+                    <span class="info-box-icon" style="background-color:#f39c12 !important;color:white;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">New Members</span>
+                        <span class="info-box-number">{{ .AdminUsers.Nikename}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <ul class="layui-timeline">
+                    {{range $key,$val := .line}}
+                        <li class="layui-timeline-item" id="layui-{{$val.id}}">
+                        <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">{{$val.code}}</h3>
+                            <ul>
+                                <li>删除本条数据:
+                                    <a target="" href="javascript:void(0);" class="tag" data-id="{{$val.id}}" data-token="{{$val.token}}">
+                                        <i class="layui-icon layui-icon-delete" style="font-size: 30px;">&#xe640;</i>
+
+                                    </a>
+                                </li>
+                                <li>修改:
+                                    <a target="" href="/admin/timeinfo?id={{$val.id}}&token={{$val.token}}" class="edit-tag" data-id="{{$val.id}}" data-token="{{$val.token}}">
+                                        <i class="layui-icon layui-icon-edit" style="font-size: 30px;">&#xe642;</i>
+
+                                    </a>
+                                </li>
+                            </ul>
+                            {{str2html $val.content}}
+                        </div>
+                    </li>
+
+                    {{end}}
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layedit', 'laydate'], function() {
+            var form = layui.form,
+                    layer = layui.layer;
+
+            //删除事件
+            $('.tag').click(function () {
+
+                var self = this;
+
+                var tid = $(self).attr('data-id');
+
+                var token = $(self).attr('data-token');
+
+                if(tid == '' || token == ''){
+
+                    layer.msg("非法请求，参数不完整！");
+
+                    return false;
+                }
+
+                $.ajax({
+                    url:'/admin/deltime/id='+tid+'&token='+token,
+                    data:'id='+tid+'&token='+token,
+                    type:'Get',
+                    dataType:'json',
+                    success:function (response) {
+                        if(response.code != '0'){
+
+                            layer.msg(response.msg)
+                        }else{
+
+                           $('#layui-'+tid).remove();
+
+                            layer.msg(response.msg)
+
+                        }
+
+                    },
+                    error:function (err) {
+
+                        console.log(err);
+
+                    }
+                });
+
+            });
+
+
+
+
+        });
+
+
+    </script>
+</body>
+
+</html>
