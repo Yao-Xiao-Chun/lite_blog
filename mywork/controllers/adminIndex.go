@@ -3,7 +3,6 @@ package controllers
 import (
 	"mywork/models"
 	"time"
-	"github.com/astaxie/beego/logs"
 )
 
 type AdminIndexController struct {
@@ -18,7 +17,7 @@ type AdminIndexController struct {
 
 // @router /admin [get] 后台首页
 func (this *AdminIndexController)AdminIndex(){
-	
+	this.SetLogs("我被请求到了，看看日志是否存在呢！")
 	this.TplName = "admin/index.html"
 }
 
@@ -134,7 +133,6 @@ func (this *AdminIndexController) GetUserMessage(){
 
  	//获取今天的时间
  	timeStr := time.Now().Format("2006-01-02 00:00:00")
- 	logs.Info(timeStr)
 
  	count,_:= models.GetWhereReviewCount(timeStr)
 

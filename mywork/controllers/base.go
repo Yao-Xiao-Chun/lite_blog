@@ -160,3 +160,17 @@ func JsonFormat(retcode int, retmsg string, retdata interface{}, stime time.Time
 	 	return ipStr
 	 }
  }
+
+
+ /**
+ 	设置日志
+  */
+  func (this *BaseController) SetLogs(str interface{}){
+
+	  beego.Debug(str)
+
+	  beego.SetLogger("file", `{"filename":"logs/test.log"}`)
+	  beego.BeeLogger.DelLogger("console")
+	  beego.SetLevel(beego.LevelInformational)
+	  beego.SetLogFuncCall(true)
+  }
