@@ -152,7 +152,17 @@ type LiteArticle struct {
 	   	点击次数加+1
 	    */
 	    func SetArticleAndClick(id int){
+
 			var article = LiteArticle{}
 
 			db.Model(&article).Where("id = ? and status = ?",id,1).Update("click",gorm.Expr("click + 1"))
 		}
+
+		/**
+			关键词查询出现的数据
+		 */
+		 func GetArticleKeywords(keyword string) (article []LiteArticle,err error){
+
+			 return article,db.Where("status = ? and title LIKE ?",1,`%`+keyword+`%`).Or("status = ? and keywords LIKE ?",1,`%`+keyword+`%`).Or("status = ? and descript LIKE ?",1,`%`+keyword+`%`).Or("status = ? and author LIKE ?",1,`%`+keyword+`%`).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+
+		 }

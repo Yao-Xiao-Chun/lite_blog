@@ -17,10 +17,19 @@ type IndexController struct {
 
 //使用注解路由
 
-// @router / [get] 首页
+// @router /?:key [get] 首页
 func (this *IndexController) Index() {
 
-	this.getHomeArticle()
+	var keywords string
+
+	this.Ctx.Input.Bind(&keywords,"keyword")
+
+	if keywords == ""{
+		this.getHomeArticle() //查询数据
+	}else{
+		this.getKeyword(keywords)
+	}
+
 	//设置模板路径
 	this.TplName = "home/index.html"
 }
@@ -490,4 +499,45 @@ func (this *IndexController) ArticleClick(){
 func (this *IndexController) CommitArticle(){
 
 	this.Redirect("/",302)
+}
+
+
+/**
+	前台首页搜索框查询内容
+ */
+func (this *IndexController) getKeyword(key string){
+
+	result,_ := models.GetArticleKeywords(key)
+
+	var data map[int]map[string]interface{}
+
+	var arrData map[string]interface{}
+
+	data = make(map[int]map[string]interface{})
+
+	for key,val := range result{
+
+		arrData = make(map[string]interface{},12)
+		arrData["created_time"] = val.CreatedAt.Format("2006-01-02 15:04:05")//创建时间
+		arrData["id"] = val.ID
+		arrData["tags"] = models.GetAidAndTagName(val.ID)
+		arrData["is_top"] = val.Is_top
+		arrData["is_copy"] = val.Priority
+		arrData["status"] = val.Status
+		arrData["author"] = val.Author
+		arrData["click"] = val.Click
+		arrData["read"] = val.Read_num
+		arrData["title"] = val.Title
+		arrData["descript"] = val.Descript
+		if val.Title_img != "undefind"{
+			arrData["img"] = val.Title_img
+		}
+
+		data[key] = arrData
+	}
+
+
+	this.Data["article"] = data
+	this.Data["Keywords"] = key
+
 }
