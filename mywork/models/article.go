@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 	"strconv"
+	"github.com/astaxie/beego/logs"
 )
 
 /**
@@ -95,25 +96,25 @@ type LiteArticle struct {
 	 /**
 	 	前台获取
 	  */
-	  func GetHomeArticle()(article []LiteArticle,err error){
+	  func GetHomeArticle()(article []LiteArticle,num int,err error){
 
-	  	return article,db.Where("status = ?",1).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+	  	return article,num,db.Where("status = ?",1).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&num).Error
 
 	  }
 	  /**
 	  	前台获取分页 10
-	  	@param id 文章id fid 所属分类
+	  	@param id 文章id fid 所属分类 page 分页条数
 	  	@return
 	   */
-	func GetHomeAndPageArticle(id int,category int) (article []LiteArticle,err error) {
-
+	func GetHomeAndPageArticle(id int,category int,page int) (article []LiteArticle,count int,err error) {
+		logs.Info(id,category,page)
 		if category != 0{
 
-			return article,db.Where("status = ? and id < ? and fid_level = ?",1,id,category).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+			return article,count,db.Where("status = ? and fid_level = ?",1,category).Offset((page - 1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&count).Error
 
 		}else{
 
-			return article,db.Where("status = ? and id < ?",1,id).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+			return article,count,db.Where("status = ?",1).Offset((page -1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&count).Error
 
 		}
 
@@ -131,9 +132,9 @@ type LiteArticle struct {
 	 /**
 	 	根据菜单查询文章
 	  */
-	  func GetMenuAndArticle(mid int)(article []LiteArticle,err error){
+	  func GetMenuAndArticle(mid int,page int)(article []LiteArticle,count int,err error){
 
-		  return article,db.Where("status = ? and fid_level = ?",1,mid).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+		  return article,count,db.Where("status = ? and fid_level = ?",1,mid).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&count).Error
 
 	  }
 

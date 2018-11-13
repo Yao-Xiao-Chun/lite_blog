@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>关于本站</title>
+
+    {{template "admin/common/common.html"}}
+
+</head>
+
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>本站详情</legend>
+</fieldset>
+
+<form class="layui-form">
+
+
+
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">关于本站：</label>
+        <div class="layui-input-block " id="editor" style="">
+
+        </div>
+    </div>
+
+
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+
+</form>
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<script type="text/javascript" src="/static/release/wangEditor.min.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate','upload'], function() {
+        var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                upload = layui.upload,
+                laydate = layui.laydate;
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/admin/upload/article'
+            ,multiple: true,
+            before: function(obj){
+                //预读本地文件示例，不支持ie8
+                obj.preview(function(index, file, result){
+                    $('#demo1').attr('src', result); //图片链接（base64）
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                $('#demoText').append('<input type="hidden" name="title_img" value="'+res.path+'">');
+                return layer.msg('上传成功');
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        /*编辑器相关代码*/
+        var E = window.wangEditor
+        var editor = new E('#editor')
+
+        editor.customConfig.debug = location.href.indexOf('wangeditor_debug_mode=1') > 0;
+
+        editor.customConfig.uploadFileName = 'articleName';
+        editor.customConfig.pasteFilterStyle = false; //关闭粘贴样式过滤
+        //editor.customConfig.uploadImgShowBase64 = true;   // 使用 base64 保存图片
+        editor.customConfig.uploadImgServer = '/admin/upload';
+
+        // 或者 var editor = new E( document.getElementById('editor') )
+        editor.create()
+        editor.txt.html(' {{.abort.Content}}')
+
+        var status = '0';
+        form.on('switch', function(data){
+
+            if (data.elem.checked){
+
+                status = '1';
+            }else{
+
+                status = '0';
+            }
+
+        });
+
+
+        //自定义验证规则
+        form.verify({
+            title: function(value) {
+                if (value.length < 5) {
+                    return '标题不能为空';
+                }
+            },
+
+        });
+
+
+        //监听提交
+        form.on('submit(demo1)', function(data) {
+            //获取文本编辑器里面的内容
+            data.field.content =editor.txt.html();//文章
+            data.field.title = $('input[name="content_title"]').val();
+            data.field.content_tag = show();
+            var title_img = $('input[name="title_img"]').val();
+
+            var strs = {
+                'content':data.field.content,
+
+
+            };
+
+            $.ajax({
+                url:'/admin/baseseting',
+                //data:'title='+data.field.title+'&content='+data.field.content+'&status='+status+'&author='+data.field.content_auther+'&descript='+data.field.content_descript+'&keyword='+data.field.content_keyword+'&tag='+data.field.content_tag+'&file='+data.field.file+'&is_copy='+data.field.is_copy+'&is_top='+data.field.is_top+'&menu='+data.field.menu_level+'&title_img='+title_img,
+                data:strs,
+                type:'post',
+                dataType:'json',
+                success:function (response) {
+
+                   if(response.code == '0'){
+
+                       layer.msg('创建成功');
+
+                   }else{
+
+                       layer.msg(response.msg);
+                   }
+
+
+                },
+                error:function (error) {
+
+                    console.log(error);
+                }
+            });
+
+            return false;
+
+        });
+
+        /**
+         * 获取复选框选中的值
+         * @returns {Array}
+         */
+        function show(){
+            obj = document.getElementsByName("content_tag");
+            check_val = [];
+            for(k in obj){
+                if(obj[k].checked)
+                    check_val.push(obj[k].value);
+            }
+            return check_val;
+        }
+
+
+    });
+
+
+</script>
+
+</body>
+
+</html>

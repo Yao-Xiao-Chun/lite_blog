@@ -39,6 +39,7 @@ func (this *IndexController) Index() {
 // @router /about [get] 首页
 func (this *IndexController) IndexAbout() {
 
+	this.Data["Abort"],_ = models.GetAbort()
 	//设置模板路径
 	this.TplName = "home/about.html"
 }
@@ -185,10 +186,12 @@ func (this *IndexController) getTimeLine()  {
 func (this *IndexController)TypeArticle(){
 
 	var id int
-
+    var page int
 	this.Ctx.Input.Bind(&id,"id")
 
-	result,_ := models.GetMenuAndArticle(id)
+	this.Ctx.Input.Bind(&page,"page")
+
+	result,num,_ := models.GetMenuAndArticle(id,page)
 
 	if len(result) == 0{
 
@@ -225,6 +228,8 @@ func (this *IndexController)TypeArticle(){
 
 
 		this.Data["article"] = data
+
+		this.Data["articleNum"] = num
 	}
 
 	this.Data["is_category"] = id
@@ -240,7 +245,7 @@ func (this *IndexController)TypeArticle(){
  */
  func (this *IndexController) getHomeArticle(){
 
-	 result,_:= models.GetHomeArticle()
+	 result,num,_:= models.GetHomeArticle()
 
 	 var data map[int]map[string]interface{}
 
@@ -269,7 +274,7 @@ func (this *IndexController)TypeArticle(){
 	 	data[key] = arrData
 	 }
 
-
+	 this.Data["articleNum"] = num
 	 this.Data["article"] = data
  }
 
@@ -282,11 +287,12 @@ func (this *IndexController)TypeArticle(){
 // @router /article/?:key [get] 文章分页
 func (this *IndexController) GetHomePageArticle(){
 
-	var id,category int
+	var id,category,page int
 
 	this.Ctx.Input.Bind(&id,"id")
 
 	this.Ctx.Input.Bind(&category,"category")
+	this.Ctx.Input.Bind(&page,"page")
 
 	if id == 0{
 
@@ -296,7 +302,7 @@ func (this *IndexController) GetHomePageArticle(){
 		}
 	}else{
 
-		result,_ := models.GetHomeAndPageArticle(id,category)
+		result,_,_ := models.GetHomeAndPageArticle(id,category,page)
 
 		if len(result) == 0{
 			this.Data["json"] = map[string]interface{}{
@@ -539,5 +545,31 @@ func (this *IndexController) getKeyword(key string){
 
 	this.Data["article"] = data
 	this.Data["Keywords"] = key
+
+}
+
+/**
+	设置下载文件
+ */
+// @router /download/file/?:key [get] 下载文件
+func (this *IndexController) DownFile(){
+
+	//获取当前用户的ip地址
+
+	var fileFullPath string
+
+	this.Ctx.Input.Bind(&fileFullPath,"file")
+
+	if fileFullPath == ""{
+
+		this.Abort("404")
+	}
+
+	if fileFullPath != "log.txt"{
+
+		this.Abort("404")
+	}
+
+	this.Ctx.Output.Download("download/"+fileFullPath)
 
 }

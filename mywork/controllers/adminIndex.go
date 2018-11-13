@@ -3,6 +3,7 @@ package controllers
 import (
 	"mywork/models"
 	"time"
+	"github.com/astaxie/beego/logs"
 )
 
 type AdminIndexController struct {
@@ -139,3 +140,44 @@ func (this *AdminIndexController) GetUserMessage(){
  	this.Data["reviewCount"] = count
 
  }
+
+
+ /**
+ 	后台关于
+  */
+// @router /admin/baseseting [get] 后台 获取用户资料
+func (this *AdminIndexController) SetAbort(){
+
+
+	this.Data["abort"],_ = models.GetAbort()
+
+	this.TplName = "admin/abort/index.html"
+}
+
+/**
+	后台关于 数据处理
+ */
+// @router /admin/baseseting [post] 后台 获取用户资料
+func (this *AdminIndexController) AbortFormData() {
+
+	data := this.GetString("content") //获取数据
+
+	logs.Info(data)
+
+	if data == ""{
+
+		this.Data["json"] = map[string]interface{}{
+			"code":1003,
+			"errmsg":"数据丢失",
+		}
+	}else{
+		models.UpdateBase(data)
+
+		this.Data["json"] = map[string]interface{}{
+			"code":0,
+			"errmsg":"更新成功",
+		}
+	}
+
+	this.ServeJSON()
+}

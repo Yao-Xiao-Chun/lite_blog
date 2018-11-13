@@ -1,10 +1,10 @@
 <div class="footer">
     <p>
         <span>&copy; 2018</span>
-        <span><a href="http://www.layui.com" target="_blank">layui.com</a></span>
+        <span><a href="https://mdd.pbtown.com" target="_blank">PHP版本博客</a></span>
         <span>MIT license</span>
     </p>
-    <p><span>前端基于贤心+后端Beego框架</span></p>
+    <p><span><a href="http://www.layui.com" target="_blank">前端基于贤心</a>+后端<a href="https://beego.me/" target="_blank">Beego框架</a></span></p>
 </div>
 <script src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/jquery-1.7.2.js"></script>
@@ -13,6 +13,14 @@
 <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
 <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
 <script>
+    //window.location.hash = "#commit-page";
+
+    function tar_href(e) {
+
+        var herf = $(e).attr("data-href");
+
+        window.location.href = herf;
+    }
     var gitment = new Gitment({
         id: '', // 可选。默认为 location.href
         owner: 'biekanwonicheng',
@@ -29,7 +37,8 @@
         base: '/static/static/js/'
     }).use('blog');
 
-    layui.use(['form', 'jquery','laypage'], function() {
+    layui.use(['form', 'jquery','laypage','util'], function() {
+        var util = layui.util;
         var laypage = layui.laypage;
         var lay = layui.layer;
         //总页数大于页码总数 --留言分页
@@ -220,6 +229,100 @@
 
                 }
             })
+        });
+
+
+        /**
+         * 右下侧的导航栏
+         */
+        util.fixbar({
+            bar1: false,
+            bgcolor:"#1E9FFF",
+            showHeight:100,
+            css:{right: 50, bottom: 150}
+            ,click: function(type){
+
+                if(type === 'bar1'){
+                    alert('点击了bar1')
+                }
+            }
+        });
+
+
+        //总页数大于页码总数
+        laypage.render({
+            elem: 'common-article-page'
+            ,count: "{{.articleNum}}" //数据总数
+            ,jump: function(obj,first){
+
+                //判断是否是首次加载
+                if(!first){
+                    lay.load();
+                    //同时禁止再次点击
+                    $('.lay-page-article').attr('disabled','disabled');
+
+                    //获取最后一个id
+                    var id = $('.layui-article:last-child').attr("data-id");
+
+                    var category_id = "{{.is_category}}";
+
+                    //获取下一页 ajax请求
+
+                    $.ajax({
+                        url:'/article?id='+id+"&category="+category_id+'&page='+obj.curr,
+                        type:'get',
+                        dataType:'json',
+                        success:function (response) {
+                            //清空以前的数据
+                            $('.contar-wrap').html('');
+                            if(response.code == '0'){
+
+                                $.each(response.data,function (index,val) {
+                                    var str = '';
+                                    if(val.img != ''){
+
+                                        str = '<img src="/'+val.img+'" title="'+val.title+'" style="width:200px ;height:130px;">';
+                                    }
+                                    $('.contar-wrap').append('<div class="item layui-article" data-id="'+val.id+'">\n' +
+                                            '                <div class="item-box  layer-photos-demo1 layer-photos-demo">\n' +
+                                            '                    <h3><a href="/article/info?id='+val.id+'">'+val.title+'</a></h3>\n' +
+                                            '                    <h5><i class="layui-icon  "></i> 时间：<span style="color: #01AAED;">'+val.created_time+'</span>\n' +
+                                            '                        <span style="margin-left: 40px;">\n' +
+                                            '                            <i class="layui-icon "></i>\n' +
+                                            '                            标签：<span style="color: #01AAED;">'+val.tags.Mnames+'</span>\n' +
+                                            '                        </span>\n' +
+                                            '                        <span style="float: right;">\n' +
+                                            '                            <i class="layui-icon  "></i>\n' +
+                                            '                            作者：<a href="#" style="color: #01AAED;"><span>'+val.author+'</span></a>\n' +
+                                            '                        </span>\n' +
+                                            '\n' +
+                                            '                    </h5>\n' +
+                                            '                    <p>'+val.descript+'</p>\n' +str+
+                                            '                </div>\n' +
+                                            '                <div class="comment count">\n' +
+                                            '                    <a href="details.html#comment">评论</a>\n' +
+                                            '                    <a href="javascript:void(0);" class="article_click" data-id="'+val.id+'" class="like">点赞</a>\n' +
+                                            '                </div>\n' +
+                                            '            </div>');
+                                });
+
+                                $('.lay-page-article').removeAttr('disabled');
+                                layer.closeAll('loading');
+
+                            }else{
+
+                                lay.msg('没有数据了，别点了，要哭了*——*');
+
+                                layer.closeAll('loading');
+                            }
+
+                        },
+                        error:function (err) {
+
+                        }
+                    });
+                }
+            }
         });
 
     });

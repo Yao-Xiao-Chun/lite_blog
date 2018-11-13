@@ -75,4 +75,6 @@ func auotoData(){
 
 	db.AutoMigrate(&LiteReview{}) //创建一张留言表
 
+	db.AutoMigrate(&LiteBase{}) //创建一张基础表
+
 }
