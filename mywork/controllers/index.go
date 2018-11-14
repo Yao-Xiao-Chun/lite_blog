@@ -30,6 +30,8 @@ func (this *IndexController) Index() {
 		this.getKeyword(keywords)
 	}
 
+
+	this.Data["Placard"],_ = models.GetPlacard()
 	//设置模板路径
 	this.TplName = "home/index.html"
 }
@@ -231,6 +233,8 @@ func (this *IndexController)TypeArticle(){
 
 		this.Data["articleNum"] = num
 	}
+
+	this.Data["Placard"],_ = models.GetPlacard()
 
 	this.Data["is_category"] = id
 	//设置模板路径

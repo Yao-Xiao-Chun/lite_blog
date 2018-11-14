@@ -181,3 +181,43 @@ func (this *AdminIndexController) AbortFormData() {
 
 	this.ServeJSON()
 }
+
+
+/**
+	后台公告
+ */
+// @router /admin/baseplacard [get] 后台 获取用户资料
+ func (this *AdminIndexController) SetPlacard(){
+
+ 	this.Data["abort"],_ = models.GetPlacard()
+
+ 	this.TplName = "admin/placard/index.html"
+ }
+
+/**
+   后台公告 数据处理
+*/
+// @router /admin/baseplacard [post] 后台 获取用户资料
+func (this *AdminIndexController) PlacardFormData()  {
+
+	data := this.GetString("content") //获取数据
+
+	logs.Info(data)
+
+	if data == ""{
+
+		this.Data["json"] = map[string]interface{}{
+			"code":1003,
+			"errmsg":"数据丢失",
+		}
+	}else{
+		models.UpdatePlacard(data)
+
+		this.Data["json"] = map[string]interface{}{
+			"code":0,
+			"errmsg":"更新成功",
+		}
+	}
+
+	this.ServeJSON()
+}

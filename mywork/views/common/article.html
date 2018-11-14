@@ -2,7 +2,7 @@
     <div class="container">
         <div class="contar-wrap">
             <h4 class="item-title">
-                <p><i class="layui-icon layui-icon-speaker"></i>公告：<span>欢迎来到我的轻博客</span></p>
+                <p><i class="layui-icon layui-icon-speaker"></i>公告：<span>{{html2str .Placard.Content}}</span></p>
             </h4>
             {{range $key,$val := .article}}
             <div class="item layui-article" data-id="{{$val.id}}">
@@ -21,7 +21,7 @@
                     </h5>
                     <p>{{$val.descript}}</p>
                     {{if $val.img}}
-                    <img src="/{{$val.img}}" alt="golang" title="{{$val.title}}" style="width: 200px;height: 130px;">
+                    <img src="/{{$val.img}}" alt="mdd.pbtown.com" title="{{$val.title}}" style="width: 200px;height: 130px;cursor: pointer;">
                     {{end}}
                 </div>
                 <div class="comment count">
