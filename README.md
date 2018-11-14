@@ -3,7 +3,10 @@
 beegou框架基础+layui的轻博客前台
 ---
 # 环境要求
-**golang 1.8+**
+golang 1.8+
+---
+beego框架
+---
 go get github.com/satori/go.uuid   -- 获取uuid的用户包
 
 go get  github.com/jinzhu/gorm     -- 获取gorm中的orm
