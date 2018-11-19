@@ -413,9 +413,20 @@ func (this *IndexController) SteReview()  {
 			}
 		}else{
 
-			ip := this.Ctx.Request.RemoteAddr
+			var ip string
 
-			ip = ip[0:strings.LastIndex(ip, ":")]
+			ips := this.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
+
+			if ips == ""{
+
+				ip = this.Ctx.Request.RemoteAddr
+
+				ip = ip[0:strings.LastIndex(ip, ":")]
+
+			}else{
+
+				ip = ips
+			}
 
 			res.Token = token
 
