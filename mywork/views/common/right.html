@@ -1,0 +1,59 @@
+<div id="b-public-right" class="layui-col-md4 layui-col-xs6 layui-col-sm6 hidden-xs hidden-sm hidden-md" style="width: 30%;margin: 0 19px 0 19px;">
+    <div class="b-tags">
+        <span class="b-title">热门标签</span>
+        <ul class="b-all-tname">
+            {{range $key,$val := .TagList}}
+
+                <li class="b-tname">
+                <a class="tstyle-{{$val.Sort}}" href="/?tag={{$val.Tid}}" >{{$val.Name}} ({{$val.Num}})</a>
+            </li>
+
+            {{end}}
+        </ul>
+    </div>
+
+    {{/*热门标签*/}}
+    <div class="b-recommend">
+        <span class="b-title">置顶推荐</span>
+        <p class="b-recommend-p">
+            {{range $k,$v := .TopArticle}}
+            <a class="b-recommend-a" href="/article/info?id={{$v.ID}}" target="_blank">
+                <span class="layui-icon layui-icon-fire" title="轻博客-mdd"></span>{{$v.Title}}
+            </a>
+                    {{end}}
+        </p>
+    </div>
+
+    {{/*最新留言*/}}
+
+    <div class="b-link">
+        <span class="b-title">最新留言</span>
+        <div>
+            {{range $k,$v:= .Commit}}
+
+            <ul class="b-new-comment ">
+                <img class="b-head-img js-head-img" src="/static/static/images/info-img.png">
+                <li class="b-nickname">
+                    {{$v.Address}}<span>{{date $v.CreatedAt "Y-m-d H:i"}}</span>
+                </li>
+
+                <li class="b-content">
+                    {{$v.Message}}
+                </li>
+            </ul>
+                    {{end}}
+        </div>
+    </div>
+
+    <div class="b-link">
+        <span class="b-title">友情链接</span>
+        <p>
+            {{range $j,$v := .Link}}
+            <a class="b-link-a" href="{{$v.Url}}" target="_blank">
+                <span class="layui-icon">&#xe64c;</span> {{$v.Name}}
+            </a>
+            {{end}}
+        </p>
+    </div>
+
+</div>

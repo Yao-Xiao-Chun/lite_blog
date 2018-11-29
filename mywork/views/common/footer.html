@@ -236,14 +236,15 @@
          * 右下侧的导航栏
          */
         util.fixbar({
-            bar1: false,
+            bar1: true,
             bgcolor:"#1E9FFF",
             showHeight:100,
             css:{right: 50, bottom: 150}
             ,click: function(type){
 
                 if(type === 'bar1'){
-                    alert('点击了bar1')
+                   //关于本站
+                    window.location.href ='/about';
                 }
             }
         });
@@ -262,14 +263,20 @@
                     $('.lay-page-article').attr('disabled','disabled');
 
                     //获取最后一个id
-                    var id = $('.layui-article:last-child').attr("data-id");
+                    var id = $('.layui-article:last').attr("data-id");
 
                     var category_id = "{{.is_category}}";
+
+                    //获取查询条件框的输入值
+
+                    var search = $('input[name="keyword"]').val();
+
+                    var tags = "{{.PageTag}}";
 
                     //获取下一页 ajax请求
 
                     $.ajax({
-                        url:'/article?id='+id+"&category="+category_id+'&page='+obj.curr,
+                        url:'/article?id='+id+"&category="+category_id+'&page='+obj.curr+'&keywords='+search+'&tag='+tags,
                         type:'get',
                         dataType:'json',
                         success:function (response) {

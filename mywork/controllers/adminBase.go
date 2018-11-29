@@ -34,8 +34,6 @@ func (this *AdminBaseController) Prepare(){
 
 	this.EnableXSRF = false
 
-	logs.Info("用来测试用户是否登录")
-
 	user,ok := this.GetSession(SESSION_ADMIN_KEY).(models.LiteOauthUser)
 
 	this.IsLogin = false
@@ -122,11 +120,12 @@ func (this *AdminBaseController) CheckMustKey(key string,msg string)  string{
 	   f, h, err := this.GetFile(key)
 
 	  //判断是否是文件上传
-
+	  imgStr := "image/jpeg,image/png,image/gif,image/jpg,image/png"
 
 	  imgType := h.Header["Content-Type"][0]
-
-	  if imgType != "image/jpeg"{
+	 
+	  //判断该类型是否在请求的类型中出现
+	  if strings.Index(imgStr,imgType) < 0{
 
 	  	return map[string]interface{}{
 	  		"code":"1003",
@@ -142,6 +141,8 @@ func (this *AdminBaseController) CheckMustKey(key string,msg string)  string{
 	  imgSuffix := imgSuffixArr[count-1] //获取最后一个后缀
 
 	  flag := false;
+
+	  imgSuffix = strings.ToLower(imgSuffix)
 
 	  for _,val := range this.GetUploadTypeImage(){
 
@@ -213,3 +214,12 @@ func (this *AdminBaseController) GetRandomString(lens int) string{
 
 	return string(result)
 }
+
+
+/**
+	admin日志写入
+ */
+ func (this *AdminBaseController) ReadLog(content string,level int){
+
+ 	models.InsertLog(content,level)
+ }

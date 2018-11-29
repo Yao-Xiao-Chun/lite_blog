@@ -47,6 +47,8 @@ func (this *AdminUserController)DoLogin(){
 
 		if err != nil{
 
+			this.ReadLog("账户:"+account+",在Ip地址为："+this.GetIP()+",进行尝试登陆，登陆失败",1)
+
 			this.Abort500(syserror.New("登录失败",err))
 
 		}else{
@@ -61,6 +63,8 @@ func (this *AdminUserController)DoLogin(){
 
 		//设置session
 		this.SetSession(SESSION_ADMIN_KEY,user)
+		//写入日志
+		this.ReadLog("账户:"+account+",在Ip地址为："+this.GetIP()+",进行登陆，登陆成功",1)
 
 		//跳转页面进入后台
 		this.Ctx.Redirect(302,"/admin") //登录成功重定向这个方法
@@ -69,6 +73,9 @@ func (this *AdminUserController)DoLogin(){
 
 // @router /admin/loginout [get] 后台 登录页面
 func (this *AdminUserController)LoginOut() {
+
+	//写入日志
+	this.ReadLog("账户:"+this.User.Account+",在Ip地址为："+this.GetIP()+",进行登出，登出成功",1)
 
 	this.DelSession(SESSION_ADMIN_KEY)
 

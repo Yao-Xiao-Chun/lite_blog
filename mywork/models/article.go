@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/jinzhu/gorm"
 	"strconv"
-	"github.com/astaxie/beego/logs"
 )
 
 /**
@@ -26,6 +25,7 @@ type LiteArticle struct {
 	Fid_Level string `gorm:"type:varchar(10);null"`//所属分类
 
 }
+
 
 
 /**
@@ -104,17 +104,21 @@ type LiteArticle struct {
 	  /**
 	  	前台获取分页 10
 	  	@param id 文章id fid 所属分类 page 分页条数
-	  	@return
+	  	@return count 这个值没有任何用处 丢弃
 	   */
-	func GetHomeAndPageArticle(id int,category int,page int) (article []LiteArticle,count int,err error) {
-		logs.Info(id,category,page)
+	func GetHomeAndPageArticle(id int,category int,page int,keyword string) (article []LiteArticle,count int,err error) {
+
 		if category != 0{
 
-			return article,count,db.Where("status = ? and fid_level = ?",1,category).Offset((page - 1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&count).Error
+			return article,0,db.Where("status = ? and fid_level = ?",1,category).Offset((page - 1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+
+		}else if keyword != ""{
+
+			return article,0,db.Where("status = ? and title LIKE ?",1,`%`+keyword+`%`).Or("status = ? and keywords LIKE ?",1,`%`+keyword+`%`).Or("status = ? and descript LIKE ?",1,`%`+keyword+`%`).Or("status = ? and author LIKE ?",1,`%`+keyword+`%`).Offset((page -1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
 
 		}else{
 
-			return article,count,db.Where("status = ?",1).Offset((page -1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&count).Error
+			return article,0,db.Where("status = ?",1).Offset((page -1) * 10).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
 
 		}
 
@@ -162,8 +166,28 @@ type LiteArticle struct {
 		/**
 			关键词查询出现的数据
 		 */
-		 func GetArticleKeywords(keyword string) (article []LiteArticle,err error){
+		 func GetArticleKeywords(keyword string) (article []LiteArticle,num int,err error){
 
-			 return article,db.Where("status = ? and title LIKE ?",1,`%`+keyword+`%`).Or("status = ? and keywords LIKE ?",1,`%`+keyword+`%`).Or("status = ? and descript LIKE ?",1,`%`+keyword+`%`).Or("status = ? and author LIKE ?",1,`%`+keyword+`%`).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+			 return article,num,db.Where("status = ? and title LIKE ?",1,`%`+keyword+`%`).Or("status = ? and keywords LIKE ?",1,`%`+keyword+`%`).Or("status = ? and descript LIKE ?",1,`%`+keyword+`%`).Or("status = ? and author LIKE ?",1,`%`+keyword+`%`).Limit(10).Order("is_top asc,read_num desc, click desc,created_at desc,id desc").Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Count(&num).Error
 
 		 }
+
+
+/**
+	用于tag查询文章详情
+    @param aid int 文章id
+    @return
+ */
+ func GetTagArticleInfo(aid int)(article LiteArticle,err error){
+
+	 return article,db.Where("status = ? and id = ?",1,aid).Limit(1).Select("created_at,title,priority,is_top,click,read_num,title_img,keywords,descript,author,id").Find(&article).Error
+ }
+
+ /**
+ 	文章置顶
+  */
+ func ArticleTopList()(article []LiteArticle,err error){
+
+	 return article,db.Where("status = ? and is_top = 1",1,).Limit(20).Order("created_at desc,id desc").Select("title,id").Find(&article).Error
+
+ }

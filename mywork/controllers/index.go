@@ -15,6 +15,13 @@ type IndexController struct {
 	HomeBaseController
 }
 
+type TagList struct {
+	Name string
+	Num  int
+	Tid  int
+	Sort int
+}
+
 //使用注解路由
 
 // @router /?:key [get] 首页
@@ -22,16 +29,30 @@ func (this *IndexController) Index() {
 
 	var keywords string
 
+	var tag int
+
 	this.Ctx.Input.Bind(&keywords,"keyword")
 
-	if keywords == ""{
+	this.Ctx.Input.Bind(&tag,"tag")
+
+	if tag != 0{
+
+		this.getKeyword("",tag)//查询tag
+
+	}else if keywords == ""{
+
 		this.getHomeArticle() //查询数据
+
 	}else{
-		this.getKeyword(keywords)
+
+		this.getKeyword(keywords,0) //查询关键词
 	}
 
+	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
 
 	this.Data["Placard"],_ = models.GetPlacard()
+
+	this.GetTop()//获取置顶
 	//设置模板路径
 	this.TplName = "home/index.html"
 }
@@ -124,13 +145,15 @@ func (this *IndexController) IndexTime() {
 		 //变量赋值
 		 for key,val := range line{
 
-			 data := make(map[string]interface{},3) // 每次使用都要初始化一次
+			 data := make(map[string]interface{},4) // 每次使用都要初始化一次
 
 			 data["code"] = val.Title
 
 			 data["content"] = val.Content
 
 			 data["tid"] = val.ID
+
+			 data["token"] = val.Token
 
 			 arr[key] = data
 
@@ -236,6 +259,8 @@ func (this *IndexController)TypeArticle(){
 
 	this.Data["Placard"],_ = models.GetPlacard()
 
+	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
+
 	this.Data["is_category"] = id
 	//设置模板路径
 	this.TplName = "home/index.html"
@@ -291,12 +316,19 @@ func (this *IndexController)TypeArticle(){
 // @router /article/?:key [get] 文章分页
 func (this *IndexController) GetHomePageArticle(){
 
-	var id,category,page int
+	var id,category,page,tag int
+
+	var keywords string //关键词查询
 
 	this.Ctx.Input.Bind(&id,"id")
 
 	this.Ctx.Input.Bind(&category,"category")
+
 	this.Ctx.Input.Bind(&page,"page")
+
+	this.Ctx.Input.Bind(&keywords,"keywords")
+
+	this.Ctx.Input.Bind(&tag,"tag")
 
 	if id == 0{
 
@@ -305,8 +337,17 @@ func (this *IndexController) GetHomePageArticle(){
 			"errmsg":"获取参数错误，error",
 		}
 	}else{
+		var result []models.LiteArticle
 
-		result,_,_ := models.GetHomeAndPageArticle(id,category,page)
+		if tag > 0{
+
+			result,_ = this.TagsPage(tag,page)
+
+		}else{
+
+			result,_,_ = models.GetHomeAndPageArticle(id,category,page,keywords)
+
+		}
 
 		if len(result) == 0{
 			this.Data["json"] = map[string]interface{}{
@@ -376,7 +417,8 @@ func (this *IndexController) GetArticleInfo(){
 	//更新阅读数
 	models.SetArticleAndRead(id)
 	this.Data["articleData"] = res
-
+	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
+	this.GetTop()//获取置顶
 	this.TplName = "home/details.html"
 }
 
@@ -472,7 +514,7 @@ func (this *IndexController) HomePageReview(){
 		}
 	}else{
 
-		data,_ := models. SelectReviewPage(page)
+		data,_ := models.SelectReviewPage(page)
 
 		this.Data["json"] = map[string]interface{}{
 			"code":"0",
@@ -526,9 +568,19 @@ func (this *IndexController) CommitArticle(){
 /**
 	前台首页搜索框查询内容
  */
-func (this *IndexController) getKeyword(key string){
+func (this *IndexController) getKeyword(key string,tag int){
 
-	result,_ := models.GetArticleKeywords(key)
+	var result []models.LiteArticle
+	var num int
+
+	if tag != 0{
+
+		result,num = this.TagsPage(tag,1)//查询tag表中的数据
+
+	}else{
+
+		result,num,_ = models.GetArticleKeywords(key) //关键词查询的代码
+	}
 
 	var data map[int]map[string]interface{}
 
@@ -560,6 +612,8 @@ func (this *IndexController) getKeyword(key string){
 
 	this.Data["article"] = data
 	this.Data["Keywords"] = key
+	this.Data["articleNum"] = num
+	this.Data["PageTag"] = tag
 
 }
 
@@ -588,3 +642,68 @@ func (this *IndexController) DownFile(){
 	this.Ctx.Output.Download("download/"+fileFullPath)
 
 }
+
+
+/**
+	获取前台展示的标签
+ */
+
+ func (this *IndexController) getHomeTags()(res []TagList){
+
+ 	var data []TagList
+
+ 	data = make([]TagList,0)
+
+ 	list,_:= models.FindTagChecked()
+
+	for index,val:=range list{
+
+		num := models.CountArticleAndTag(int(val.ID))
+
+		res := TagList{val.Tag_name,num.Total,int(val.ID),index + 1}
+
+		data = append(data,res)
+	}
+
+	return data
+ }
+
+
+ /**
+ 	处理前台 获取展示
+ 	@param tid int page int 标签id 分页id
+    @return
+  */
+ func (this *IndexController) TagsPage(tid int,page int)(list []models.LiteArticle,num int){
+
+ 	res,num := models.GetHomeTagsArticle(tid,page)
+
+ 	var arr []models.LiteArticle
+
+ 	for _,val := range res{
+
+		//获取文章id进行获取文章
+ 		data,_ := models.GetTagArticleInfo(val.Aid)
+
+ 		arr = append(arr,data)
+
+	}
+
+ 	return arr,num
+ }
+
+
+ /**
+ 	获取置顶推荐
+  */
+ func (this *IndexController) GetTop(){
+	//查询前10条置顶推荐
+
+	this.Data["TopArticle"],_ = models.ArticleTopList()
+
+	//查询友情链接
+	this.Data["Link"],_ = models.GetHomeLink()
+
+	//最新留言
+	this.Data["Commit"],_ = models.SelectReview()
+ }

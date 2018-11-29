@@ -22,6 +22,20 @@ type Result struct {
 	Mnames string
 }
 
+type HomeTag struct {
+
+	Total int
+}
+
+
+ /**
+	前台获取tage文章
+ */
+ type HomeArticleTagList struct {
+ 	Aid int
+ }
+
+
 func CreateAidAndTag(str string,aid uint,uid uint){
 
 	var artTags LiteArticleTag
@@ -77,4 +91,62 @@ func GetAidAndTagName(aid uint) (res Result) {
  	var artTag LiteArticleTag
 
  	return db.Where("aid = ?",id).Delete(&artTag).Limit(1).Error
+ }
+
+
+ /**
+ 	统计各标签关联的文章数量
+  */
+ func CountArticleAndTag(tid int)(num HomeTag){
+
+
+	 id := strconv.Itoa(int(tid)) //文章id
+
+	 var str string
+
+	 str = `SELECT
+	count(m.id) as total
+	FROM
+	lite_article_tags AS  m left join lite_articles as a on a.id = m.aid
+	WHERE FIND_IN_SET(`+id+`,m.tid) and a.status = 1`
+
+	 db.Raw(str).Scan(&num)
+
+	 return  num
+ }
+
+
+ /**
+ 	前台获取标签关联的文章
+  */
+ func GetHomeTagsArticle(tid ,page int)(list []HomeArticleTagList,total int){
+
+	 id := strconv.Itoa(int(tid)) //文章id
+
+	 var str,sql string
+
+	 var pages int
+
+	 var num HomeTag
+
+	 pages = (page -1) * 10
+
+	 pageStr := strconv.Itoa(pages)
+
+	 str = `SELECT
+	aid
+	FROM
+	lite_article_tags AS  m
+	WHERE FIND_IN_SET(`+id+`,m.tid) order by id desc limit `+pageStr+`,10`
+
+	 db.Raw(str).Scan(&list)
+
+	 sql =  `SELECT
+	count(m.id) as total
+	FROM
+	lite_article_tags AS  m
+	WHERE FIND_IN_SET(`+id+`,m.tid)`
+	 db.Raw(sql).Scan(&num)
+
+	 return list,num.Total
  }

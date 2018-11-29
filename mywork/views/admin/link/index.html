@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>友情链接</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>友情链接</legend>
+</fieldset>
+
+
+
+<oktoolbar>
+
+    <button class="layui-btn layui-btn-danger" id="addmenus">
+        <i class="layui-icon layui-icon-delete"></i>新增友链
+    </button>
+
+
+</oktoolbar>
+
+
+
+<div class="layui-form" style="min-height: 200px;margin: 10px;">
+    <table class="layui-table" >
+        <colgroup>
+            <col width="150">
+            <col width="200">
+            <col width="100">
+            <col width="100">
+            <col width="100">
+
+            <col width="100">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>ID</th>
+
+            <th>链接名称</th>
+            <th>地址</th>
+            <th>排序</th>
+            <th>状态</th>
+
+
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <div id="demo0"></div>
+</div>
+
+    <script src="/static/admin/plugins/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layedit', 'laydate','laypage'], function() {
+            var form = layui.form,
+                    laypage = layui.laypage,
+                    layer = layui.layer;
+
+            //总页数低于页码总数
+            laypage.render({
+                elem: 'demo0'
+                ,count: "{{.num}}" //数据总数
+                ,jump:function (obj) {
+                    layer.load();
+                    var page = obj.curr;
+
+                    var limit = obj.pages;
+
+                    $.ajax({
+                       url:'/admin/link/page?page='+page+'&size='+limit,
+                       type:'get',
+                       dataType:'json',
+                       success:function (response) {
+
+                           $('tbody').html('');
+                            if(response.code == "0"){
+
+                                $.each(response.data,function (index,val) {
+
+
+                                    $('tbody').append('<tr>\n' +
+                                            '            <td>'+val.ID+'</td>\n' +
+                                            '            <td>'+val.Name+'</td>\n' +
+                                            '            <td>'+val.Url+'</td>\n' +
+                                            '            <td>'+val.Sort+'</td>\n' +
+                                            '            <td>'+val.Status+'</td>\n' +
+
+
+                                            '            <td>\n' +
+                                            '                <div class="layui-btn-group">\n' +
+                                            '                    <button class="layui-btn layui-btn-sm edit-user" title="编辑"  data-id="'+val.ID+'"><i class="layui-icon"></i></button>\n' +
+                                            '                    <button class="layui-btn layui-btn-sm del-user" title="删除"  data-id="'+val.ID+'"><i class="layui-icon"></i></button>\n' +
+                                            '\n' +
+                                            '                </div>\n' +
+                                            '            </td>\n' +
+                                            '        </tr>');
+                                });
+                            }
+                           layer.closeAll('loading');
+                       },
+                       error:function (err) {
+
+                           console.log(err);
+
+                       }
+                    });
+
+                }
+            });
+
+
+            //删除本条数据
+            $('.del-user').live("click",function () {
+
+                var id =   $(this).attr("data-id");
+                //询问框
+                layer.confirm('确定删除此条留言？', {
+                    btn: ['确定','取消'] //按钮
+                ,skin: 'layui-layer-molv' },
+                        function(){
+                            layer.load();
+                            $.ajax({
+                               url:"/admin/link/delete?id="+id,
+                               type:"get",
+                               dataType:"json",
+                               success:function (response) {
+
+                                   if(response.code == "0"){
+                                       layer.msg('删除成功', {icon: 1});
+                                       location.reload();
+                                   }else{
+                                       layer.msg(response.errmsg);
+                                   }
+                               },
+                               error:function (err) {
+
+                                   console.log(err)
+                               }
+                            });
+
+
+                    layer.closeAll("loading")
+
+                }, function(){
+
+            });
+
+            });
+
+            /**
+             *  处理编辑用户的js
+             */
+            $('.edit-user').live("click",function () {
+                var id = $(this).attr("data-id");
+
+                if(id == ''){
+
+                    layer.msg("非法请求，参数丢失");
+
+                    return false;
+                }
+                //弹出新增窗口
+                layer.open({
+                    type: 2,
+                    title: '友情链接',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/link/edit?id='+id
+                });
+
+            });
+
+            function dateToStr(datetime){
+
+                var year = datetime.getFullYear();
+                var month = datetime.getMonth()+1;//js从0开始取
+                var date = datetime.getDate();
+                var hour = datetime.getHours();
+                var minutes = datetime.getMinutes();
+                var second = datetime.getSeconds();
+
+                if(month<10){
+                    month = "0" + month;
+                }
+                if(date<10){
+                    date = "0" + date;
+                }
+                if(hour <10){
+                    hour = "0" + hour;
+                }
+                if(minutes <10){
+                    minutes = "0" + minutes;
+                }
+                if(second <10){
+                    second = "0" + second ;
+                }
+
+                var time = year+"-"+month+"-"+date+" "+hour+":"+minutes+":"+second; //2009-06-12 17:18:05
+// alert(time);
+                return time;
+            }
+
+
+            $('#addmenus').click(function () {
+
+                layer.open({
+                    type: 2,
+                    title: '创建菜单',
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['893px', '600px'],
+                    content: '/admin/link/add'
+                });
+
+            });
+
+        });
+
+
+    </script>
+</body>
+
+</html>

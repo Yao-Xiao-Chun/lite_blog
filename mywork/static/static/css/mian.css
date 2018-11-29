@@ -200,7 +200,7 @@ body{
 .lay-blog .container .item h3{line-height:36px;font-size:20px;}
 .lay-blog .container .item h5{line-height: 38px;color:#a5a5a5;}
 .lay-blog .container .item p{line-height:30px; padding-bottom: 10px;}
-.lay-blog .container .item .comment{width: 100%; line-height: 56px; background: #f9f9f9; font-size: 14px; overflow:hidden;}
+.lay-blog .container .item .comment{width: 100%; line-height: 56px; background: #ffff; font-size: 14px; overflow:hidden;border-top:1px solid #88ABC3 }
 .lay-blog .container .item .comment a{display:inline-block;width:50%;text-align:center;float: left;}
 .lay-blog .container .item .comment a+a{border-left:1px solid #efefef;margin-left:-1px;}
 .lay-blog .container .item-btn{text-align:center;margin-top:20px;}
@@ -248,7 +248,9 @@ body{
 .lay-blog .container-message .paging{text-align:center;padding-top:30px;}
 /* end message*/
 
-
+.contar-list li{
+	list-style: disc;!important;
+}
 
 
 /* start details */

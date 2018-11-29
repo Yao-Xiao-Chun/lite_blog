@@ -86,6 +86,9 @@ func (this *AdminIndexController)AdminGettime(){
 		 }
 	 }
 
+	 num,_:= models.GetHomeCountTimeLine()
+
+	 this.Data["count"] = num
 
 	 this.Data["line"] = arr
 
@@ -217,6 +220,51 @@ func (this *AdminIndexController) PlacardFormData()  {
 			"code":0,
 			"errmsg":"更新成功",
 		}
+	}
+
+	this.ServeJSON()
+}
+
+
+
+/**
+	获取日志记录
+ */
+// @router /admin/log/index [get]
+func (this *AdminIndexController) GetLogList(){
+
+	this.Data["num"],_ = models.CountLog()
+
+	this.TplName = "admin/log/index.html"
+}
+
+/**
+	日志数据获取
+ */
+
+// @router /admin/log/page/?:key [get]
+func (this *AdminIndexController) GetLogPage(){
+
+	var page int
+
+	this.Ctx.Input.Bind(&page,"page")
+
+	var res []models.LiteLog
+
+	res = make([]models.LiteLog,0)
+
+	if page == 0{
+
+		res,_ = models.SelectLog(1)
+	}else{
+
+		res,_ = models.SelectLog(page)
+	}
+
+
+	this.Data["json"] = map[string]interface{}{
+		"code":"0",
+		"data":res,
 	}
 
 	this.ServeJSON()

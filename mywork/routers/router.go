@@ -27,6 +27,8 @@ func init() {
 
 	beego.Include(&controllers.AdminReviewController{})//留言控制器
 
+	beego.Include(&controllers.AdminLinkController{})//友情链接
+
 	beego.Handler("/captcha/*.png", captcha.Server(120, 38)) //设置验证码
 
 

@@ -174,3 +174,29 @@ func JsonFormat(retcode int, retmsg string, retdata interface{}, stime time.Time
 	  beego.SetLevel(beego.LevelInformational)
 	  beego.SetLogFuncCall(true)
   }
+
+
+  /**
+  	获取用户提交的ip
+    @param  会尝试获取nginx代理的真实ip 或自带ip
+	@return ip
+   */
+   func (this *BaseController) GetIP() string{
+
+	   var ip string
+
+	   ips := this.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
+
+	   if ips == ""{
+
+		   ip = this.Ctx.Request.RemoteAddr
+
+		   ip = ip[0:strings.LastIndex(ip, ":")]
+
+	   }else{
+
+		   ip = ips
+	   }
+
+	   return ip
+   }

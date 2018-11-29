@@ -21,11 +21,19 @@ func init()  {
 
 	var err error
 
-	var pwd string
+	var pwd,sqldb,sqlhost,sqluser,dbtype string
 
 	pwd = beego.AppConfig.String("mysqlpass")
 
-	db, err = gorm.Open("mysql", "root:"+pwd+"@/lite_blog?charset=utf8&parseTime=True&loc=Local") //连接数据库
+	sqldb = beego.AppConfig.String("mysqldb")
+
+	sqlhost = beego.AppConfig.String("mysqlurls")
+
+	sqluser = beego.AppConfig.String("mysqluser")
+
+	dbtype = beego.AppConfig.String("dbtype")
+
+	db, err = gorm.Open(dbtype, ""+sqluser+":"+pwd+"@tcp("+sqlhost+")/"+sqldb+"?charset=utf8&parseTime=True&loc=Local") //连接数据库
 
 	if err != nil{
 
@@ -33,7 +41,11 @@ func init()  {
 	}
 
 	//同步表结构 做数据迁移的时候使用
-	auotoData()
+
+	if flag,_:=beego.AppConfig.Bool("autodb"); flag {
+		auotoData()
+	}
+
 
 
 	var count int
@@ -76,5 +88,9 @@ func auotoData(){
 	db.AutoMigrate(&LiteReview{}) //创建一张留言表
 
 	db.AutoMigrate(&LiteBase{}) //创建一张基础表
+
+	db.AutoMigrate(&LiteLog{}) //创建一张日志表
+
+	db.AutoMigrate(&LiteLike{}) //创建一张友情链接表
 
 }

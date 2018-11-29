@@ -4,17 +4,21 @@
 	<meta charset="UTF-8">
 	<title>{{.articleData.Title}}</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="{{.articleData.Keywords}}">
+	<meta name="description" content="{{.articleData.Keywords}}">
 	{{template "common/comm.html"}}
 </head>
 <body class="lay-blog">
 		{{template "common/head.html" .}}
 		<div class="container-wrap">
-			<div class="container container-message container-details">
-					<div class="contar-wrap">
+			<div class="container layui-row container-message container-details" style="width: 1170px;">
+					<div class="contar-wrap contar-list layui-col-md8 layui-col-xs6 layui-col-sm6" >
 						<div class="item">
 							<div class="item-box  layer-photos-demo1 layer-photos-demo">
-								<h3><a href="#">{{.articleData.Title}}</a></h3>
-								<h5>发布于：<span style="color: #01AAED;"> {{date (.articleData.CreatedAt) "Y-m-d H:i:s"}}</span></h5>
+								<h2 style="text-align: center;"><a href="#">{{.articleData.Title}}</a></h2>
+								<h5>发布于：<span style="color: #01AAED;"> {{date (.articleData.CreatedAt) "Y-m-d H:i:s"}}</span>
+									<span > 作者：<span style="color: #01AAED;">{{.articleData.Author}}</span></span>
+								</h5>
 								<div class="w-e-text" style="padding: 0;overflow: auto;">{{str2html .articleData.Content}}</div>
 								<div class="count layui-clear">
 									<span class="pull-left">阅读 <em>{{.articleData.Read_num}}</em></span>
@@ -28,6 +32,7 @@
                             <div id="container"></div>
 						</div>
 					</div>
+					{{template "common/right.html" .}}
 			</div>
 		</div>
 		{{template "common/footer.html"}}
