@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/logs"
 	"errors"
 	"strings"
 	"mywork/models"
@@ -58,7 +57,7 @@ func (this *AdminBaseController) Prepare(){
 	}
 
 	this.Data["IsLogin"] = this.IsLogin //是否登录
-	this.Data["IsLogin1"] = "aaaa" //是否登录
+
 }
 
 
@@ -70,8 +69,6 @@ func (this *AdminBaseController) CheckMustKey(key string,msg string)  string{
 	key = strings.Trim(key," ")
 
 	result := this.GetString(key)
-
-	logs.Info(result)
 
 	if len(result) == 0{
 
@@ -158,7 +155,6 @@ func (this *AdminBaseController) CheckMustKey(key string,msg string)  string{
 	  	return map[string]interface{}{
 			  "code":"1001",
 			  "msg":"文件上传错误，获取后缀名错误",
-
 		  }
 	  }
 
@@ -223,3 +219,27 @@ func (this *AdminBaseController) GetRandomString(lens int) string{
 
  	models.InsertLog(content,level)
  }
+
+func (this *AdminBaseController) LogTypeStr(key int) string {
+
+	arr := map[int]string{
+		1:"登录日志",
+		2:"操作日志",
+		3:"定时任务日志",
+	}
+
+
+	for index,val := range arr{
+
+		if index == key{
+
+			return val
+		}
+	}
+
+	return "不识别状态"
+}
+
+
+
+

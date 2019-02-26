@@ -10,6 +10,9 @@ import (
 	"time"
 	"github.com/tabalt/ipquery"
 	"strings"
+	"strconv"
+	"mywork/models"
+	"github.com/tealeg/xlsx"
 )
 
 /**
@@ -49,7 +52,7 @@ func (this *BaseController)SetToken()  {
 /**
 	生成加密密码
  */
- func (this *BaseController)SetMd5Pwd(pwd string) interface{}{
+ func (this *BaseController)SetMd5Pwd(pwd string) string{
 
 	 //假设用户名abc，密码123456
 	 h := md5.New()
@@ -57,6 +60,7 @@ func (this *BaseController)SetToken()  {
 	 io.WriteString(h, pwd)
 
 	 //pwmd5等于e10adc3949ba59abbe56e057f20f883e
+	 //93bcab4ab719fde430e5ad90656a240e
 	 pwmd5 := fmt.Sprintf("%x", h.Sum(nil))
 
 	 return pwmd5
@@ -200,3 +204,137 @@ func JsonFormat(retcode int, retmsg string, retdata interface{}, stime time.Time
 
 	   return ip
    }
+
+
+
+/**
+ 比较两个时间
+ @param newTime 对比时间
+ @param oldTime 老时间
+ @return 路径文件
+*/
+func (this *BaseController) TimeRangeComparison(oldTime time.Time) string{
+
+
+	newTime := time.Now()
+
+	num := this.timeSub(newTime,oldTime)
+
+	if num > 1{
+
+		return oldTime.Format("2006-01-02 15:04:05")
+
+	}else{
+		//判断写入的时间
+		strMon := newTime.Sub(oldTime)
+
+		mon := int(strMon.Minutes()) / 60
+
+		if  mon > 0{
+
+			return strconv.Itoa(mon)+"小时前"
+
+		}else{
+
+			if int(strMon.Minutes()) > 0{
+
+				return strconv.Itoa(int(strMon.Minutes()))+"分钟前"
+
+			}else{
+
+				return strconv.Itoa(int(strMon.Seconds()))+"秒前"
+			}
+
+		}
+	}
+
+}
+
+func (this *BaseController) timeSub(t1, t2 time.Time) int {
+
+	t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), 0, 0, 0, 0, time.Local)
+
+	t2 = time.Date(t2.Year(), t2.Month(), t2.Day(), 0, 0, 0, 0, time.Local)
+
+	return int(t1.Sub(t2).Hours() / 24)
+}
+
+
+/**
+	导出excel
+ */
+func (this *BaseController) SetToExcel(name,path string,data []models.LiteLog)string{
+
+	headArr := []string{"编号","时间","内容"}
+
+	//创建新的问题
+	file := xlsx.NewFile()
+
+	//设置sheet
+	sheet,_ := file.AddSheet("日志表格")
+
+	//新增一行表头
+	row := sheet.AddRow()
+
+	//设置每行的高度
+	row.SetHeightCM(1)
+
+	for _,val := range headArr{
+
+		cell := row.AddCell()
+
+		cell.Value = val
+	}
+
+	//处理内容
+	for _,v := range data{
+
+		rows := sheet.AddRow() //新增一行
+
+		cells := rows.AddCell()
+
+		cells.Value = strconv.Itoa(int(v.ID))
+
+		cells = rows.AddCell()
+
+		cells.Value = v.CreatedAt.Format("2006-01-02 15:04:05")
+
+		cells = rows.AddCell()
+
+		cells.Value = v.Content
+	}
+
+	err := file.Save(path+name+".xlsx")
+
+	if err != nil {
+
+		panic(err)
+	}else{
+
+		return path+name+".xlsx"
+	}
+
+}
+
+
+
+/**
+	转换单位
+	@param
+ */
+func (this *BaseController) GetToUnit(size int)string{
+
+	if size < 1024 {
+		return strconv.Itoa(size)+"b"
+	}else if (size >= 1024 && size < (1024*1024)) {
+		return strconv.Itoa(size / 1024)+"kb"
+	}else if(size >= (1024 * 1024) && size < (1024 * 1024 * 1024)){
+
+		return strconv.Itoa(size/(1024*1024))+"M"
+	}else if size >= (1024 * 1024 * 1024) {
+
+		return strconv.Itoa(size/(1024*1024*1024))+"G"
+	}
+
+	return ""
+}

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>定时任务列表</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>定时任务列表</legend>
+</fieldset>
+
+
+
+
+<oktoolbar>
+
+    <button class="layui-btn layui-btn-default" id="addmenus">
+        <i class="layui-icon layui-icon-delete"></i>创建任务
+    </button>
+    <button class="layui-btn layui-btn-danger" id="stopTask">
+        <i class="layui-icon layui-icon-stop"></i>停止任务
+    </button>
+
+</oktoolbar>
+
+
+
+<div class="layui-form" style="min-height: 200px;margin: 10px;">
+    <table class="layui-table" >
+        <colgroup>
+            <col width="150">
+            <col width="200">
+            <col width="100">
+            <col width="100">
+            <col width="100">
+
+            <col width="100">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>任务ID</th>
+
+            <th>创建者</th>
+            <th>执行计划</th>
+            <th>任务描述</th>
+            <th>执行时间</th>
+            <th>执行状态</th>
+
+
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <div id="demo0"></div>
+</div>
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<script>
+    layui.use(['form', 'layedit', 'laydate','laypage'], function() {
+        var form = layui.form,
+                laypage = layui.laypage,
+                layer = layui.layer;
+
+        //总页数低于页码总数
+        laypage.render({
+            elem: 'demo0'
+            ,count: "{{.num}}" //数据总数
+            ,jump:function (obj) {
+                layer.load();
+                var page = obj.curr;
+
+                var limit = obj.pages;
+
+                $.ajax({
+                    url:'/admin/crontab/page?page='+page+'&size='+limit,
+                    type:'get',
+                    dataType:'json',
+                    success:function (response) {
+
+                        $('tbody').html('');
+                        if(response.code == "0"){
+
+                            $.each(response.data,function (index,val) {
+
+                                var sw = "";
+                                if(val.Status){
+
+                                    sw = '<input type="checkbox" name="status" lay-filter="task_filter" lay-skin="switch" lay-text="1|0" value="'+val.ID+'" checked>';
+                                }else{
+                                    sw = '<input type="checkbox" name="status" lay-filter="task_filter" lay-skin="switch" lay-text="1|0"  value="'+val.ID+'">';
+                                }
+
+                                $('tbody').append('<tr>\n' +
+                                        '            <td>'+val.ID+'</td>\n' +
+                                        '            <td>'+val.CreateName+'</td>\n' +
+                                        '            <td>'+val.TaskName+'</td>\n' +
+                                        '            <td>'+val.Descript+'</td>\n' +
+                                        '            <td>'+val.Frequency+'</td>\n' +
+                                        '            <td>'+sw+'</td>\n' +
+
+
+                                        '            <td>\n' +
+                                        '                <div class="layui-btn-group">\n' +
+                                        '                    <button class="layui-btn layui-btn-sm del-user" title="删除"  data-id="'+val.ID+'"><i class="layui-icon"></i></button>\n' +
+                                        '\n' +
+                                        '                </div>\n' +
+                                        '            </td>\n' +
+                                        '        </tr>');
+                            });
+                        }
+                        form.render();
+                        layer.closeAll('loading');
+                    },
+                    error:function (err) {
+
+                        console.log(err);
+
+                    }
+                });
+
+            }
+        });
+
+
+
+        //删除本条数据
+        $('.del-user').live("click",function () {
+
+            var id =   $(this).attr("data-id");
+            //询问框
+            layer.confirm('确定删除此条留言？', {
+                        btn: ['确定','取消'] //按钮
+                        ,skin: 'layui-layer-molv' },
+                    function(){
+                        layer.load();
+                        $.ajax({
+                            url:"/admin/crontab/delete?id="+id,
+                            type:"get",
+                            dataType:"json",
+                            success:function (response) {
+
+                                if(response.code == "0"){
+                                    layer.msg('删除成功', {icon: 1});
+                                    location.reload();
+                                }else{
+                                    layer.msg(response.errmsg);
+                                }
+                            },
+                            error:function (err) {
+
+                                console.log(err)
+                            }
+                        });
+
+
+                        layer.closeAll("loading")
+
+                    }, function(){
+
+                    });
+
+        });
+
+        form.on('switch(task_filter)', function(data){
+
+            console.log(data.elem.checked); //开关是否开启，true或者false
+            console.log(data.value); //开关value值，也可以通过data.elem.value得到
+            //获取需要启动的定时task_id
+            
+            var task_id = data.value;
+            
+            var flag = data.elem.checked;
+            
+            var msg = "";
+            var url = '';
+            if(!flag){
+                url = '/admin/crontab/stopTask?task_id='+task_id
+                msg = "确定要关闭定时任务为"+task_id+"的执行任务吗？";
+            }else{
+                url = '/admin/crontab/startTask?task_id='+task_id;
+                msg = "确定要启用定时任务为"+task_id+"的执行任务吗？";
+            }
+
+            //询问框
+            layer.confirm(msg, {
+                btn: ['确定','取消'] //按钮
+            }, function(){
+
+                $.ajax({
+                    url:url,
+                    data:'',
+                    type:'get',
+                    dataType:'json',
+                    success:function (response) {
+
+                        console.log(response);
+                        if(response.code == "0"){
+                            layer.msg(response.msg);
+                        }
+
+
+
+                    },
+                    error:function (error) {
+
+                        console.log(error);
+                    }
+                });
+
+            }, function(){
+                layer.msg('取消成功', {
+                    time: 20000, //20s后自动关闭
+                    btn: ['明白了', '知道了']
+                });
+            });
+
+
+        });
+
+
+
+        $('#addmenus').click(function () {
+
+            layer.open({
+                type: 2,
+                title: '创建定时任务',
+                shadeClose: true,
+                shade: false,
+                maxmin: true, //开启最大化最小化按钮
+                area: ['893px', '600px'],
+                content: '/admin/crontab/add'
+            });
+
+        });
+
+        //停止全部使用的代码
+
+        $('#stopTask').click(function () {
+            layer.confirm("您确定要停止所有正在运行的任务吗？",{
+                btn: ['确定','取消'] //按钮
+            },function () {
+                $.ajax({
+                    url:'/admin/crontab/allstop',
+                    data:'',
+                    type:'get',
+                    dataType:'json',
+                    success:function (response) {
+                        if(response.code == "0"){
+                            window.location.reload();
+                            layer.msg(response.msg);
+                        }else{
+                            layer.msg(response.msg);
+                        }
+
+
+
+                    },
+                    error:function (error) {
+
+                        console.log(error);
+                    }
+                });
+
+                layer.msg("取消成功");
+            },function () {
+                layer.msg("停止");
+            })
+        })
+
+    });
+
+
+</script>
+</body>
+
+</html>

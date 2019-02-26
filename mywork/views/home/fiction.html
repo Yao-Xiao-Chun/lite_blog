@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>蛋蛋博客-小说</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{{template "common/comm.html"}}
+</head>
+<body class="lay-blog">
+{{template "common/head.html" .}}
+<div class="container-wrap">
+    <div class="container">
+        <div class="contar-wrap">
+            <div class="item">
+                <table class="layui-table">
+                    <colgroup>
+                        <col width="200">
+                        <col width="100">
+                        <col width="300">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>书籍</th>
+                        <th>下载量</th>
+                        <th>类别</th>
+                    </tr>
+                    </thead>
+                    <tbody id="m-fiction">
+                    {{range $key,$val := .fictionList}}
+                    <tr>
+                        <td><a title="下载" href="/fiction/download?txt_id={{$val.ID}}">{{$val.Name}}</a></td>
+                        <td>{{$val.DownloadNum}}</td>
+                        <td>{{$val.Tags}}</td>
+                    </tr>
+                    {{end}}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="item-btn">
+        {{/*<button class="layui-btn layui-btn-normal lay-page-article">下一页</button>*/}}
+
+            <div id="common-fiction-page"></div>
+        </div>
+    </div>
+
+</div>
+
+
+{{template "common/footer.html".}}
+
+
+</body>
+</html>

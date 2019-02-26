@@ -17,3 +17,7 @@ go get github.com/dchest/captcha --验证码包
 go get github.com/molizz/goip   -- 地址转换包  没用
 
 go get github.com/tabalt/ipquery
+
+go get github.com/tealeg/xlsx   -- 导出excel
+
+go get github.com/gorilla/websocket  -- websocket 包

@@ -20,11 +20,31 @@
 									<span > 作者：<span style="color: #01AAED;">{{.articleData.Author}}</span></span>
 								</h5>
 								<div class="w-e-text" style="padding: 0;overflow: auto;">{{str2html .articleData.Content}}</div>
+
+
 								<div class="count layui-clear">
 									<span class="pull-left">阅读 <em>{{.articleData.Read_num}}</em></span>
 									<span class="pull-right like"><i class="layui-icon layui-icon-praise article_click" data-id="{{.articleData.ID}}"></i><em>{{.articleData.Click}}</em></span>
 								</div>
+
+                                <ul class="b-prev-next" >
+                                    <li class="b-prev" style="list-style: none;!important;"> 上一篇：
+									{{if eq .articlePrev.id "0"}}
+                                        <span>没有了</span>
+									{{else}}
+                                        <a href="/article/info?id={{.articlePrev.id}}" style="color: #0B7DF2;">{{.articlePrev.title}}</a>
+									{{end}}
+                                    </li>
+                                    <li class="b-next" style="list-style: none;!important;"> 下一篇：
+										{{if eq .articleNext.id "0"}}
+                                            <span>没有了</span>
+												{{else}}
+										<a href="/article/info?id={{.articleNext.id}}" style="color: #0B7DF2;">{{.articleNext.title}}</a>
+												{{end}}
+									</li>
+                                </ul>
 							</div>
+
 						</div>	
 						<a name="comment" id="commit-page"> </a>
 						<div id="LAY-msg-box">

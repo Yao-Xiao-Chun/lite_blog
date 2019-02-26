@@ -8,7 +8,7 @@
                 {{range $key,$val := .article}}
                 <div class="item layui-article" data-id="{{$val.id}}">
                     <div class="item-box  layer-photos-demo1 layer-photos-demo">
-                        <h3><a href="/article/info?id={{$val.id}}">{{$val.title}}</a></h3>
+                        <h3><a style="color: #0B7DF2;" href="/article/info?id={{$val.id}}">{{$val.title}}</a></h3>
                         <h5><i class="layui-icon  ">&#xe637;</i> 时间：<span style="color: #01AAED;">{{$val.created_time}}</span>
                             <span style="margin-left: 40px;">
                                 <i class="layui-icon ">&#xe66e;</i>

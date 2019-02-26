@@ -191,3 +191,13 @@ type LiteArticle struct {
 	 return article,db.Where("status = ? and is_top = 1",1,).Limit(20).Order("created_at desc,id desc").Select("title,id").Find(&article).Error
 
  }
+
+ func ArticleNext(id int)(article LiteArticle,err error){
+
+ 	return article,db.Where("id > ?",id).Select("id,title").Limit(1).Find(&article).Error
+ }
+
+func ArticlePrev(id int)(article LiteArticle,err error){
+
+	return article,db.Where("id < ?",id).Select("id,title").Limit(1).Find(&article).Error
+}

@@ -94,3 +94,11 @@ type LiteTag struct {
 	  	return tag,db.Where("is_status = ?",1).Select([]string{"tag_name","id"}).Find(&tag).Error
 
 	  }
+/**
+	获取小说的标签 状态为0的 假设
+ */
+func FindTagTypeTwo() (tag []LiteTag,err error){
+
+	return tag,db.Where("is_status = ?",0).Select([]string{"tag_name","id"}).Find(&tag).Error
+
+}

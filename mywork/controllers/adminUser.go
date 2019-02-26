@@ -43,6 +43,8 @@ func (this *AdminUserController)DoLogin(){
 
 		pwd := this.CheckMustKey("password","密码不能为空")
 
+		pwd = this.SetMd5Pwd(pwd)
+
 		user,err := models.QueryAccountAndPwd(account,pwd)//获取查询结果
 
 		if err != nil{
@@ -66,6 +68,7 @@ func (this *AdminUserController)DoLogin(){
 		//写入日志
 		this.ReadLog("账户:"+account+",在Ip地址为："+this.GetIP()+",进行登陆，登陆成功",1)
 
+		TaskPushData("账户:"+account+"登陆上线了") //提示登录的用户
 		//跳转页面进入后台
 		this.Ctx.Redirect(302,"/admin") //登录成功重定向这个方法
 
@@ -79,6 +82,7 @@ func (this *AdminUserController)LoginOut() {
 
 	this.DelSession(SESSION_ADMIN_KEY)
 
+	TaskPushData("账户:"+this.User.Account+"退出了登录") //提示登录的用户
 	//跳转页面进入后台
 	this.Ctx.Redirect(302,"/admin") //登录成功重定向这个方法
 
@@ -214,7 +218,7 @@ func (this *AdminUserController) CreateUser(){
 
 				users.Email = user.Email
 
-				users.Password = user.Password
+				users.Password = this.SetMd5Pwd(user.Password)
 
 				users.Head_img = user.Title_img //头像地址
 
@@ -222,7 +226,8 @@ func (this *AdminUserController) CreateUser(){
 
 				models.CreateUser(&users)//创建
 
-
+				//写入日志
+				this.ReadLog("账号:"+this.User.Nikename+" 操作：创建用户:'"+user.Account+"',状态：成功",2)
 				this.Data["json"] = map[string]interface{}{
 					"code":"0",
 					"errmsg":"创建账户成功",
@@ -264,11 +269,18 @@ func (this *AdminArticleController) GetUser(){
 
 	if err == nil{
 
+		//写入日志
+		this.ReadLog("账号:"+this.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：成功",2)
+
 		this.Data["json"] = map[string]interface{}{
 			"code":"0",
 			"errmsg":"删除成功",
 		}
 	}else{
+
+		//写入日志
+		this.ReadLog("账号:"+this.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：失败",2)
+
 		this.Data["json"] = map[string]interface{}{
 			"code":"1006",
 			"errmsg":"删除失败！",
@@ -359,7 +371,10 @@ func (this *AdminArticleController) GetUser(){
 
 				   users.Email = user.Email
 
-				   users.Password = user.Password
+				   if user.Password != ""{
+
+					   users.Password = this.SetMd5Pwd(user.Password)
+				   }
 
 				   users.Head_img = user.Title_img //头像地址
 
@@ -369,6 +384,8 @@ func (this *AdminArticleController) GetUser(){
 
 				   models.EditUser(ids,users)
 
+			       //写入日志
+			       this.ReadLog("账号:"+this.User.Nikename+" 操作：编辑用户:'"+user.Account+"',状态：成功",2)
 
 				   this.Data["json"] = map[string]interface{}{
 					   "code":"0",

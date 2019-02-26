@@ -59,7 +59,7 @@ func init()  {
 			Nikename:"王大锤",
 			Types:1,
 			Account:"949656336@qq.com",
-			Password:"1234@abcd",
+			Password:"93bcab4ab719fde430e5ad90656a240e",//1234@abcd
 			Is_admin:1,
 			Status:1,
 
@@ -91,6 +91,17 @@ func auotoData(){
 
 	db.AutoMigrate(&LiteLog{}) //创建一张日志表
 
-	db.AutoMigrate(&LiteLike{}) //创建一张友情链接表
+	db.AutoMigrate(&LiteLink{}) //创建一张友情链接表
+
+	db.AutoMigrate(&LiteCrontab{}) //创建一张定时任务表
+
+	db.AutoMigrate(&LiteFiction{}) //小说列表上传
+
+	db.AutoMigrate(&LiteFictionLog{}) //小说日志
+
+	db.AutoMigrate(&LiteFictionOperation{}) //小说批次记录
+
+	db.AutoMigrate(&LiteBlackList{}) //黑名单
+
 
 }

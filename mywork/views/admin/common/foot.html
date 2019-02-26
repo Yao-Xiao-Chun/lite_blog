@@ -41,5 +41,64 @@
             });
 
         });
+        //基本资料设置
+        $('#Clear_log').click(function () {
+            //弹出新增窗口
+            layer.open({
+                type: 2,
+                title: '清理缓存日志',
+                shadeClose: true,
+                shade: false,
+                maxmin: true, //开启最大化最小化按钮
+                area: ['893px', '600px'],
+                content: '/admin/clear'
+            });
+
+        });
+
+
+        $(function() {
+            var ws = new WebSocket('ws://' + window.location.host + '/ws/index');
+            //获取返回的值
+            ws.onopen = function(){
+                var obj = {};
+                obj.message = '尝试连接socket' + new Date().toLocaleString();
+                obj.account = '949656336@qq.com';
+                obj.token = 'asdfghjkl';
+                obj.code = 200;
+                //数据报告
+                // console.log(obj);
+                obj = JSON.stringify(obj);
+                ws.send(obj);
+            }
+
+
+            ws.onmessage = function(e) {
+                var  res = JSON.parse(e.data);
+                if(res.count > 0){
+                    $('#msg-list').html('<span class="layui-badge">'+res.count+'</span>');
+                    layer.msg(res.message,{
+                        time:10000,
+                    });
+                }
+
+                //console.log(JSON.parse(e.data));
+                //添加返回消息 告诉服务器 此页面还存在
+                //{"message":"data"}
+                var obj = {};
+                obj.message = '链接存在' + new Date().toLocaleString();
+                obj.code = res.code;
+                //console.log(obj);
+                obj = JSON.stringify(obj);
+                ws.send(obj);
+
+            };
+            var $ul = $('#msg-list');
+        });
+
+
     });
+
+
+
 </script>

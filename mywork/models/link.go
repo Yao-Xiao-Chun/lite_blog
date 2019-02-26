@@ -5,7 +5,7 @@ import "github.com/jinzhu/gorm"
 /**
 	友情链接表
  */
-type LiteLike struct {
+type LiteLink struct {
 	gorm.Model
 	Name string `gorm:"type:varchar(255);not null;"`//名称
 	Url string `gorm:"type:varchar(255);not nul;"`//地址
@@ -13,3 +13,65 @@ type LiteLike struct {
 	Status int `gorm:"type:int;not null;default:1"`//启用状态 1 启用 0禁用
 }
 
+/**
+	新增
+ */
+
+func AddLinkData(data LiteLink)(err error){
+	return db.Create(&data).Error
+}
+
+
+/**
+	获取展示数据
+*/
+func GetLinkTotal()(count int,err error){
+
+	var link []LiteLink
+
+	return count,db.Find(&link).Count(&count).Error
+}
+
+
+/**
+	查询数据
+   */
+func SelectLink(page int)(link []LiteLink,err error){
+
+	return link,db.Order("created_at desc,id desc").Offset((page -1) * 10).Limit(10).Find(&link).Error
+
+}
+
+/**
+	查询单条友链
+ */
+func FindLinkInfo(id int)(link LiteLink,err error){
+
+	return link,db.Where("id = ?",id).Limit(1).Find(&link).Error
+}
+
+/**
+	更新
+ */
+func SaveLink(link LiteLink)error{
+
+	return db.Omit("created_at").Save(&link).Error
+}
+
+
+/**
+	删除
+ */
+
+func DeleteLink(id int) error{
+
+	var link LiteLink
+
+	return db.Where("id =?",id).Delete(&link).Error
+}
+
+
+func GetHomeLink()(link []LiteLink,err error){
+
+	return link,db.Where("status = ?",1).Select("name,url").Order("sort asc,id desc").Find(&link).Error
+}

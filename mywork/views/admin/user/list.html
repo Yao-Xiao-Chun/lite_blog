@@ -98,6 +98,14 @@
 
                                 $.each(response.data,function (index,val) {
 
+                                    if(val.status == "1"){
+
+                                        val.status = "<i class=\"layui-icon layui-icon-ok\">&#xe605;</i>";
+                                    }else{
+                                        val.status = "<i class=\"layui-icon layui-icon-close\">&#x1006;</i>";
+                                    }
+
+
                                     $('tbody').append('<tr>\n' +
                                             '            <td>'+val.uid+'</td>\n' +
                                             '            <td>'+val.nickname+'</td>\n' +

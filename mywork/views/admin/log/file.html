@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>缓存</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>清理日志</legend>
+</fieldset>
+
+<a href="javascript:void(0);" id="c-clearlog" class="layui-btn" style="margin-left: 15px;">目录文件</a>
+<a href="javascript:void(0);" id="d-clearlog" class="layui-btn">日志列表</a>
+
+<div style="margin-top: 20px;">
+
+    <div class="layui-collapse" id="file-log">
+
+    </div>
+</div>
+
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+<script>
+    layui.use(['form', 'layedit', 'laydate','element'], function() {
+        var form = layui.form,
+                layer = layui.layer,
+                layedit = layui.layedit,
+                laydate = layui.laydate,
+                element = layui.element;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        var status = '0';
+        form.on('switch', function(data){
+
+            if (data.elem.checked){
+
+                status = '1';
+            }else{
+
+                status = '0';
+            }
+
+        });
+
+
+
+        //自定义验证规则
+        form.verify({
+            tag_name: function(value) {
+                if (value.length < 1) {
+                    return '标签不能为空';
+                }
+            },
+
+        });
+
+
+        //监听提交
+        $('#c-clearlog').click(function () {
+
+            $.ajax({
+                url:'/admin/clear/log?dir_name=download',
+                type:'get',
+                data:'',
+                success:function (response) {
+                   // console.log(response);
+                    $('#file-log').html('');
+                    if(response.code == "0"){
+                        $(response.data).each(function (index,val) {
+
+                            $('#file-log').append('<div class="layui-colla-item">\n' +
+                                    '            <h2 class="layui-colla-title">'+val.FileName+'</h2>\n' +
+                                    '            <div class="layui-colla-content layui-show">文件大小：'+val.FileSizeStr+' <a class="file-log" href="javascript:void(0);" data-name="'+val.FilePath+'" title="下载文件" style="color:red;">文件目录：'+val.FilePath+'</a></div>\n' +
+                                    '        </div>');
+                        });
+                    }
+                },
+                error:function () {
+
+                }
+            })
+        });
+        $('#d-clearlog').click(function () {
+
+            $.ajax({
+                url:'/admin/clear/log?dir_name=logs',
+                type:'get',
+                data:'',
+                success:function (response) {
+                   // console.log(response);
+                    $('#file-log').html('');
+                    if(response.code == "0"){
+                        $(response.data).each(function (index,val) {
+
+                            $('#file-log').append('<div class="layui-colla-item">\n' +
+                                    '            <h2 class="layui-colla-title">'+val.FileName+'</h2>\n' +
+                                    '            <div class="layui-colla-content layui-show">文件大小：'+val.FileSizeStr+' <a class="file-log" href="javascript:void(0);" data-name="'+val.FilePath+'" title="下载文件" style="color:red;">文件目录：'+val.FilePath+'</a></div>\n' +
+                                    '        </div>');
+                        });
+                    }
+                },
+                error:function () {
+
+                }
+            })
+        });
+
+     $('.file-log').live('click',function (e) {
+
+         var _self = this;
+         var name = $(this).attr('data-name');
+
+         if(name != ""){
+             //询问框
+             layer.confirm('请选择以下操作', {
+                 btn: ['下载','删除'] //按钮
+             }, function(){
+                 $.ajax({
+                     url:'/admin/clear/download?names='+name,
+                     data:'',
+                     type:'get',
+                     dataType:'json',
+                     success:function (response) {
+
+                         console.log(response);
+
+                         if(response.code > 0){
+                             layer.msg(response.msg);
+                             return false;
+                         }else{
+                             layer.msg('开始下载', {icon: 1});
+                             window.location.href = '/admin/clear/download/logs?file='+response.msg
+                         }
+
+                     },
+                     error:function () {
+
+                     }
+                 });
+
+             }, function(){
+                 $.ajax({
+                     url:'/admin/clear/delete?names='+name,
+                     data:'',
+                     type:'get',
+                     dataType:'json',
+                     success:function (response) {
+
+                         if(response.code > 0){
+                             layer.msg(response.msg);
+                             return false
+                         }else{
+                             layer.msg('删除成功');
+                             $(_self).parent().parent().remove(); //删除此记录
+                         }
+
+                     },
+                     error:function () {
+
+                     }
+                 });
+
+
+             });
+         }
+
+     });
+
+
+
+    });
+
+
+</script>
+
+</body>
+
+</html>

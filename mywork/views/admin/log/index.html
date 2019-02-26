@@ -19,12 +19,7 @@
 
 
 <oktoolbar>
-
-    <button class="layui-btn layui-btn-danger" id="batchDel">
-        <i class="layui-icon layui-icon-delete"></i>批量删除
-    </button>
-
-
+    <a href="/download/log" class="layui-btn">导出日志</a>
 </oktoolbar>
 
 
@@ -90,7 +85,7 @@
                                     $('tbody').append('<tr>\n' +
                                             '            <td>'+val.ID+'</td>\n' +
                                             '            <td>'+val.Content+'</td>\n' +
-                                            '            <td>'+val.Level+'</td>\n' +
+                                            '            <td>'+val.LogsType+'</td>\n' +
 
 
                                             '            <td>\n' +

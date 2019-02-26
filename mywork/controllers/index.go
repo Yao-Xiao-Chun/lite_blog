@@ -7,7 +7,9 @@ import (
 	"github.com/dchest/captcha"
 	"github.com/jinzhu/gorm"
 	"strings"
-
+	"strconv"
+	"github.com/astaxie/beego/logs"
+	"sync"
 )
 
 type IndexController struct {
@@ -20,6 +22,16 @@ type TagList struct {
 	Num  int
 	Tid  int
 	Sort int
+}
+
+
+/**
+	时间结构体 仅供前天调用 xx时间前留言
+ */
+type TimeString struct {
+	models.LiteReview
+
+	TimeStr string
 }
 
 //使用注解路由
@@ -262,6 +274,8 @@ func (this *IndexController)TypeArticle(){
 	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
 
 	this.Data["is_category"] = id
+
+	this.GetTop() //获取标签
 	//设置模板路径
 	this.TplName = "home/index.html"
 }
@@ -419,6 +433,7 @@ func (this *IndexController) GetArticleInfo(){
 	this.Data["articleData"] = res
 	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
 	this.GetTop()//获取置顶
+	this.NexArticle(id) //文章条数详情
 	this.TplName = "home/details.html"
 }
 
@@ -655,14 +670,18 @@ func (this *IndexController) DownFile(){
  	data = make([]TagList,0)
 
  	list,_:= models.FindTagChecked()
-
-	for index,val:=range list{
-
+	i := 0
+	for _,val:=range list{
+		//解决前台样式
+		if i > 3{
+			i = 0
+		}
 		num := models.CountArticleAndTag(int(val.ID))
 
-		res := TagList{val.Tag_name,num.Total,int(val.ID),index + 1}
+		res := TagList{val.Tag_name,num.Total,int(val.ID),i + 1}
 
 		data = append(data,res)
+		i++
 	}
 
 	return data
@@ -704,6 +723,214 @@ func (this *IndexController) DownFile(){
 	//查询友情链接
 	this.Data["Link"],_ = models.GetHomeLink()
 
-	//最新留言
-	this.Data["Commit"],_ = models.SelectReview()
+	var data []TimeString
+
+	result,_ := models.SelectReview()
+
+	data = make([]TimeString,0)
+
+	for _,val := range result{
+
+		arr := TimeString{val,this.TimeRangeComparison(val.CreatedAt)}
+
+		data = append(data,arr)
+	}
+
+	 //最新留言
+	 this.Data["Commit"] = data
  }
+
+
+ /**
+ 	获取详情页中的获取下一条and 上一条
+  */
+ func(this *IndexController) NexArticle(id int){
+	//获取当前id的上一篇和下一篇
+
+	resNext,_ := models.ArticleNext(id)
+
+	resPrev,_ := models.ArticlePrev(id)
+
+	if resPrev.ID == 0{
+
+		this.Data["articlePrev"] = map[string]string{
+			"id":"0",
+			"title":"没有了",
+		}
+	}else{
+		this.Data["articlePrev"] = map[string]string{
+			"id":strconv.Itoa(int(resPrev.ID)),
+			"title":resPrev.Title,
+		}
+	}
+
+	if resNext.ID == 0{
+
+		this.Data["articleNext"] = map[string]string{
+			"id":"0",
+			"title":"没有了",
+		}
+
+	}else{
+
+		this.Data["articleNext"] = map[string]string{
+			"id":strconv.Itoa(int(resNext.ID)),
+			"title":resNext.Title,
+		}
+	}
+
+
+ }
+
+
+
+ /**
+ 	小说列表页
+  */
+ func (this *IndexController) GetHomeFiction(){
+
+ 	this.Data["fictionNum"],_ = models.CountHomeFictionNum()
+
+ 	this.Data["fictionList"],_ = this.queryFictionData(1,10)
+
+ 	this.TplName = "home/fiction.html"
+ }
+
+ /**
+ 	小说展示页面
+  */
+ func (this *IndexController) HomeFictionPage(){
+
+ 	var page,size int
+
+ 	this.Ctx.Input.Bind(&page,"page")
+
+ 	this.Ctx.Input.Bind(&size,"size")
+
+ 	data,err := this.queryFictionData(page,10)
+
+ 	if err != nil{
+
+		this.Data["json"] = map[string]interface{}{
+			"code":"1002",
+			"msg":"请求错误，请稍后...",
+		}
+	}else{
+
+		this.Data["json"] = map[string]interface{}{
+			"code":"0",
+			"data":data,
+			"msg":"获取成功",
+		}
+	}
+
+ 	this.ServeJSON()
+ }
+ 
+ /**
+ 	小说页面处理展示
+  */
+func (this *IndexController) queryFictionData(page,size int) (list []FictionList,err error)  {
+
+	data,err := models.FindHomeFictionData(page,10)
+
+	//var list []FictionList
+
+	if err != nil{
+
+		return list,err
+
+	}else{
+
+		list = make([]FictionList,0)
+
+		for _,val := range data {
+
+			ids,_ := models.FictionOperation(int(val.ID))
+
+			dataRes := FictionList{val,"",val.CreatedAt.Format("2006-01-02 13:04:05"),ids.DownloadNum}
+
+			if val.Tags != ""{
+
+				res := models.FictionAndTag(val.Tags)
+
+				dataRes.Tags = res.Fname
+
+			}
+
+			list = append(list,dataRes)
+
+		}
+
+		return list,nil
+
+	}
+}
+
+/**
+	小说下载
+ */
+func (this *IndexController) HomeFictionDownload()  {
+
+	var fictionId int
+
+	this.Ctx.Input.Bind(&fictionId,"txt_id")
+
+	if fictionId == 0{
+
+		this.Abort500(nil)
+	}
+
+	//查询是否存在此小说
+
+	data,err := models.FirstFictionDownload(fictionId)
+
+	if err != nil{
+
+		//写入日志
+		logs.Error(err)
+		this.Abort("500")
+
+	}else{
+
+		//查询是否是封禁的ip
+		num,_:= models.QueryBanned(this.GetIP())
+
+		if num > 0{
+
+			logs.Info(this.GetIP()+"又开始请求下载了")
+
+			this.Abort("404")
+		}else{
+			//获取下载的详细内容
+			this.updateOperation(data)
+
+			this.Ctx.Output.Download(data.FileName,data.Name)
+		}
+
+	}
+}
+
+//更新日志表和批次表
+
+func (this *IndexController) updateOperation(data models.LiteFiction) bool {
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+
+	go func() {
+		models.CreateFictionLog(data,this.GetIP())
+
+		wg.Done()
+	}()
+
+	go func() {
+
+		models.UpdateOperation(data)
+
+	}()
+
+	wg.Wait() //执行完成，解除阻塞
+
+	return  true
+}

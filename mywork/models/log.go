@@ -48,3 +48,9 @@ import "github.com/jinzhu/gorm"
 
     	return num,db.Order("created_at desc,id desc").Find(&log).Count(&num).Error
 	}
+
+
+func FindLogAll()(log []LiteLog,err error){
+
+	return log,db.Order("created_at desc,id desc").Find(&log).Error
+}

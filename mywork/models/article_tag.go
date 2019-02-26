@@ -27,6 +27,11 @@ type HomeTag struct {
 	Total int
 }
 
+type FciData struct {
+	Fname string
+	Id  int
+}
+
 
  /**
 	前台获取tage文章
@@ -150,3 +155,17 @@ func GetAidAndTagName(aid uint) (res Result) {
 
 	 return list,num.Total
  }
+
+ /**
+ 	获取小说的标签名称
+  */
+  func FictionAndTag(fid string)(data FciData){
+
+  	var sql string
+
+  	sql = `select f.id,group_concat(t.tag_name) as fname from lite_fictions as f left join lite_tags as t ON FIND_IN_SET(t.id,f.tags) where f.tags="`+fid+`"`
+
+  	db.Raw(sql).Scan(&data)
+
+  	return data
+  }

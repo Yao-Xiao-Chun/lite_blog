@@ -332,5 +332,55 @@
             }
         });
 
+        laypage.render({
+            elem: 'common-fiction-page'
+            ,count: "{{.fictionNum}}" //数据总数
+            ,jump: function(obj,first){
+                console.log(first);
+                //判断是否是首次加载
+                if(!first){
+                    lay.load();
+
+                    //获取下一页 ajax请求
+
+                    $.ajax({
+                        url:'/fiction/page?page='+obj.curr,
+                        type:'get',
+                        dataType:'json',
+                        success:function (response) {
+                            //清空以前的数据
+                            $('#m-fiction').html('');
+                            if(response.code == '0'){
+
+                                $.each(response.data,function (index,val) {
+
+                                    $("#m-fiction").append('<tr>\n' +
+                                            '                        <td><a  title="下载" href="/fiction/download?txt_id='+val.ID+'"'+val.Name+'</a></td>\n' +
+                                            '                        <td>'+val.DownloadNum+'</td>\n' +
+                                            '                        <td>'+val.Tags+'</td>\n' +
+                                            '                    </tr>')
+                                });
+
+
+
+
+                                layer.closeAll('loading');
+
+                            }else{
+
+                                lay.msg('没有数据了，别点了，要哭了*——*');
+
+                                layer.closeAll('loading');
+                            }
+
+                        },
+                        error:function (err) {
+
+                        }
+                    });
+                }
+            }
+        });
+
     });
 </script>

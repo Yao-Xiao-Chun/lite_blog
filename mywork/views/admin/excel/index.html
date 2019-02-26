@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>展示excel</title>
+    {{template "admin/common/common.html"}}
+
+</head>
+
+<body>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>展示excel</legend>
+</fieldset>
+
+
+
+<div  style="position: absolute;top:50%;left: 50%;margin-top: -130px;margin-left: -60px; " class="layui-upload-drag" id="test10">
+    <i class="layui-icon"></i>
+    <p>点击上传，或将文件拖拽到此处</p>
+</div>
+
+<div style="display: none" id="excel-list">
+    <ul class="layui-tab-title">
+        <li class="layui-this" id="sheet">网站设置</li>
+
+    </ul>
+
+    <table class="layui-table" lay-size="sm">
+        <colgroup>
+
+        </colgroup>
+        <thead>
+
+        </thead>
+        <tbody>
+
+
+        </tbody>
+    </table>
+</div>
+
+
+<script src="/static/admin/plugins/layui/layui.js"></script>
+    <script>
+        layui.use(['form', 'layedit', 'laydate','laypage','upload','element'], function() {
+            var form = layui.form,
+                    laypage = layui.laypage,
+                    layer = layui.layer,
+                    upload = layui.upload,
+                    element = layui.element;
+
+            //拖拽上传
+            upload.render({
+                elem: '#test10'
+                ,url: '/upload/done'
+                ,exts: 'xls|xlsx' //只允许上传xls
+                ,done: function(res){
+
+                    if(res.code == "0"){
+                        $('#test10').css("display","none");
+                        $(res.data).each(function (index,val) {
+                            $("#sheet").text(val.Sheet);
+                            //遍历头部
+                            $(val.HeadData).each(function (k,v) {
+                                $(v).each(function (i,j) {
+
+                                   var str = '';
+                                   $(j[0]).each(function (d,e) {
+                                       for(var t in e){
+
+                                           str += "<td>"+e[t]+"</td>";
+                                       }
+                                   });
+                                   $('thead').append('<tr>'+str+'</tr>');
+
+                                });
+                            });
+
+                            $(val.ContentData).each(function (k,vdata) {
+                                var trs = ''
+                                for(var j in vdata){
+
+                                    var str = '';
+                                    $(vdata[j]).each(function (d,e) {
+
+                                        for(var t in e){
+
+                                            str += "<td>"+e[t]+"</td>";
+                                        }
+                                    });
+
+                                    trs += "<tr>"+str+"</tr>";
+                                }
+
+                               $('tbody').append(trs);
+                            });
+                        });
+                        $('#excel-list').css("display","block");
+
+                    }else{
+
+                    }
+
+                }
+            });
+
+        });
+
+
+    </script>
+</body>
+
+</html>
