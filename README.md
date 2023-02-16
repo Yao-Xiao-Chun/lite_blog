@@ -18,6 +18,16 @@ beegou + layui博客
 + go build ./main.go
 
 ### 数据库
--------
+
 - mysql数据库 使用的是自动迁移，在首次运行环境过程中会自动生成数据表
 
+### FAQ
+ + 如果更新包下载错误，可以使用国内源
+ + ```shell
+     #配置 GOPROXY 环境变量 linux
+    export GOPROXY=https://proxy.golang.com.cn,direct
+   ```
+ + ```shell
+    # 配置 GOPROXY 环境变量 windows
+    $env:GOPROXY = "https://proxy.golang.com.cn,direct"
+    ```
