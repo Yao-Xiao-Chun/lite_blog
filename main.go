@@ -25,7 +25,7 @@ func main() {
 func setTemplate() {
 
 	//创建新的模板函数
-	beego.AddFuncMap("equrl", func(x, y string) bool {
+	err := beego.AddFuncMap("equrl", func(x, y string) bool {
 
 		//去除获取url中的 /
 		x1 := strings.Trim(x, "/")
@@ -41,18 +41,24 @@ func setTemplate() {
 		}
 
 	})
+	if err != nil {
+		return
+	}
 
 	//拼接参数
-	beego.AddFuncMap("urljoin", func(x string, y int) string {
+	err = beego.AddFuncMap("urljoin", func(x string, y int) string {
 
 		str := strconv.Itoa(y)
 		return x + str
 	})
+	if err != nil {
+		return
+	}
 
 	/**
 	判读一个参数是否存在另一个集合里面
 	*/
-	beego.AddFuncMap("in_array", func(x uint, sli []string) bool {
+	err = beego.AddFuncMap("in_array", func(x uint, sli []string) bool {
 
 		str := strconv.Itoa(int(x))
 
@@ -67,6 +73,9 @@ func setTemplate() {
 
 		return false
 	})
+	if err != nil {
+		return
+	}
 
 }
 

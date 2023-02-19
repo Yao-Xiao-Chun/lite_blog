@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"mywork/models"
 	"math/rand"
+	"mywork/models"
 	"time"
 )
 
@@ -11,32 +11,28 @@ import (
 	@param
     @Auther 姚春
 	@Date 2018-08-25
- */
+*/
 type HomeBaseController struct {
-
 	BaseController
 }
 
-
 type cat struct {
-	ID       int
-	Menu_parent      int
-	Menu_name     string
-	Level         int
-	Menu_status   int
-	sort          int
-	Children []*Cat ``
+	ID          int
+	Menu_parent int
+	Menu_name   string
+	Level       int
+	Menu_status int
+	sort        int
+	Children    []*Cat ``
 }
 
-
-
 /**
-   这个函数主要是为了用户扩展用的，这个函数会在下面定义的这些 Method 方法之前执行，用户可以重写这个函数实现类似用户验证之类
+  这个函数主要是为了用户扩展用的，这个函数会在下面定义的这些 Method 方法之前执行，用户可以重写这个函数实现类似用户验证之类
 */
 
-func (this *HomeBaseController) Prepare()  {
+func (this *HomeBaseController) Prepare() {
 
-	this.Data["Path"] = this.Ctx.Request.RequestURI  //获取当前中的url
+	this.Data["Path"] = this.Ctx.Request.RequestURI //获取当前中的url
 
 	menuData := this.GetMenuList(false) //获取列表
 
@@ -48,21 +44,21 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 
 	var menu []models.LiteAdminMenu
 	//是获取所有的还是获取选择的
-	if flag{
-		menu,_ = models.GetAll()
-	}else{
-		menu,_ = models.GetMenuInfo()//根据条件获取
+	if flag {
+		menu, _ = models.GetAll()
+	} else {
+		menu, _ = models.GetMenuInfo() //根据条件获取
 	}
 
 	var list []Cat
 
-	list = make([]Cat,len(menu))
+	list = make([]Cat, len(menu))
 
 	/*var listA []*Cat
 
 	listA = make([]*Cat,len(menu))*/
 
-	for i,v:= range menu{
+	for i, v := range menu {
 
 		list[i].ID = int(v.ID)
 		list[i].Menu_name = v.Menu_name
@@ -81,9 +77,9 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 
 	var menuArr map[string]interface{}
 
-	for key,val := range menus{
+	for key, val := range menus {
 
-		menuArr = make( map[string]interface{})
+		menuArr = make(map[string]interface{})
 
 		var str string
 
@@ -92,7 +88,7 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 			str = setSpace(val.Level)
 		}*/
 
-		menuArr["name"] = str+val.Menu_name
+		menuArr["name"] = str + val.Menu_name
 
 		menuArr["id"] = val.ID
 
@@ -112,8 +108,8 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 	生成随机字符串
 	@param int 长度
     @return string
- */
-func (this *HomeBaseController) GetRandomString(lens int) string{
+*/
+func (this *HomeBaseController) GetRandomString(lens int) string {
 
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -130,8 +126,3 @@ func (this *HomeBaseController) GetRandomString(lens int) string{
 
 	return string(result)
 }
-
-
-
-
-
