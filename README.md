@@ -16,7 +16,10 @@ beegou + layui博客
 ### 启动
 + go mod tidy 
 + go build ./main.go
-
+### 登录  
++ 地址:http://ip:8080/admin  后台管理页面
++ 账户: 1234567@qq.com
++ 密码: 1234@abcd 
 ### 数据库
 
 - mysql数据库 使用的是自动迁移，在首次运行环境过程中会自动生成数据表
