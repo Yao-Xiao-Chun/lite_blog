@@ -1,62 +1,62 @@
-package controllers
+package common
 
 import (
-	"github.com/astaxie/beego/toolbox"
 	"github.com/astaxie/beego/logs"
-	"strings"
-	"mywork/models"
+	"github.com/astaxie/beego/toolbox"
 	"mywork/bins"
+	"mywork/internal/app/admin"
+	"mywork/models"
+	"strings"
 	"time"
 )
 
 /**
-	定时任务控制器
- */
+定时任务控制器
+*/
 type CronTabController struct {
-	AdminBaseController
+	admin.AdminBaseController
 }
 
 /**
-	获取新增参数结构体
- */
+获取新增参数结构体
+*/
 type TaskData struct {
-	ID int	`form:"-"`
-	TaskName string `form:"task_name"`
+	ID           int    `form:"-"`
+	TaskName     string `form:"task_name"`
 	TaskDescript string `form:"task_descript"`
-	MonthStart string `form:"month_start"`
-	MonthEnd string `form:"month_end"`
-	WeekStart string `form:"week_start"`
-	WeekEnd string `form:"week_end"`
-	Time string `form:"time"`
-	Task string `form:"task"`
+	MonthStart   string `form:"month_start"`
+	MonthEnd     string `form:"month_end"`
+	WeekStart    string `form:"week_start"`
+	WeekEnd      string `form:"week_end"`
+	Time         string `form:"time"`
+	Task         string `form:"task"`
 }
 
 // @router /admin/crontab/index [get] 定时任务列表
-func (this *CronTabController) Task(){
+func (this *CronTabController) Task() {
 
-	this.Data["num"],_ = models.CountPage()
+	this.Data["num"], _ = models.CountPage()
 	this.TplName = "admin/crontab/index.html"
 }
 
 // @router /admin/crontab/add [get] 创建页面
-func (this *CronTabController) TaskAdd()  {
+func (this *CronTabController) TaskAdd() {
 
 	this.TplName = "admin/crontab/add.html"
 }
 
-
 // @router /admin/crontab/add [post] 创建
-func (this *CronTabController) Create(){
+func (this *CronTabController) Create() {
 
 	//获取传输的参数
 	var data TaskData
 
 	if err := this.ParseForm(&data); err != nil {
 		this.Data["json"] = map[string]interface{}{
-			"code":"1003",
-			"msg":err,
+			"code": "1003",
+			"msg":  err,
 		}
-	}else{
+	} else {
 
 		var taskData models.LiteCrontab
 
@@ -69,124 +69,118 @@ func (this *CronTabController) Create(){
 
 		models.TaskAdd(taskData)
 
-
 		this.Data["json"] = map[string]interface{}{
-			"code":"0",
-			"msg":"创建计划任务成功",
+			"code": "0",
+			"msg":  "创建计划任务成功",
 		}
 	}
 
 	this.ServeJSON()
 }
 
-
-
 /**
-	页面获取
- */
+页面获取
+*/
 // @router /admin/crontab/page/?:key [get]
-func (this *CronTabController) GetTaskPage()  {
+func (this *CronTabController) GetTaskPage() {
 
 	var page int
 
 	var size string
 
-	this.Ctx.Input.Bind(&page,"page")
+	this.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&size,"size")
+	this.Ctx.Input.Bind(&size, "size")
 
-	result,err := models.FindTask(page,10)
+	result, err := models.FindTask(page, 10)
 
-	if err != nil{
+	if err != nil {
 		this.Data["json"] = map[string]interface{}{
-			"code":"1003",
-			"msg":err,
+			"code": "1003",
+			"msg":  err,
 		}
-	}else{
+	} else {
 
 		this.Data["json"] = map[string]interface{}{
-			"code":"0",
-			"msg":"获取成功",
-			"data":result,
+			"code": "0",
+			"msg":  "获取成功",
+			"data": result,
 		}
 	}
 
-
 	this.ServeJSON()
-} 
-
+}
 
 /**
-	删除
- */
+删除
+*/
 // @router /admin/crontab/delete/?:key [get]
-func (this *CronTabController) CrontabDelete(){
+func (this *CronTabController) CrontabDelete() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId,"id")
+	this.Ctx.Input.Bind(&taskId, "id")
 
 	//检查次id是否在执行状态
-	resStatus,_ := models.FindInfoTask(taskId)
+	resStatus, _ := models.FindInfoTask(taskId)
 
-	if resStatus.Status == 0{
+	if resStatus.Status == 0 {
 		//可以删除
 		models.DeleteTask(taskId)
 		this.Data["json"] = map[string]interface{}{
-			"code":"0",
-			"msg":"删除成功",
+			"code": "0",
+			"msg":  "删除成功",
 		}
 
-	}else{
+	} else {
 		//启用状态，停止后可以删除
 		this.Data["json"] = map[string]interface{}{
-			"code":"1002",
-			"msg":"请停止该定时任务后，进行删除",
+			"code": "1002",
+			"msg":  "请停止该定时任务后，进行删除",
 		}
 	}
 	this.ServeJSON()
 }
 
-
 /**
-	启用任务
- */
+启用任务
+*/
 // @router /admin/crontab/startTask/?:key [get] 开通任务计划
-func (this *CronTabController) StartTask()  {
+func (this *CronTabController) StartTask() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId,"task_id")
+	this.Ctx.Input.Bind(&taskId, "task_id")
 	//查询要启用的任务
-	result,_ := models.FindInfoTask(taskId)
+	result, _ := models.FindInfoTask(taskId)
 
-	this.setTask(result.Frequency,result.TaskName,result.TaskId) //设定任务
+	this.setTask(result.Frequency, result.TaskName, result.TaskId) //设定任务
 
 	//更新后台数据库
 	result.Status = 1
 	models.UpdateTaskStatus(result)
 	//写入日志
-	this.ReadLog("用户："+this.User.Nikename+"开启定时任务:"+result.TaskName+"。",3)
+	this.ReadLog("用户："+this.User.Nikename+"开启定时任务:"+result.TaskName+"。", 3)
 	this.Data["json"] = map[string]interface{}{
-		"code":"0",
-		"msg":"创建定时任务成功",
+		"code": "0",
+		"msg":  "创建定时任务成功",
 	}
 
 	this.ServeJSON()
 }
 
 /**
-	停用任务
- */
+停用任务
+*/
 // @router /admin/crontab/stopTask/?:key [get] 开通任务计划
-func (this *CronTabController) StopTask()  {
+func (this *CronTabController) StopTask() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId,"task_id")
+	this.Ctx.Input.Bind(&taskId, "task_id")
 
 	//查询要启用的任务
-	result,_ := models.FindInfoTask(taskId)
+	result, _ := models.FindInfoTask(taskId)
 
 	DeleteTask(result.TaskName)
 
@@ -195,49 +189,43 @@ func (this *CronTabController) StopTask()  {
 
 	models.UpdateTaskStatus(result)
 
-	this.ReadLog("用户："+this.User.Nikename+"停用定时任务:"+result.TaskName+"。",3)
+	this.ReadLog("用户："+this.User.Nikename+"停用定时任务:"+result.TaskName+"。", 3)
 
 	this.Data["json"] = map[string]interface{}{
-		"code":"0",
-		"msg":"停止定时任务："+result.TaskName,
+		"code": "0",
+		"msg":  "停止定时任务：" + result.TaskName,
 	}
-
 
 	this.ServeJSON()
 }
 
-
-
-
 /**
-	停止全部任务
- */
+停止全部任务
+*/
 // @router /admin/crontab/allstop [get] 停止所有任务
-func (this *CronTabController) StopAllTask()  {
+func (this *CronTabController) StopAllTask() {
 
 	flag := this.GetRunTask()
 
-	if flag{
-		toolbox.StopTask()//停止所有任务执行
+	if flag {
+		toolbox.StopTask() //停止所有任务执行
 		this.Data["json"] = map[string]string{
-			"code":"0",
-			"msg":"所有定时任务停止成功",
+			"code": "0",
+			"msg":  "所有定时任务停止成功",
 		}
-	}else{
+	} else {
 		this.Data["json"] = map[string]string{
-			"code":"1003",
-			"msg":"停止失败",
+			"code": "1003",
+			"msg":  "停止失败",
 		}
 	}
 
 	this.ServeJSON()
 }
 
-
-
 /**
-	设置定时任务
-	* * * * * *
+设置定时任务
+* * * * * *
 */
 //前6个字段分别表示：
 //       秒钟：0-59
@@ -271,16 +259,16 @@ func (this *CronTabController) StopAllTask()  {
 //  0 2 8-20/3 * * *　　　　　　             8:02,11:02,14:02,17:02,20:02 执行
 //  0 30 5 1,15 * *　　　　　　              1 日 和 15 日的 5:30 执
 
-func (this *CronTabController) setTask(taskTime,name,taskId string){
+func (this *CronTabController) setTask(taskTime, name, taskId string) {
 
-	logs.Info(taskTime,taskId)
+	logs.Info(taskTime, taskId)
 
-	if taskTime == ""{
+	if taskTime == "" {
 
 		taskTime = "0/10 * * * * *"
 	}
 
-	if name== ""{
+	if name == "" {
 
 		name = "myTask"
 	}
@@ -296,16 +284,16 @@ func (this *CronTabController) setTask(taskTime,name,taskId string){
 			return bins.StartYeWu()
 		case "2":
 
-			return TaskPushData("")
+			return admin.TaskPushData("")
 		default:
 
 			return ToStr()
 		}
-	} )
+	})
 
 	toolbox.AddTask(name, tk)
 
-	tk.SetNext(time.Now())  //动态创建多个任务执行的时候，需要执行此次方法，否则会出现其他任务
+	tk.SetNext(time.Now()) //动态创建多个任务执行的时候，需要执行此次方法，否则会出现其他任务
 
 	logs.Info("创建任务成功....")
 
@@ -315,8 +303,8 @@ func (this *CronTabController) setTask(taskTime,name,taskId string){
 }
 
 /**
-	输出数据测试demo
- */
+输出数据测试demo
+*/
 func ToStr() error {
 
 	logs.Info("我在发送营销短信....")
@@ -325,11 +313,11 @@ func ToStr() error {
 }
 
 /**
-	删除定时任务
- */
-func DeleteTask(name string){
+删除定时任务
+*/
+func DeleteTask(name string) {
 
-	if name == ""{
+	if name == "" {
 
 		name = "myTask"
 	}
@@ -342,43 +330,42 @@ func DeleteTask(name string){
 
 }
 
-
 /**
-	定时执行系统
-	@param struct 上传参数结构体
-	@return string 执行任务格式
- */
-func (this *CronTabController)toTaskStr(data TaskData)string{
+定时执行系统
+@param struct 上传参数结构体
+@return string 执行任务格式
+*/
+func (this *CronTabController) toTaskStr(data TaskData) string {
 
-	var task,s,m,d,date,month,week string
+	var task, s, m, d, date, month, week string
 
-	s,m,d,date,month,week = "*","*","*","*","*","*"
+	s, m, d, date, month, week = "*", "*", "*", "*", "*", "*"
 
 	//判断月份是否为空
-	if data.MonthStart != ""{
+	if data.MonthStart != "" {
 		//设置月份开始时间
-		infoStart := strings.Split(data.MonthStart,"-")
+		infoStart := strings.Split(data.MonthStart, "-")
 
-		if data.MonthEnd != ""{
+		if data.MonthEnd != "" {
 
-			infoEnd := strings.Split(data.MonthStart,"-")
+			infoEnd := strings.Split(data.MonthStart, "-")
 
 			//月份
-			if infoStart[0] == infoEnd[0]{
+			if infoStart[0] == infoEnd[0] {
 
 				month = infoStart[0]
 
-			}else{
+			} else {
 
-				month = infoStart[0]+"-"+infoEnd[0] //设定开始月份和结束月份 例如 11-12
+				month = infoStart[0] + "-" + infoEnd[0] //设定开始月份和结束月份 例如 11-12
 			}
 			//天
-			if infoStart[1] == infoEnd[1]{
+			if infoStart[1] == infoEnd[1] {
 				date = infoStart[1]
-			}else{
-				date = infoStart[1]+"-"+infoEnd[1] //设定开始天和结束天 例如 1-31
+			} else {
+				date = infoStart[1] + "-" + infoEnd[1] //设定开始天和结束天 例如 1-31
 			}
-		}else{
+		} else {
 
 			month = infoStart[0] //月份
 
@@ -387,26 +374,26 @@ func (this *CronTabController)toTaskStr(data TaskData)string{
 	}
 
 	//判断星期
-	if data.WeekStart != ""{
+	if data.WeekStart != "" {
 
-		if data.WeekEnd != ""{
-			week = data.WeekStart+"-"+data.WeekEnd
-		}else{
+		if data.WeekEnd != "" {
+			week = data.WeekStart + "-" + data.WeekEnd
+		} else {
 			week = data.WeekStart
 		}
 
 	}
 
 	//判断时间
-	if data.Time != ""{
-		timeList := strings.Split(data.Time,":")
+	if data.Time != "" {
+		timeList := strings.Split(data.Time, ":")
 		s = timeList[2] //秒
 		m = timeList[1] //分
-		d = timeList[0]	//时
+		d = timeList[0] //时
 
-		if m == "00" && d == "00" && s != "00"{
+		if m == "00" && d == "00" && s != "00" {
 
-			s = "0/"+s //拼接定时任务 0/10 0/20 , 10s执行一次，20s执行一次
+			s = "0/" + s //拼接定时任务 0/10 0/20 , 10s执行一次，20s执行一次
 
 			m = "*"
 
@@ -414,32 +401,30 @@ func (this *CronTabController)toTaskStr(data TaskData)string{
 		}
 	}
 
-	task = s+" "+m+" "+d+" "+date+" "+month+" "+week //   0/1 * * * * * 任务列表
+	task = s + " " + m + " " + d + " " + date + " " + month + " " + week //   0/1 * * * * * 任务列表
 
 	return task
 }
 
-
-
 /**
-	获取系统正在执行的定时任务
- */
+获取系统正在执行的定时任务
+*/
 func (this *CronTabController) GetRunTask() bool {
 
-	list,err := models.RunTask()
+	list, err := models.RunTask()
 
-	if err != nil{
-		return  false
+	if err != nil {
+		return false
 	}
 
-	for _,val := range list{
+	for _, val := range list {
 
 		val.Status = 0
 
 		models.UpdateTaskStatus(val)
 
 		//写入日志
-		this.ReadLog("用户："+this.User.Nikename+"停止定时任务:"+val.TaskName+"。",3)
+		this.ReadLog("用户："+this.User.Nikename+"停止定时任务:"+val.TaskName+"。", 3)
 	}
 
 	return true

@@ -1,5 +1,4 @@
-package controllers
-
+package common
 
 import (
 	"github.com/dchest/captcha"
@@ -11,17 +10,16 @@ type CaptchaController struct {
 }
 
 /**
-	验证码是否正确
-	@param id value
-	@return bool
- */
-func VerifyCaptcha(captchaId string,captchaValue string) bool{
+验证码是否正确
+@param id value
+@return bool
+*/
+func VerifyCaptcha(captchaId string, captchaValue string) bool {
 
 	if !captcha.VerifyString(captchaId, captchaValue) {
-		return  false
+		return false
 	} else {
 		return true
 	}
 
 }
-

@@ -1,9 +1,12 @@
-package controllers
+package common
 
-import "errors"
+import (
+	"errors"
+	"mywork/internal/app/admin"
+)
 
 type DatabaseCheckController struct {
-	AdminBaseController
+	admin.AdminBaseController
 }
 
 func (dc *DatabaseCheckController) Check() error {

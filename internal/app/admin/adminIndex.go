@@ -1,9 +1,10 @@
-package controllers
+package admin
 
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/tealeg/xlsx"
 	"io/ioutil"
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"os"
 	"path"
@@ -25,20 +26,6 @@ type LogInfo struct {
 /**
 遍历目录中的文件
 */
-type FileInfo struct {
-	FileName    string //名称
-	FileSize    int64  //大小
-	FilePath    string //路径
-	FileSizeStr string //转换
-}
-
-//excel 文件注解结构体
-
-type SheetName struct {
-	Sheet       string //xls中的分段
-	HeadData    map[int]map[int]string
-	ContentData map[int]map[int]string
-}
 
 /**
 注解路由 后台首页
@@ -359,9 +346,9 @@ func (this *AdminIndexController) ReadExcel() {
 		logs.Warning(err)
 	}
 
-	var sheetData []SheetName
+	var sheetData []dto.SheetName
 
-	sheetData = make([]SheetName, 0)
+	sheetData = make([]dto.SheetName, 0)
 
 	var headData map[int]map[int]string
 
@@ -404,7 +391,7 @@ func (this *AdminIndexController) ReadExcel() {
 			}
 		}
 
-		data := SheetName{sheet.Name, headData, contentData} //把值放入结构体中
+		data := dto.SheetName{Sheet: sheet.Name, HeadData: headData, ContentData: contentData} //把值放入结构体中
 
 		sheetData = append(sheetData, data)
 
@@ -447,11 +434,14 @@ func (this *AdminIndexController) GetFileName() {
 // @router /admin/clear/download/?:key [get] 缓存文件
 func (this *AdminIndexController) DownCacheLog() {
 
-	var path, names string
+	var p, names string
 
-	this.Ctx.Input.Bind(&path, "names")
+	err := this.Ctx.Input.Bind(&p, "names")
+	if err != nil {
+		return
+	}
 
-	pathInfo := strings.Split(path, "/")
+	pathInfo := strings.Split(p, "/")
 
 	names = pathInfo[len(pathInfo)-1] //获取文件名称
 
@@ -475,7 +465,7 @@ func (this *AdminIndexController) DownCacheLog() {
 
 		this.Data["json"] = map[string]interface{}{
 			"code": "0",
-			"msg":  path,
+			"msg":  p,
 		}
 
 	} else {
@@ -493,7 +483,10 @@ func (this *AdminIndexController) DownFile() {
 
 	var str string
 
-	this.Ctx.Input.Bind(&str, "file")
+	err := this.Ctx.Input.Bind(&str, "file")
+	if err != nil {
+		return
+	}
 
 	//判断是否在可供下载的目录
 
@@ -579,7 +572,7 @@ func (this *AdminIndexController) DeleteFile() {
 遍历日志目录下的文件
 @param key string 查询的文件 default
 */
-func (this *AdminIndexController) ReadFile(key string) (list []FileInfo) {
+func (this *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
 
 	//设置默认可以访问的文件夹
 	arr := map[string]string{
@@ -601,15 +594,15 @@ func (this *AdminIndexController) ReadFile(key string) (list []FileInfo) {
 @param string 目录
 @return [] 文件详情
 */
-func (this *AdminIndexController) readAll(path string) []FileInfo {
+func (this *AdminIndexController) readAll(path string) []dto.FileInfo {
 
-	var all_file []FileInfo
+	var all_file []dto.FileInfo
 
 	finfo, _ := ioutil.ReadDir(path)
 
 	for _, x := range finfo {
 
-		realPath := FileInfo{x.Name(), x.Size(), path + "/" + x.Name(), this.GetToUnit(int(x.Size()))}
+		realPath := dto.FileInfo{FileName: x.Name(), FileSize: x.Size(), FilePath: path + "/" + x.Name(), FileSizeStr: this.GetToUnit(int(x.Size()))}
 
 		if x.IsDir() {
 

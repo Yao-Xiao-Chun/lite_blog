@@ -1,36 +1,35 @@
-package controllers
+package admin
 
 import (
-	"log"
-	"github.com/gorilla/websocket"
 	"fmt"
+	"github.com/gorilla/websocket"
+	"log"
 
-	"github.com/astaxie/beego/logs"
 	"encoding/json"
+	"github.com/astaxie/beego/logs"
 	"net/http"
 )
 
 /**
-	websocket 推送相关代码
- */
+websocket 推送相关代码
+*/
 type PushSocketController struct {
-
 	AdminBaseController
 }
 
 type PushData struct {
 	Message string `json:"message"`
-	Count int	`json:"count"`
-	Token string `json:"token"`
+	Count   int    `json:"count"`
+	Token   string `json:"token"`
 	Account string `json:"account"`
-	Code int 	`json:"code"`
+	Code    int    `json:"code"`
 }
 
 /**
-	设置全局调用
- */
+设置全局调用
+*/
 var (
-	clients   = make(map[*websocket.Conn]bool)
+	clients = make(map[*websocket.Conn]bool)
 
 	broadcast = make(chan PushData)
 )
@@ -46,12 +45,12 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024, //设置写入大小
 	CheckOrigin: func(r *http.Request) bool {
 		return true
-	},//允许跨域
+	}, //允许跨域
 }
 
 /**
-	请求的地址 前台访问确定链接
- */
+请求的地址 前台访问确定链接
+*/
 func (this *PushSocketController) Get() {
 
 	ws, err := upgrader.Upgrade(this.Ctx.ResponseWriter, this.Ctx.Request, nil) //beego 框架中的接收 完成http的应答
@@ -59,7 +58,7 @@ func (this *PushSocketController) Get() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	 //defer ws.Close()
+	//defer ws.Close()
 
 	clients[ws] = true
 
@@ -70,12 +69,12 @@ func (this *PushSocketController) Get() {
 
 		datas := string(p[:]) //返回的结果值 json格式
 
-		res,errs := toArray(datas)
+		res, errs := toArray(datas)
 
-		if res.Code == 200{ //此状态代表着登录
-			if !checkOauth(res){
+		if res.Code == 200 { //此状态代表着登录
+			if !checkOauth(res) {
 				//写入日志
-				this.ReadLog("用户："+res.Account+"连接socket错误任务:",4)
+				this.ReadLog("用户："+res.Account+"连接socket错误任务:", 4)
 				delete(clients, ws)
 				goto ERR
 				break
@@ -83,7 +82,7 @@ func (this *PushSocketController) Get() {
 		}
 
 		//断开连接，那么需要移除当前的推送
-		if err != nil || errs != nil{
+		if err != nil || errs != nil {
 
 			fmt.Print(err)
 			delete(clients, ws)
@@ -93,33 +92,31 @@ func (this *PushSocketController) Get() {
 
 	}
 
-	ERR:
-		//关闭连接
-		ws.Close()
+ERR:
+	//关闭连接
+	ws.Close()
 }
 
 /**
-	定时检查数据库是否存在推送
- */
-func TaskPushData(str string)  error{
+定时检查数据库是否存在推送
+*/
+func TaskPushData(str string) error {
 
-	if str == ""{
+	if str == "" {
 		str = "您有新的消息提醒"
 	}
 
 	//模拟查询到了数据
-	msg := PushData{Message: str,Account:"949656336@qq.com",Token:"abcdefghjklmn",Count:2,Code:0}
-
+	msg := PushData{Message: str, Account: "949656336@qq.com", Token: "abcdefghjklmn", Count: 2, Code: 0}
 
 	broadcast <- msg
 
 	return nil
 }
 
-
 /**
-	socket 页面发送到数据
- */
+socket 页面发送到数据
+*/
 func handleMessages() {
 	for {
 		msg := <-broadcast
@@ -140,36 +137,32 @@ func handleMessages() {
 	}
 }
 
-
-
-
 /**
-	转换json数据
- */
-func toArray(str string)(list PushData,errs error){
+转换json数据
+*/
+func toArray(str string) (list PushData, errs error) {
 
 	var data PushData
 
-	err := json.Unmarshal([]byte(str),&data)
+	err := json.Unmarshal([]byte(str), &data)
 
-	if err != nil{
+	if err != nil {
 
-		return data,err
+		return data, err
 	}
 
-	return data,nil
+	return data, nil
 
 }
 
-
 /**
-	查询此用户的的连接权限
- */
-func checkOauth(user PushData)bool{
+查询此用户的的连接权限
+*/
+func checkOauth(user PushData) bool {
 
-	if user.Account == "949656336@qq.com" && user.Token == "asdfghjkl"{
-		return  true
-	}else{
+	if user.Account == "949656336@qq.com" && user.Token == "asdfghjkl" {
+		return true
+	} else {
 		return false
 	}
 

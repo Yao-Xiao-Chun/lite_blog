@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"math/rand"
+	"mywork/internal/app/admin"
+	"mywork/internal/app/common"
 	"mywork/models"
 	"time"
 )
@@ -13,7 +15,7 @@ import (
 	@Date 2018-08-25
 */
 type HomeBaseController struct {
-	BaseController
+	common.BaseController
 }
 
 type cat struct {
@@ -23,7 +25,7 @@ type cat struct {
 	Level       int
 	Menu_status int
 	sort        int
-	Children    []*Cat ``
+	Children    []*admin.Cat ``
 }
 
 /**
@@ -50,9 +52,9 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 		menu, _ = models.GetMenuInfo() //根据条件获取
 	}
 
-	var list []Cat
+	var list []admin.Cat
 
-	list = make([]Cat, len(menu))
+	list = make([]admin.Cat, len(menu))
 
 	/*var listA []*Cat
 
@@ -69,7 +71,7 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 		//listA[i] = &list[i]
 	}
 
-	menus := superCategory(list, 0)
+	menus := admin.superCategory(list, 0)
 
 	var menuData map[int]map[string]interface{}
 

@@ -1,4 +1,4 @@
-package controllers
+package admin
 
 import (
 	"encoding/json"
@@ -235,9 +235,9 @@ func (this *AdminUserController) CreateUser() {
 }
 
 // @router /admin/user/add [get] 后台首页
-func (this *AdminArticleController) GetUser() {
+func (c *ArticleController) GetUser() {
 
-	this.TplName = "admin/user/add.html"
+	c.TplName = "admin/user/add.html"
 }
 
 /**
