@@ -10,10 +10,10 @@ type IndexController struct {
 //使用注解路由
 
 // @router / [get]
-func (this *IndexController) Index() {
+func (c *IndexController) Index() {
 
 	//设置模板路径
-	this.TplName = "home/index.html"
+	c.TplName = "home/index.html"
 }
 
 

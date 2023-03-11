@@ -7,9 +7,9 @@ type AdminTaskController struct {
 /**
 列表页
 */
-func (this *AdminTaskController) TaskIndex() {
+func (c *AdminTaskController) TaskIndex() {
 
-	this.TplName = "admin/task/index.html"
+	c.TplName = "admin/task/index.html"
 }
 
 /**

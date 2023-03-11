@@ -197,7 +197,7 @@ func (c *ArticleController) AddArticle() {
 		//是否存在描述 不存在就去截取前300字
 		if descript == "" {
 
-			descript, _ = getSummary(contents)
+			descript, _ = GetSummary(contents)
 		}
 
 		var article models.LiteArticle
@@ -274,7 +274,7 @@ func (c *ArticleController) EditArticle() {
 		//是否存在描述
 		if descript == "" {
 
-			descript, _ = getSummary(contents)
+			descript, _ = GetSummary(contents)
 		}
 
 		var article models.LiteArticle
@@ -401,7 +401,7 @@ func (c *ArticleController) checkTag(str string) []string {
 /**
   文章截取前300字
 */
-func getSummary(content string) (string, error) {
+func GetSummary(content string) (string, error) {
 
 	// bytes.Buffer，非常常用。
 	var buf bytes.Buffer

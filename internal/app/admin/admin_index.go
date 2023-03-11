@@ -32,53 +32,53 @@ type LogInfo struct {
 */
 
 // @router /admin [get] 后台首页
-func (this *AdminIndexController) AdminIndex() {
-	this.SetLogs("我被请求到了，看看日志是否存在呢！")
-	this.TplName = "admin/index.html"
+func (c *AdminIndexController) AdminIndex() {
+	c.SetLogs("我被请求到了，看看日志是否存在呢！")
+	c.TplName = "admin/index.html"
 }
 
 // @router /main [get] 后台 main
-func (this *AdminIndexController) AdminMain() {
+func (c *AdminIndexController) AdminMain() {
 
-	this.getTimeLines()
+	c.getTimeLines()
 
-	this.countMessage()
+	c.countMessage()
 
-	this.getSystem()
+	c.getSystem()
 
-	this.TplName = "admin/main.html"
+	c.TplName = "admin/main.html"
 }
 
-func (this *AdminIndexController) getSystem() {
+func (c *AdminIndexController) getSystem() {
 
 	var sys string
 
 	sys = runtime.GOOS + " 架构:" + runtime.GOARCH
 
 	cpu := runtime.GOMAXPROCS(0)
-	this.Data["Sys"] = sys
-	this.Data["Cpu"] = cpu
+	c.Data["Sys"] = sys
+	c.Data["Cpu"] = cpu
 }
 
 // @router /admin/login [get] 后台 登录页面
-func (this *AdminIndexController) AdminLogin() {
+func (c *AdminIndexController) AdminLogin() {
 
-	this.TplName = "admin/login.html"
+	c.TplName = "admin/login.html"
 }
 
 // @router /admin/addtime [get] 后台 获取时间先路由
-func (this *AdminIndexController) AdminGettime() {
+func (c *AdminIndexController) AdminGettime() {
 
-	this.Data["key"] = this.GetUUID()
+	c.Data["key"] = c.GetUUID()
 
-	this.TplName = "admin/news/addtime.html"
+	c.TplName = "admin/news/addtime.html"
 }
 
 /**
 查询 后台的时间线
 */
 
-func (this *AdminIndexController) getTimeLines() {
+func (c *AdminIndexController) getTimeLines() {
 
 	line, err := models.GetAdminTimeLine() //多维结构体
 
@@ -112,9 +112,9 @@ func (this *AdminIndexController) getTimeLines() {
 
 	num, _ := models.GetHomeCountTimeLine()
 
-	this.Data["count"] = num
+	c.Data["count"] = num
 
-	this.Data["line"] = arr
+	c.Data["line"] = arr
 
 }
 
@@ -122,11 +122,11 @@ func (this *AdminIndexController) getTimeLines() {
 基本资料
 */
 // @router /admin/user/message [get] 后台 获取用户资料
-func (this *AdminIndexController) GetUserMessage() {
+func (c *AdminIndexController) GetUserMessage() {
 
 	//获取当前登录用户的id
 
-	id := this.User.ID
+	id := c.User.ID
 
 	user, err := models.FindUser(int(id))
 
@@ -134,7 +134,7 @@ func (this *AdminIndexController) GetUserMessage() {
 
 	} else {
 
-		this.Data["userinfo"] = map[string]interface{}{
+		c.Data["userinfo"] = map[string]interface{}{
 			"title":    user.Nikename,
 			"status":   user.Status,
 			"is_admin": user.Is_admin,
@@ -147,21 +147,21 @@ func (this *AdminIndexController) GetUserMessage() {
 
 	}
 
-	this.TplName = "admin/user/edit.html"
+	c.TplName = "admin/user/edit.html"
 }
 
 /**
 统计今天新增的留言数量
 后台
 */
-func (this *AdminIndexController) countMessage() {
+func (c *AdminIndexController) countMessage() {
 
 	//获取今天的时间
 	timeStr := time.Now().Format("2006-01-02 00:00:00")
 
 	count, _ := models.GetWhereReviewCount(timeStr)
 
-	this.Data["reviewCount"] = count
+	c.Data["reviewCount"] = count
 
 }
 
@@ -169,85 +169,85 @@ func (this *AdminIndexController) countMessage() {
 后台关于
 */
 // @router /admin/baseseting [get] 后台 获取用户资料
-func (this *AdminIndexController) SetAbort() {
+func (c *AdminIndexController) SetAbort() {
 
-	this.Data["abort"], _ = models.GetAbort()
+	c.Data["abort"], _ = models.GetAbort()
 
-	this.TplName = "admin/abort/index.html"
+	c.TplName = "admin/abort/index.html"
 }
 
 /**
 后台关于 数据处理
 */
 // @router /admin/baseseting [post] 后台 获取用户资料
-func (this *AdminIndexController) AbortFormData() {
+func (c *AdminIndexController) AbortFormData() {
 
-	data := this.GetString("content") //获取数据
+	data := c.GetString("content") //获取数据
 
 	if data == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   1003,
 			"errmsg": "数据丢失",
 		}
 	} else {
 		models.UpdateBase(data)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   0,
 			"errmsg": "更新成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 后台公告
 */
 // @router /admin/baseplacard [get] 后台 获取用户资料
-func (this *AdminIndexController) SetPlacard() {
+func (c *AdminIndexController) SetPlacard() {
 
-	this.Data["abort"], _ = models.GetPlacard()
+	c.Data["abort"], _ = models.GetPlacard()
 
-	this.TplName = "admin/placard/index.html"
+	c.TplName = "admin/placard/index.html"
 }
 
 /**
   后台公告 数据处理
 */
 // @router /admin/baseplacard [post] 后台 获取用户资料
-func (this *AdminIndexController) PlacardFormData() {
+func (c *AdminIndexController) PlacardFormData() {
 
-	data := this.GetString("content") //获取数据
+	data := c.GetString("content") //获取数据
 
 	if data == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   1003,
 			"errmsg": "数据丢失",
 		}
 	} else {
 		models.UpdatePlacard(data)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   0,
 			"errmsg": "更新成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 获取日志记录
 */
 // @router /admin/log/index [get]
-func (this *AdminIndexController) GetLogList() {
+func (c *AdminIndexController) GetLogList() {
 
-	this.Data["num"], _ = models.CountLog()
+	c.Data["num"], _ = models.CountLog()
 
-	this.TplName = "admin/log/index.html"
+	c.TplName = "admin/log/index.html"
 }
 
 /**
@@ -255,11 +255,11 @@ func (this *AdminIndexController) GetLogList() {
 */
 
 // @router /admin/log/page/?:key [get]
-func (this *AdminIndexController) GetLogPage() {
+func (c *AdminIndexController) GetLogPage() {
 
 	var page int
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
 	var res []models.LiteLog
 
@@ -279,51 +279,51 @@ func (this *AdminIndexController) GetLogPage() {
 
 	for _, v := range res {
 
-		arr := LogInfo{v, this.LogTypeStr(v.Level)}
+		arr := LogInfo{v, c.LogTypeStr(v.Level)}
 
 		data = append(data, arr)
 	}
 
-	this.Data["json"] = map[string]interface{}{
+	c.Data["json"] = map[string]interface{}{
 		"code": "0",
 		"data": data,
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 生成日志
 */
 // @router /download/log [get] 导出日志
-func (this *AdminIndexController) DownLog() {
+func (c *AdminIndexController) DownLog() {
 
 	//获取数据
 
 	list, _ := models.FindLogAll()
 
-	file := this.SetToExcel("登录日志表"+time.Now().Format("2006-01-02"), "download/", list)
+	file := c.SetToExcel("登录日志表"+time.Now().Format("2006-01-02"), "download/", list)
 
 	//写入日志
-	this.ReadLog("账号:"+this.User.Nikename+" 操作：日志:'导出日志',状态：成功", 2)
+	c.ReadLog("账号:"+c.User.Nikename+" 操作：日志:'导出日志',状态：成功", 2)
 
-	this.Ctx.Output.Download(file)
+	c.Ctx.Output.Download(file)
 }
 
 /**
 上传excel
 */
 // @router /upload/excel [get] 上传excel
-func (this *AdminIndexController) ToExcel() {
+func (c *AdminIndexController) ToExcel() {
 
-	this.TplName = "admin/excel/index.html"
+	c.TplName = "admin/excel/index.html"
 
 }
 
 // @router /upload/done [post] 上传excel
-func (this *AdminIndexController) ReadExcel() {
+func (c *AdminIndexController) ReadExcel() {
 	//获取上传的数据
-	f, h, err := this.GetFile("file")
+	f, h, err := c.GetFile("file")
 
 	defer f.Close()
 
@@ -334,9 +334,9 @@ func (this *AdminIndexController) ReadExcel() {
 
 	fileSuffix := path.Ext(h.Filename) //获取文件后缀名称 .xlsx
 
-	Name := this.GetRandomString(20) + fileSuffix
+	Name := c.GetRandomString(20) + fileSuffix
 	//保存文件
-	this.SaveToFile("file", "download/"+Name) // 保存位置在 static/upload, 没有文件夹要先创建
+	c.SaveToFile("file", "download/"+Name) // 保存位置在 static/upload, 没有文件夹要先创建
 
 	excelFileName := "download/" + Name
 
@@ -404,39 +404,39 @@ func (this *AdminIndexController) ReadExcel() {
 		os.Remove(excelFileName)
 	}()
 
-	this.Data["json"] = map[string]interface{}{
+	c.Data["json"] = map[string]interface{}{
 		"code": 0,
 		"data": sheetData,
 	}
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 // @router /admin/clear [get] 清楚日志界面
-func (this *AdminIndexController) SetClear() {
+func (c *AdminIndexController) SetClear() {
 
-	this.TplName = "admin/log/file.html"
+	c.TplName = "admin/log/file.html"
 }
 
 // @router /admin/clear/log/?:key [get] 缓存日志界面
-func (this *AdminIndexController) GetFileName() {
+func (c *AdminIndexController) GetFileName() {
 
 	var dirName string
 
-	this.Ctx.Input.Bind(&dirName, "dir_name")
+	c.Ctx.Input.Bind(&dirName, "dir_name")
 
-	this.Data["json"] = map[string]interface{}{
+	c.Data["json"] = map[string]interface{}{
 		"code": 0,
-		"data": this.ReadFile(dirName),
+		"data": c.ReadFile(dirName),
 	}
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 // @router /admin/clear/download/?:key [get] 缓存文件
-func (this *AdminIndexController) DownCacheLog() {
+func (c *AdminIndexController) DownCacheLog() {
 
 	var p, names string
 
-	err := this.Ctx.Input.Bind(&p, "names")
+	err := c.Ctx.Input.Bind(&p, "names")
 	if err != nil {
 		return
 	}
@@ -445,7 +445,7 @@ func (this *AdminIndexController) DownCacheLog() {
 
 	names = pathInfo[len(pathInfo)-1] //获取文件名称
 
-	list := this.ReadFile(pathInfo[0]) //获取路径
+	list := c.ReadFile(pathInfo[0]) //获取路径
 
 	var flag bool
 
@@ -463,27 +463,27 @@ func (this *AdminIndexController) DownCacheLog() {
 
 	if flag {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  p,
 		}
 
 	} else {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  "没有找到该文件，请稍后再试",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 // @router /admin/clear/download/logs/?:key [get] 下载文件
-func (this *AdminIndexController) DownFile() {
+func (c *AdminIndexController) DownFile() {
 
 	var str string
 
-	err := this.Ctx.Input.Bind(&str, "file")
+	err := c.Ctx.Input.Bind(&str, "file")
 	if err != nil {
 		return
 	}
@@ -491,7 +491,7 @@ func (this *AdminIndexController) DownFile() {
 	//判断是否在可供下载的目录
 
 	if str == "" {
-		this.Abort("404")
+		c.Abort("404")
 	}
 
 	dir := strings.Split(str, "/")
@@ -503,18 +503,18 @@ func (this *AdminIndexController) DownFile() {
 	}
 
 	if _, ok := arr[dir[0]]; ok {
-		this.Ctx.Output.Download(str)
+		c.Ctx.Output.Download(str)
 	} else {
-		this.Abort("404")
+		c.Abort("404")
 	}
 }
 
 // @router /admin/clear/delete/?:key [get] 删除文件
-func (this *AdminIndexController) DeleteFile() {
+func (c *AdminIndexController) DeleteFile() {
 
 	var path, names string
 
-	this.Ctx.Input.Bind(&path, "names")
+	c.Ctx.Input.Bind(&path, "names")
 
 	pathInfo := strings.Split(path, "/")
 
@@ -525,7 +525,7 @@ func (this *AdminIndexController) DeleteFile() {
 
 	lastPath := strings.Join(pathNames, "/") //拼接路径，防止多个问题
 
-	list := this.ReadFile(pathInfo[0])
+	list := c.ReadFile(pathInfo[0])
 
 	var flag bool
 
@@ -546,33 +546,33 @@ func (this *AdminIndexController) DeleteFile() {
 		err := os.Remove(pathInfo[0] + "/" + lastPath)
 
 		if err != nil {
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code": "1004",
 				"msg":  "删除失败",
 			}
 		} else {
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code": "0",
 				"msg":  "删除成功",
 			}
 		}
 
 	} else {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  "没有找到该文件，请稍后再试",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 遍历日志目录下的文件
 @param key string 查询的文件 default
 */
-func (this *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
+func (c *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
 
 	//设置默认可以访问的文件夹
 	arr := map[string]string{
@@ -582,7 +582,7 @@ func (this *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
 
 	if _, ok := arr[key]; ok {
 
-		list = this.readAll(key)
+		list = c.readAll(key)
 
 	}
 
@@ -594,7 +594,7 @@ func (this *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
 @param string 目录
 @return [] 文件详情
 */
-func (this *AdminIndexController) readAll(path string) []dto.FileInfo {
+func (c *AdminIndexController) readAll(path string) []dto.FileInfo {
 
 	var all_file []dto.FileInfo
 
@@ -602,11 +602,11 @@ func (this *AdminIndexController) readAll(path string) []dto.FileInfo {
 
 	for _, x := range finfo {
 
-		realPath := dto.FileInfo{FileName: x.Name(), FileSize: x.Size(), FilePath: path + "/" + x.Name(), FileSizeStr: this.GetToUnit(int(x.Size()))}
+		realPath := dto.FileInfo{FileName: x.Name(), FileSize: x.Size(), FilePath: path + "/" + x.Name(), FileSizeStr: c.GetToUnit(int(x.Size()))}
 
 		if x.IsDir() {
 
-			all_file = append(all_file, this.readAll(path+"/"+x.Name())...)
+			all_file = append(all_file, c.readAll(path+"/"+x.Name())...)
 		} else {
 			all_file = append(all_file, realPath)
 		}

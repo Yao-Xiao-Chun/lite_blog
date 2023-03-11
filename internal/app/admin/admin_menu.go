@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"strconv"
 
@@ -13,67 +14,57 @@ type AdminMenuController struct {
 	AdminBaseController
 }
 
-type Cat struct {
-	ID          int
-	Menu_parent int
-	Menu_name   string
-	Level       int
-	Menu_status int
-	sort        int
-	Children    []*Cat ``
-}
-
 /**
 列表页
 */
 // @router /admin/menu [get] 后台 tag列表
-func (this *AdminMenuController) GetList() {
+func (c *AdminMenuController) GetList() {
 
-	data := this.GetMenuList(true)
+	data := c.GetMenuList(true)
 
-	this.Data["list"] = data //总条数*/
+	c.Data["list"] = data //总条数*/
 
-	this.TplName = "admin/menu/list.html"
+	c.TplName = "admin/menu/list.html"
 }
 
 /**
 新增菜单页面
 */
 // @router /admin/menu/add [get] 后台 tag列表
-func (this *AdminMenuController) GetAdd() {
+func (c *AdminMenuController) GetAdd() {
 
 	var id string
 
-	this.Ctx.Input.Bind(&id, "id") //是否有选中的值
+	c.Ctx.Input.Bind(&id, "id") //是否有选中的值
 
-	menuData := this.GetMenuList(false) //获取列表
+	menuData := c.GetMenuList(false) //获取列表
 
-	this.Data["menu"] = menuData
+	c.Data["menu"] = menuData
 
 	ids, _ := strconv.Atoi(id)
 
-	this.Data["ids"] = ids
+	c.Data["ids"] = ids
 
-	this.TplName = "admin/menu/add.html"
+	c.TplName = "admin/menu/add.html"
 }
 
 /**
 新增页面数据处理
 */
 // @router /admin/menu/add [post] 后台
-func (this *AdminMenuController) MenuAddForm() {
+func (c *AdminMenuController) MenuAddForm() {
 
-	menuName := this.GetString("menu_name")
+	menuName := c.GetString("menu_name")
 
-	menuLevel := this.GetString("menu_level")
+	menuLevel := c.GetString("menu_level")
 
-	menuStatus := this.GetString("menu_status")
+	menuStatus := c.GetString("menu_status")
 
-	menuSort := this.GetString("menu_sort")
+	menuSort := c.GetString("menu_sort")
 
 	if menuLevel == "" || menuName == "" || menuSort == "" || menuStatus == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  "参数不完整",
 		}
@@ -89,7 +80,7 @@ func (this *AdminMenuController) MenuAddForm() {
 
 		menu.Menu_roule, _ = strconv.Atoi(menuSort) //排序
 
-		key, num := this.getFidAndLevel(menuLevel) // 获取创建的等级
+		key, num := c.getFidAndLevel(menuLevel) // 获取创建的等级
 
 		menu.Menu_key = key //排序等级
 
@@ -97,27 +88,27 @@ func (this *AdminMenuController) MenuAddForm() {
 
 		models.SetMenu(menu)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "创建成功",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 删除菜单
 */
 // @router /admin/menu/del/?:key [get] 后台 菜单删除
-func (this *AdminMenuController) DeleteMenu() {
+func (c *AdminMenuController) DeleteMenu() {
 	var id string
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	if id == "" {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1006",
 			"errmsg": "删除失败！",
 		}
@@ -126,59 +117,59 @@ func (this *AdminMenuController) DeleteMenu() {
 
 		models.DeleteMenu(uint(ids))
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "删除成功！",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 编辑菜单列表
 */
 // @router /admin/menu/edit/?:key [get] 后台 菜单删除
-func (this *AdminMenuController) EditMenu() {
+func (c *AdminMenuController) EditMenu() {
 
 	var id string
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
-	menuData := this.GetMenuList(false) //获取列表
+	menuData := c.GetMenuList(false) //获取列表
 
-	this.Data["menu"] = menuData
+	c.Data["menu"] = menuData
 
 	ids, _ := strconv.Atoi(id)
 
 	list, _ := models.GetMenuAndFindInfo(uint(ids))
 
-	this.Data["list"] = list
+	c.Data["list"] = list
 
-	this.Data["ids"] = list.Menu_parent
+	c.Data["ids"] = list.Menu_parent
 
-	this.TplName = "admin/menu/edit.html"
+	c.TplName = "admin/menu/edit.html"
 }
 
 /**
 编辑菜单数据提交 post
 */
 // @router /admin/menu/edit [post] 后台 菜单更新
-func (this *AdminMenuController) EditPost() {
+func (c *AdminMenuController) EditPost() {
 
-	menuName := this.GetString("menu_name")
+	menuName := c.GetString("menu_name")
 
-	menuLevel := this.GetString("menu_level")
+	menuLevel := c.GetString("menu_level")
 
-	menuStatus := this.GetString("menu_status")
+	menuStatus := c.GetString("menu_status")
 
-	menuSort := this.GetString("menu_sort")
+	menuSort := c.GetString("menu_sort")
 
-	menuId := this.GetString("menu_id")
+	menuId := c.GetString("menu_id")
 
 	if menuLevel == "" || menuName == "" || menuSort == "" || menuStatus == "" || menuId == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  "参数不完整",
 		}
@@ -194,7 +185,7 @@ func (this *AdminMenuController) EditPost() {
 
 		menu.Menu_roule, _ = strconv.Atoi(menuSort) //排序
 
-		key, num := this.getFidAndLevel(menuLevel) // 获取创建的等级
+		key, num := c.getFidAndLevel(menuLevel) // 获取创建的等级
 
 		ids, _ := strconv.Atoi(menuId)
 
@@ -206,17 +197,17 @@ func (this *AdminMenuController) EditPost() {
 
 		models.EditMenu(menu)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "更新成功",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
-func tree(list []*Cat) string {
+func tree(list []*dto.Cat) string {
 
 	data := buildData(list)
 
@@ -233,19 +224,19 @@ func tree(list []*Cat) string {
 /**
 结构生成可以维护的数据
 */
-func buildData(list []*Cat) map[int]map[int]*Cat {
+func buildData(list []*dto.Cat) map[int]map[int]*dto.Cat {
 
-	var data map[int]map[int]*Cat = make(map[int]map[int]*Cat)
+	var data map[int]map[int]*dto.Cat = make(map[int]map[int]*dto.Cat)
 
 	for _, v := range list {
 
 		id := v.ID
 
-		fid := v.Menu_parent
+		fid := v.MenuParent
 
 		if _, ok := data[fid]; !ok {
 
-			data[fid] = make(map[int]*Cat)
+			data[fid] = make(map[int]*dto.Cat)
 		}
 
 		data[fid][id] = v
@@ -257,9 +248,9 @@ func buildData(list []*Cat) map[int]map[int]*Cat {
 /**
 结构树
 */
-func makeTreeCore(index int, data map[int]map[int]*Cat) []*Cat {
+func makeTreeCore(index int, data map[int]map[int]*dto.Cat) []*dto.Cat {
 
-	tmp := make([]*Cat, 0)
+	tmp := make([]*dto.Cat, 0)
 
 	for id, item := range data[index] {
 
@@ -278,7 +269,7 @@ func makeTreeCore(index int, data map[int]map[int]*Cat) []*Cat {
 获取当前中父类等级
 */
 
-func (this *AdminMenuController) getFidAndLevel(fid string) (str string, num int) {
+func (c *AdminMenuController) getFidAndLevel(fid string) (str string, num int) {
 
 	if fid == "0" {
 
@@ -296,15 +287,13 @@ func (this *AdminMenuController) getFidAndLevel(fid string) (str string, num int
 	}
 }
 
-/**
-递归实现无线菜单分类 核心
-*/
-func superCategory(allCate []Cat, pid int) []Cat {
-	var arr []Cat
+// SuperCategory /**
+func SuperCategory(allCate []dto.Cat, pid int) []dto.Cat {
+	var arr []dto.Cat
 	for _, v := range allCate {
-		if pid == v.Menu_parent {
+		if pid == v.MenuParent {
 			arr = append(arr, v)
-			sonCate := superCategory(allCate, v.ID)
+			sonCate := SuperCategory(allCate, v.ID)
 			arr = append(arr, sonCate...)
 		}
 	}
@@ -330,7 +319,7 @@ func setSpace(num int) string {
 菜单列表
 @param bool 条件筛选
 */
-func (this *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string]interface{}) {
+func (c *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string]interface{}) {
 
 	var menu []models.LiteAdminMenu
 	//是获取所有的还是获取选择的
@@ -340,26 +329,26 @@ func (this *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string
 		menu, _ = models.GetMenuInfo() //根据条件获取
 	}
 
-	var list []Cat
+	var list []dto.Cat
 
-	list = make([]Cat, len(menu))
+	list = make([]dto.Cat, len(menu))
 
-	/*var listA []*Cat
+	/*var listA []*dto.Cat
 
-	listA = make([]*Cat,len(menu))*/
+	listA = make([]*dto.Cat,len(menu))*/
 
 	for i, v := range menu {
 
 		list[i].ID = int(v.ID)
-		list[i].Menu_name = v.Menu_name
-		list[i].Menu_parent = v.Menu_parent
+		list[i].MenuName = v.Menu_name
+		list[i].MenuParent = v.Menu_parent
 		list[i].Level = v.Menu_level
-		list[i].sort = v.Menu_roule
-		list[i].Menu_status = v.Menu_status
+		list[i].Sort = v.Menu_roule
+		list[i].MenuStatus = v.Menu_status
 		//listA[i] = &list[i]
 	}
 
-	menus := superCategory(list, 0)
+	menus := SuperCategory(list, 0)
 
 	var menuData map[int]map[string]interface{}
 
@@ -378,14 +367,14 @@ func (this *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string
 			str = setSpace(val.Level)
 		}
 
-		menuArr["name"] = str + val.Menu_name
+		menuArr["name"] = str + val.MenuName
 
 		menuArr["id"] = val.ID
 
-		menuArr["pid"] = val.Menu_parent
+		menuArr["pid"] = val.MenuParent
 
-		menuArr["status"] = val.Menu_status
-		menuArr["sort"] = val.sort
+		menuArr["status"] = val.MenuStatus
+		menuArr["sort"] = val.Sort
 
 		menuData[key] = menuArr
 

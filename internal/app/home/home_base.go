@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"mywork/internal/app/admin"
 	"mywork/internal/app/common"
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"time"
 )
@@ -25,7 +26,7 @@ type cat struct {
 	Level       int
 	Menu_status int
 	sort        int
-	Children    []*admin.Cat ``
+	Children    []*dto.Cat ``
 }
 
 /**
@@ -52,9 +53,9 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 		menu, _ = models.GetMenuInfo() //根据条件获取
 	}
 
-	var list []admin.Cat
+	var list []dto.Cat
 
-	list = make([]admin.Cat, len(menu))
+	list = make([]dto.Cat, len(menu))
 
 	/*var listA []*Cat
 
@@ -63,15 +64,15 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 	for i, v := range menu {
 
 		list[i].ID = int(v.ID)
-		list[i].Menu_name = v.Menu_name
-		list[i].Menu_parent = v.Menu_parent
+		list[i].MenuName = v.Menu_name
+		list[i].MenuParent = v.Menu_parent
 		list[i].Level = v.Menu_level
-		list[i].sort = v.Menu_roule
-		list[i].Menu_status = v.Menu_status
+		list[i].Sort = v.Menu_roule
+		list[i].MenuStatus = v.Menu_status
 		//listA[i] = &list[i]
 	}
 
-	menus := admin.superCategory(list, 0)
+	menus := admin.SuperCategory(list, 0)
 
 	var menuData map[int]map[string]interface{}
 
@@ -90,14 +91,14 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 			str = setSpace(val.Level)
 		}*/
 
-		menuArr["name"] = str + val.Menu_name
+		menuArr["name"] = str + val.MenuName
 
 		menuArr["id"] = val.ID
 
-		menuArr["pid"] = val.Menu_parent
+		menuArr["pid"] = val.MenuParent
 
-		menuArr["status"] = val.Menu_status
-		menuArr["sort"] = val.sort
+		menuArr["status"] = val.MenuStatus
+		menuArr["sort"] = val.Sort
 
 		menuData[key] = menuArr
 

@@ -21,35 +21,38 @@ type BaseController struct {
 	beego.Controller
 }
 
-func (this *BaseController) Prepare() {
+func (c *BaseController) Prepare() {
 
-	this.Data["Path"] = this.Ctx.Request.RequestURI //获取当前中的url
+	c.Data["Path"] = c.Ctx.Request.RequestURI //获取当前中的url
 
 }
 
-func (this *BaseController) Abort500(err error) {
+func (c *BaseController) Abort500(err error) {
 
-	this.Data["error"] = err
+	c.Data["error"] = err
 
-	this.Abort("500")
+	c.Abort("500")
 }
 
 /**
 生成随机TOKen
 */
-func (this *BaseController) SetToken() {
+func (c *BaseController) SetToken() {
 
 }
 
 /**
 生成加密密码
 */
-func (this *BaseController) SetMd5Pwd(pwd string) string {
+func (c *BaseController) SetMd5Pwd(pwd string) string {
 
 	//假设用户名abc，密码123456
 	h := md5.New()
 
-	io.WriteString(h, pwd)
+	_, err := io.WriteString(h, pwd)
+	if err != nil {
+		return ""
+	}
 
 	//pwmd5等于e10adc3949ba59abbe56e057f20f883e
 	//93bcab4ab719fde430e5ad90656a240e
@@ -61,7 +64,7 @@ func (this *BaseController) SetMd5Pwd(pwd string) string {
 /**
 生成 uuid
 */
-func (this *BaseController) GetUUID() interface{} {
+func (c *BaseController) GetUUID() interface{} {
 
 	uuidStr := uuid.NewV4()
 
@@ -72,7 +75,7 @@ func (this *BaseController) GetUUID() interface{} {
 生成格式化时间
 */
 
-func (this *BaseController) Date(times string) string {
+func (c *BaseController) Date(times string) string {
 
 	datetime := time.Now().Format(times)
 
@@ -82,7 +85,7 @@ func (this *BaseController) Date(times string) string {
 /**
 设置全局的图片上传类型
 */
-func (this *BaseController) GetUploadTypeImage() (arr map[string]string) {
+func (c *BaseController) GetUploadTypeImage() (arr map[string]string) {
 
 	return map[string]string{
 		"0": "jpg",
@@ -115,7 +118,7 @@ func JsonFormat(retcode int, retmsg string, retdata interface{}, stime time.Time
 /**
 获取ip省份
 */
-func (this *BaseController) GetAddress(ip string) string {
+func (c *BaseController) GetAddress(ip string) string {
 
 	if ip == "" {
 
@@ -151,7 +154,7 @@ func (this *BaseController) GetAddress(ip string) string {
 /**
 设置日志
 */
-func (this *BaseController) SetLogs(str interface{}) {
+func (c *BaseController) SetLogs(str interface{}) {
 
 	beego.Debug(str)
 
@@ -166,15 +169,15 @@ func (this *BaseController) SetLogs(str interface{}) {
     @param  会尝试获取nginx代理的真实ip 或自带ip
 	@return ip
 */
-func (this *BaseController) GetIP() string {
+func (c *BaseController) GetIP() string {
 
 	var ip string
 
-	ips := this.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
+	ips := c.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
 
 	if ips == "" {
 
-		ip = this.Ctx.Request.RemoteAddr
+		ip = c.Ctx.Request.RemoteAddr
 
 		ip = ip[0:strings.LastIndex(ip, ":")]
 
@@ -192,11 +195,11 @@ func (this *BaseController) GetIP() string {
 @param oldTime 老时间
 @return 路径文件
 */
-func (this *BaseController) TimeRangeComparison(oldTime time.Time) string {
+func (c *BaseController) TimeRangeComparison(oldTime time.Time) string {
 
 	newTime := time.Now()
 
-	num := this.timeSub(newTime, oldTime)
+	num := c.timeSub(newTime, oldTime)
 
 	if num > 1 {
 
@@ -228,7 +231,7 @@ func (this *BaseController) TimeRangeComparison(oldTime time.Time) string {
 
 }
 
-func (this *BaseController) timeSub(t1, t2 time.Time) int {
+func (c *BaseController) timeSub(t1, t2 time.Time) int {
 
 	t1 = time.Date(t1.Year(), t1.Month(), t1.Day(), 0, 0, 0, 0, time.Local)
 
@@ -240,7 +243,7 @@ func (this *BaseController) timeSub(t1, t2 time.Time) int {
 /**
 导出excel
 */
-func (this *BaseController) SetToExcel(name, path string, data []models.LiteLog) string {
+func (c *BaseController) SetToExcel(name, path string, data []models.LiteLog) string {
 
 	headArr := []string{"编号", "时间", "内容"}
 
@@ -297,7 +300,7 @@ func (this *BaseController) SetToExcel(name, path string, data []models.LiteLog)
 转换单位
 @param
 */
-func (this *BaseController) GetToUnit(size int) string {
+func (c *BaseController) GetToUnit(size int) string {
 
 	if size < 1024 {
 		return strconv.Itoa(size) + "b"

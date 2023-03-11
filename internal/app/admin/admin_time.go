@@ -14,9 +14,9 @@ type AdminTimeController struct {
 }
 
 // @router /admin/timepost/:key [post] Time新增处理方法
-func (this *AdminTimeController) AddTime() {
+func (c *AdminTimeController) AddTime() {
 	//获取key
-	token := this.Ctx.Input.Param(":key")
+	token := c.Ctx.Input.Param(":key")
 
 	//查询token是否存在
 	line, err := models.QueryToken(token)
@@ -24,18 +24,18 @@ func (this *AdminTimeController) AddTime() {
 	//判断是否查找到记录
 	if !gorm.IsRecordNotFoundError(err) {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": 2,
 			"msg":  "token创建失败",
 		}
 	} else {
 
 		//获取标题
-		title := this.CheckMustKey("title", "没有获取到正确的标题")
+		title := c.CheckMustKey("title", "没有获取到正确的标题")
 
-		content := this.GetString("content")
+		content := c.GetString("content")
 
-		status := this.CheckMustKey("status", "请选择启用状态")
+		status := c.CheckMustKey("status", "请选择启用状态")
 
 		logs.Info(status)
 
@@ -43,7 +43,7 @@ func (this *AdminTimeController) AddTime() {
 
 		line.Content = content
 
-		line.Uid = int(this.User.ID) //用户id
+		line.Uid = int(c.User.ID) //用户id
 
 		line.Token = token
 
@@ -51,14 +51,14 @@ func (this *AdminTimeController) AddTime() {
 
 		models.CreateTimeLine(line)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": 0,
 			"msg":  "创建成功",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
@@ -66,15 +66,15 @@ func (this *AdminTimeController) AddTime() {
 */
 
 // @router /admin/deltime/:key [get] Time新增处理方法
-func (this *AdminTimeController) DelTime() {
+func (c *AdminTimeController) DelTime() {
 
-	tid := this.GetString("id")
+	tid := c.GetString("id")
 
-	token := this.GetString("token")
+	token := c.GetString("token")
 
 	if tid == "" || token == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": 1002,
 			"msg":  "数据丢失",
 		}
@@ -85,13 +85,13 @@ func (this *AdminTimeController) DelTime() {
 
 		if err == nil {
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code": 0,
 				"msg":  "删除成功",
 			}
 		} else {
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code": 1002,
 
 				"msg": "删除失败",
@@ -101,21 +101,21 @@ func (this *AdminTimeController) DelTime() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 修改时间线页面
 */
 // @router /admin/timeinfo/?:id [get]
-func (this *AdminTimeController) GetTimeInfo() {
+func (c *AdminTimeController) GetTimeInfo() {
 
 	var tid int
-	this.Ctx.Input.Bind(&tid, "id")
+	c.Ctx.Input.Bind(&tid, "id")
 
 	var token string
 
-	this.Ctx.Input.Bind(&token, "token")
+	c.Ctx.Input.Bind(&token, "token")
 
 	line, _ := models.GetTileLineFind(tid, token)
 
@@ -127,9 +127,9 @@ func (this *AdminTimeController) GetTimeInfo() {
 		"token":   line.Token,
 		"status":  line.Status,
 	}
-	this.Data["lines"] = data
+	c.Data["lines"] = data
 
-	this.TplName = "admin/news/time.html"
+	c.TplName = "admin/news/time.html"
 
 }
 
@@ -138,9 +138,9 @@ func (this *AdminTimeController) GetTimeInfo() {
 */
 
 //@router /admin/formtime/:key [post]
-func (this *AdminTimeController) SetTimeInfo() {
+func (c *AdminTimeController) SetTimeInfo() {
 	//获取key
-	token := this.Ctx.Input.Param(":key")
+	token := c.Ctx.Input.Param(":key")
 
 	//查询token是否存在
 	line, err := models.QueryToken(token)
@@ -148,13 +148,13 @@ func (this *AdminTimeController) SetTimeInfo() {
 	//判断是否查找到记录
 	if !gorm.IsRecordNotFoundError(err) {
 		//获取标题
-		title := this.CheckMustKey("title", "没有获取到正确的标题")
+		title := c.CheckMustKey("title", "没有获取到正确的标题")
 
-		content := this.GetString("content")
+		content := c.GetString("content")
 
-		id := this.GetString("id")
+		id := c.GetString("id")
 
-		status := this.CheckMustKey("status", "请选择启用状态")
+		status := c.CheckMustKey("status", "请选择启用状态")
 
 		line.Status = status
 
@@ -164,17 +164,17 @@ func (this *AdminTimeController) SetTimeInfo() {
 
 		models.SetTimeInfo(id, line)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": 0,
 			"msg":  "修改成功",
 		}
 
 	} else {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": 2,
 			"msg":  "数据不存在，禁止操作",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }

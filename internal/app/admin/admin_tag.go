@@ -17,26 +17,26 @@ type AdminTagController struct {
 后台tag列表
 */
 // @router /admin/tag [get] 后台 tag列表
-func (this *AdminTagController) TagList() {
+func (c *AdminTagController) TagList() {
 
 	count, _ := models.QueryCountTag()
 
-	this.Data["num"] = count
+	c.Data["num"] = count
 
-	this.TplName = "admin/tag/list.html"
+	c.TplName = "admin/tag/list.html"
 }
 
 /**
 获取分页数据
 */
 // @router /admin/tag/list/?:key [get] 后台 tag列表
-func (this *AdminTagController) GetTagList() {
+func (c *AdminTagController) GetTagList() {
 
 	var page string
 
 	tagSize := 10
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
 	if page == "" {
 
@@ -66,7 +66,7 @@ func (this *AdminTagController) GetTagList() {
 			arr[index] = data
 		}
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"data": arr,
 			"msg":  "请求成功",
@@ -74,40 +74,40 @@ func (this *AdminTagController) GetTagList() {
 
 	} else {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "获取分页失败",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 新增tag
 */
 // @router /admin/tag/add [get] 后台 tag列表
-func (this *AdminTagController) TagAdd() {
+func (c *AdminTagController) TagAdd() {
 
-	this.TplName = "admin/tag/add.html"
+	c.TplName = "admin/tag/add.html"
 }
 
 /**
 删除 tag
 */
 // @router /admin/tag/del/?:key [get] 后台 tag列表
-func (this *AdminTagController) DelTag() {
+func (c *AdminTagController) DelTag() {
 
 	var id string
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	ids, _ := strconv.Atoi(id)
 
 	if ids == 0 {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1006",
 			"errmsg": "删除失败！",
 		}
@@ -117,7 +117,7 @@ func (this *AdminTagController) DelTag() {
 
 		if err == nil {
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "0",
 				"errmsg": "删除成功",
 			}
@@ -125,7 +125,7 @@ func (this *AdminTagController) DelTag() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 
 }
 
@@ -134,15 +134,15 @@ func (this *AdminTagController) DelTag() {
 */
 
 // @router /admin/tag/add [post] 后台 tag列表
-func (this *AdminTagController) TagAddPost() {
+func (c *AdminTagController) TagAddPost() {
 
-	tag := this.GetString("tag_name")
+	tag := c.GetString("tag_name")
 
-	tagStatus := this.GetString("status")
+	tagStatus := c.GetString("status")
 
 	if len(tag) < 0 {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "参数不完整，请输入签名",
 		}
@@ -150,7 +150,7 @@ func (this *AdminTagController) TagAddPost() {
 	} else {
 		var arr []string
 
-		arr = this.stringFromData(tag)
+		arr = c.stringFromData(tag)
 
 		var tag models.LiteTag
 
@@ -167,14 +167,14 @@ func (this *AdminTagController) TagAddPost() {
 
 		}
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "创建成功",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 
 }
 
@@ -183,17 +183,17 @@ func (this *AdminTagController) TagAddPost() {
 */
 
 // @router /admin/tag/edit/?:key [get] 后台 tag列表
-func (this *AdminTagController) GatTagInfo() {
+func (c *AdminTagController) GatTagInfo() {
 
 	var id string
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	ids, _ := strconv.Atoi(id)
 
 	if ids == 0 {
 
-		this.Abort("500")
+		c.Abort("500")
 
 	}
 
@@ -201,31 +201,31 @@ func (this *AdminTagController) GatTagInfo() {
 
 	if !gorm.IsRecordNotFoundError(err) {
 
-		this.Data["tag"] = map[string]interface{}{
+		c.Data["tag"] = map[string]interface{}{
 			"tag_name": tag.Tag_name,
 			"status":   tag.Is_status,
 			"tid":      tag.ID,
 		}
 	}
 
-	this.TplName = "admin/tag/edit.html"
+	c.TplName = "admin/tag/edit.html"
 }
 
 /**
 更新标签信息
 */
 // @router /admin/tag/update [post] 后台 tag列表
-func (this *AdminTagController) SetTagInfo() {
+func (c *AdminTagController) SetTagInfo() {
 
-	tags := this.GetString("tag_name")
+	tags := c.GetString("tag_name")
 
-	id := this.GetString("tid")
+	id := c.GetString("tid")
 
-	tagStatus := this.GetString("status")
+	tagStatus := c.GetString("status")
 
 	if len(tags) < 0 || id == "" {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "参数不完整，请输入签名",
 		}
@@ -244,21 +244,21 @@ func (this *AdminTagController) SetTagInfo() {
 
 		models.UpdateTagFirst(tag)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "更新成功",
 		}
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 批量处理字符串
 */
 
-func (this *AdminTagController) stringFromData(data string) []string {
+func (c *AdminTagController) stringFromData(data string) []string {
 
 	var arr []string
 

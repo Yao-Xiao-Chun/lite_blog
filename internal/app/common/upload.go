@@ -32,13 +32,13 @@ type UploadNames struct {
 接收上传文件
 */
 // @router /admin/upload/success [post] 合并上传文件
-func (this *UploadController) SetUpload() {
+func (c *UploadController) SetUpload() {
 	//获取合并的文件夹
-	guid := this.GetString("guid")
+	guid := c.GetString("guid")
 
-	name := this.GetString("name")
+	name := c.GetString("name")
 	//获取文件后缀
-	tags := this.GetStrings("tag")
+	tags := c.GetStrings("tag")
 
 	tag := strings.Join(tags, ",")
 
@@ -46,7 +46,7 @@ func (this *UploadController) SetUpload() {
 
 	if guid == "" || name == "" {
 
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "1002",
 			"msg":  "未获取到正常的文件合并路径",
 		}
@@ -54,37 +54,37 @@ func (this *UploadController) SetUpload() {
 	} else {
 
 		//合并文件路径
-		if ok := this.doneMergeFile(guid, suffix); ok {
+		if ok := c.doneMergeFile(guid, suffix); ok {
 
 			//写入上传的小说
-			models.CreateFiction(models.LiteFiction{Name: name, Tags: tag, Status: 1, FileName: "download/" + guid + suffix, Users: this.User.Nikename})
+			models.CreateFiction(models.LiteFiction{Name: name, Tags: tag, Status: 1, FileName: "download/" + guid + suffix, Users: c.User.Nikename})
 
-			this.Data["json"] = map[string]string{
+			c.Data["json"] = map[string]string{
 				"code": "0",
 				"msg":  "合并完成",
 			}
 		} else {
-			this.Data["json"] = map[string]string{
+			c.Data["json"] = map[string]string{
 				"code": "1002",
 				"msg":  "合并文件错误，不存在此文件",
 			}
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 // @router /admin/upload/file [post] 大文件上传 demo试验
-func (this *UploadController) UploadFileDone() {
+func (c *UploadController) UploadFileDone() {
 	//接收获取的参数
-	fileName := this.GetString("name") //上传名称
+	fileName := c.GetString("name") //上传名称
 
-	index := this.GetString("chunk") //当前分块的类目
+	index := c.GetString("chunk") //当前分块的类目
 
-	guid := this.GetString("guid") //文件上传标示
+	guid := c.GetString("guid") //文件上传标示
 
 	//获取上传的数据
-	f, h, err := this.GetFile("file")
+	f, h, err := c.GetFile("file")
 
 	fileSuffix := path.Ext(h.Filename) //获取文件后缀名称 .xlsx
 
@@ -102,31 +102,31 @@ func (this *UploadController) UploadFileDone() {
 
 	data := UploadNames{fileName, index, f, fileSuffix, guid}
 
-	this.createFile(data)
+	c.createFile(data)
 
-	this.Data["json"] = map[string]interface{}{
+	c.Data["json"] = map[string]interface{}{
 		"code": 0,
 		"msg":  "上传成功",
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 
 }
 
 // @router /admin/upload/index [get] 文件上传首页
-func (this *UploadController) UploadIndex() {
+func (c *UploadController) UploadIndex() {
 
 	list, _ := models.FindTagTypeTwo()
 
-	this.Data["Tag"] = list
+	c.Data["Tag"] = list
 
-	this.TplName = "admin/upload/index.html"
+	c.TplName = "admin/upload/index.html"
 }
 
 /**
 创建临时目录
 */
-func (this *UploadController) createFile(data UploadNames) {
+func (c *UploadController) createFile(data UploadNames) {
 
 	if ok, _ := PathExists("download/" + data.Guid); ok {
 
@@ -136,7 +136,7 @@ func (this *UploadController) createFile(data UploadNames) {
 	}
 
 	//保存文件
-	this.SaveToFile("file", "download/"+data.Guid+"/"+data.Ids+data.Suffix)
+	c.SaveToFile("file", "download/"+data.Guid+"/"+data.Ids+data.Suffix)
 }
 
 /**
@@ -157,7 +157,7 @@ func PathExists(path string) (bool, error) {
 /**
 合并文件
 */
-func (this *UploadController) doneMergeFile(guid, suffix string) bool {
+func (c *UploadController) doneMergeFile(guid, suffix string) bool {
 	//检查此文件是否存在
 	if ok, _ := PathExists("download/" + guid); ok {
 		//遍历当前下的文件
@@ -171,7 +171,7 @@ func (this *UploadController) doneMergeFile(guid, suffix string) bool {
 		//排序
 		sort.Strings(data)
 
-		this.mergeFile("download/"+guid+suffix, data, "download/"+guid)
+		c.mergeFile("download/"+guid+suffix, data, "download/"+guid)
 		return true
 	} else {
 
@@ -184,7 +184,7 @@ func (this *UploadController) doneMergeFile(guid, suffix string) bool {
 @param string 合并后的文件名称，[]string 需要合并的文件名 string 合并的路径
 @return
 */
-func (this *UploadController) mergeFile(names string, data []string, path string) {
+func (c *UploadController) mergeFile(names string, data []string, path string) {
 
 	//创建文件
 	f, _ := os.OpenFile(names, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0777)

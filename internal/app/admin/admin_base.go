@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"math/rand"
+	"mime/multipart"
 	"mywork/internal/app/common"
 	"mywork/models"
 	"regexp"
@@ -29,49 +30,49 @@ const SESSION_ADMIN_KEY = "SESSION_ADMIN_KEY"
 /**
 后台是否用户登录
 */
-func (this *AdminBaseController) Prepare() {
+func (c *AdminBaseController) Prepare() {
 
-	this.EnableXSRF = false
+	c.EnableXSRF = false
 
-	user, ok := this.GetSession(SESSION_ADMIN_KEY).(models.LiteOauthUser)
+	user, ok := c.GetSession(SESSION_ADMIN_KEY).(models.LiteOauthUser)
 
-	this.IsLogin = false
+	c.IsLogin = false
 
 	if ok {
 
-		this.User = user
+		c.User = user
 
-		this.IsLogin = true
+		c.IsLogin = true
 
-		this.Data["AdminUsers"] = this.User
+		c.Data["AdminUsers"] = c.User
 
 	} else {
 
 		//如果没有登录 就重定向到登录页面 为了防止无限重复定向
-		if this.Ctx.Request.RequestURI != "/admin/login" && this.Ctx.Request.RequestURI != "/admin/dologin" {
+		if c.Ctx.Request.RequestURI != "/admin/login" && c.Ctx.Request.RequestURI != "/admin/dologin" {
 
-			this.Ctx.Redirect(302, "/admin/login")
+			c.Ctx.Redirect(302, "/admin/login")
 		}
 
-		/*logs.Info(this.Ctx.Request.RequestURI)*/
+		/*logs.Info(c.Ctx.Request.RequestURI)*/
 	}
 
-	this.Data["IsLogin"] = this.IsLogin //是否登录
+	c.Data["IsLogin"] = c.IsLogin //是否登录
 
 }
 
 /**
 是否是需要的参数
 */
-func (this *AdminBaseController) CheckMustKey(key string, msg string) string {
+func (c *AdminBaseController) CheckMustKey(key string, msg string) string {
 
 	key = strings.Trim(key, " ")
 
-	result := this.GetString(key)
+	result := c.GetString(key)
 
 	if len(result) == 0 {
 
-		this.Abort500(errors.New(msg))
+		c.Abort500(errors.New(msg))
 	}
 
 	return result
@@ -80,7 +81,7 @@ func (this *AdminBaseController) CheckMustKey(key string, msg string) string {
 /*
 	判断是否是账户邮箱
 */
-func (this *AdminBaseController) CheckEmail(email string) string {
+func (c *AdminBaseController) CheckEmail(email string) string {
 
 	if m, _ := regexp.MatchString(`^([\w\.\_]{2,10})@(\w{1,}).([a-z]{2,4})$`, email); !m {
 
@@ -97,7 +98,7 @@ func (this *AdminBaseController) CheckEmail(email string) string {
 /**
 判断是否是合法的时间
 */
-func (this *AdminBaseController) CheckTime(date string) {
+func (c *AdminBaseController) CheckTime(date string) {
 
 }
 
@@ -105,10 +106,10 @@ func (this *AdminBaseController) CheckTime(date string) {
 后台基础图片上传
 */
 
-func (this *AdminBaseController) Upload(key string) (img map[string]interface{}) {
+func (c *AdminBaseController) Upload(key string) (img map[string]interface{}) {
 
 	var imgName string
-	f, h, err := this.GetFile(key)
+	f, h, err := c.GetFile(key)
 
 	//判断是否是文件上传
 	imgStr := "image/jpeg,image/png,image/gif,image/jpg,image/png"
@@ -135,7 +136,7 @@ func (this *AdminBaseController) Upload(key string) (img map[string]interface{})
 
 	imgSuffix = strings.ToLower(imgSuffix)
 
-	for _, val := range this.GetUploadTypeImage() {
+	for _, val := range c.GetUploadTypeImage() {
 
 		if val == imgSuffix {
 			flag = true
@@ -152,7 +153,7 @@ func (this *AdminBaseController) Upload(key string) (img map[string]interface{})
 		}
 	}
 
-	imgName = this.GetRandomString(16) + "." + imgSuffix
+	imgName = c.GetRandomString(16) + "." + imgSuffix
 
 	if err != nil {
 
@@ -160,9 +161,17 @@ func (this *AdminBaseController) Upload(key string) (img map[string]interface{})
 
 	}
 
-	defer f.Close()
+	defer func(f multipart.File) {
+		err := f.Close()
+		if err != nil {
 
-	this.SaveToFile(key, "static/upload/"+imgName) // 保存位置在 static/upload, 没有文件夹要先创建
+		}
+	}(f)
+
+	err = c.SaveToFile(key, "static/upload/"+imgName)
+	if err != nil {
+		return nil
+	} // 保存位置在 static/upload, 没有文件夹要先创建
 
 	return map[string]interface{}{
 		"code":  "0",
@@ -174,7 +183,7 @@ func (this *AdminBaseController) Upload(key string) (img map[string]interface{})
 }
 
 // 生成32位MD5
-func (this *AdminBaseController) MD5(text string) string {
+func (c *AdminBaseController) MD5(text string) string {
 	ctx := md5.New()
 	ctx.Write([]byte(text))
 	return hex.EncodeToString(ctx.Sum(nil))
@@ -185,7 +194,7 @@ func (this *AdminBaseController) MD5(text string) string {
 	@param int 长度
     @return string
 */
-func (this *AdminBaseController) GetRandomString(lens int) string {
+func (c *AdminBaseController) GetRandomString(lens int) string {
 
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -206,12 +215,12 @@ func (this *AdminBaseController) GetRandomString(lens int) string {
 /**
 admin日志写入
 */
-func (this *AdminBaseController) ReadLog(content string, level int) {
+func (c *AdminBaseController) ReadLog(content string, level int) {
 
 	models.InsertLog(content, level)
 }
 
-func (this *AdminBaseController) LogTypeStr(key int) string {
+func (c *AdminBaseController) LogTypeStr(key int) string {
 
 	arr := map[int]string{
 		1: "登录日志",

@@ -2,6 +2,7 @@ package admin
 
 import (
 	"mywork/internal/app/common"
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 )
 
@@ -9,72 +10,65 @@ import (
 后台上传小说功能，自己的使用
 */
 
-type AdminFileController struct {
+type FileController struct {
 	common.UploadController
 }
 
-type FictionList struct {
-	models.LiteFiction
-	TagsName    string
-	Times       string
-	DownloadNum int
-}
+func (c *FileController) FileIndex() {
 
-func (this *AdminFileController) FileIndex() {
+	c.Data["num"], _ = models.CountFictionNum()
 
-	this.Data["num"], _ = models.CountFictionNum()
-
-	this.TplName = "admin/fiction/index.html"
+	c.TplName = "admin/fiction/index.html"
 }
 
 /**
 禁止下载
 */
-func (this *AdminFileController) SetFictionStatus() {
+func (c *FileController) SetFictionStatus() {
 
 	var id int
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	models.UpdateFictionStatus(id)
 
-	this.Data["json"] = map[string]string{
+	c.Data["json"] = map[string]string{
 		"code": "0",
 		"msg":  "禁止下载成功",
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 分页数据
 */
-func (this *AdminFileController) FilePage() {
+func (c *FileController) FilePage() {
 
 	var page, size int
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&size, "size")
+	c.Ctx.Input.Bind(&size, "size")
 
 	data, err := models.FindFictionData(page, 10)
 
 	if err != nil {
 
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "1002",
 			"msg":  "消息错误",
 		}
 	} else {
-		var res []FictionList
+		var res []dto.FictionList
 
-		res = make([]FictionList, 0)
+		res = make([]dto.FictionList, 0)
 
 		for _, val := range data {
 
 			ids, _ := models.FictionOperation(int(val.ID))
 
-			dataRes := FictionList{val, "", val.CreatedAt.Format("2006-01-02 13:04:05"), ids.DownloadNum}
+			dataRes := dto.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
 
 			if val.Tags != "" {
 
@@ -87,7 +81,7 @@ func (this *AdminFileController) FilePage() {
 			res = append(res, dataRes)
 		}
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"data": res,
 			"msg":  "查询成功",
@@ -95,41 +89,41 @@ func (this *AdminFileController) FilePage() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 日志小说首页
 */
-func (this *AdminFileController) FictionLog() {
+func (c *FileController) FictionLog() {
 
-	this.Data["num"], _ = models.CountFictionLog()
+	c.Data["num"], _ = models.CountFictionLog()
 
-	this.TplName = "admin/log/fictionlog.html"
+	c.TplName = "admin/log/fictionlog.html"
 }
 
 /**
 小说日志查询
 */
-func (this *AdminFileController) FictionLogPage() {
+func (c *FileController) FictionLogPage() {
 
 	var page, size int
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&size, "size")
+	c.Ctx.Input.Bind(&size, "size")
 
 	data, err := models.GetFictionLogList(page, 10)
 
 	if err != nil {
 
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "1002",
 			"msg":  "消息错误",
 		}
 	} else {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"data": data,
 			"msg":  "查询成功",
@@ -137,21 +131,21 @@ func (this *AdminFileController) FictionLogPage() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 加入黑名单
 */
-func (this *AdminFileController) FictionBanned() {
+func (c *FileController) FictionBanned() {
 
 	var ip string
 
-	this.Ctx.Input.Bind(&ip, "ip")
+	c.Ctx.Input.Bind(&ip, "ip")
 
 	if ip == "" {
 
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "1002",
 			"msg":  "获取失败，error",
 		}
@@ -163,7 +157,7 @@ func (this *AdminFileController) FictionBanned() {
 
 		if num > 0 {
 
-			this.Data["json"] = map[string]string{
+			c.Data["json"] = map[string]string{
 				"code": "1002",
 				"msg":  "已存在黑名单中，请勿重复添加",
 			}
@@ -171,7 +165,7 @@ func (this *AdminFileController) FictionBanned() {
 
 			models.AddBanned(ip)
 
-			this.Data["json"] = map[string]string{
+			c.Data["json"] = map[string]string{
 				"code": "0",
 				"msg":  "添加成功",
 			}
@@ -179,5 +173,5 @@ func (this *AdminFileController) FictionBanned() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }

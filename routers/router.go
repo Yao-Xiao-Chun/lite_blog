@@ -26,7 +26,7 @@ func init() {
 
 	beego.Include(&admin.AdminMenuController{}) //menu控制器
 
-	beego.Include(&admin.AdminReviewController{}) //留言控制器
+	beego.Include(&admin.ReviewController{}) //留言控制器
 
 	beego.Include(&admin.AdminLinkController{}) //友情链接
 
@@ -40,11 +40,11 @@ func init() {
 
 	beego.Router("/admin/webpush/index", &admin.AdminTaskController{}, "get:TaskIndex") //推送任务列表首页
 
-	beego.Router("admin/fiction/index", &admin.AdminFileController{}, "get:FileIndex") //小说列表页
+	beego.Router("admin/fiction/index", &admin.FileController{}, "get:FileIndex") //小说列表页
 
-	beego.Router("admin/fiction/delete/?:key", &admin.AdminFileController{}, "get:SetFictionStatus") //禁止小说下载
+	beego.Router("admin/fiction/delete/?:key", &admin.FileController{}, "get:SetFictionStatus") //禁止小说下载
 
-	beego.Router("admin/fiction/index/page/?:key", &admin.AdminFileController{}, "get:FilePage") //小说列表页
+	beego.Router("admin/fiction/index/page/?:key", &admin.FileController{}, "get:FilePage") //小说列表页
 
 	beego.Router("/fiction", &common.IndexController{}, "get:GetHomeFiction") //前台小说列表页
 
@@ -53,10 +53,10 @@ func init() {
 	beego.Router("/fiction/download/?:key", &common.IndexController{}, "get:HomeFictionDownload") //前台小说下载
 
 	//小说日志路由模块 admin
-	beego.Router("admin/fiction/log", &admin.AdminFileController{}, "get:FictionLog") //小说日志访问路由
+	beego.Router("admin/fiction/log", &admin.FileController{}, "get:FictionLog") //小说日志访问路由
 
-	beego.Router("/admin/fiction/log/page/?:key", &admin.AdminFileController{}, "get:FictionLogPage") //小说日志列表
+	beego.Router("/admin/fiction/log/page/?:key", &admin.FileController{}, "get:FictionLogPage") //小说日志列表
 
-	beego.Router("/admin/fiction/banned/?:key", &admin.AdminFileController{}, "get:FictionBanned") //ip黑名单
+	beego.Router("/admin/fiction/banned/?:key", &admin.FileController{}, "get:FictionBanned") //ip黑名单
 
 }

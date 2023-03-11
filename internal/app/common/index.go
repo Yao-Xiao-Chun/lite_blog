@@ -3,6 +3,7 @@ package common
 import (
 	"mywork/internal/app/admin"
 	"mywork/internal/app/home"
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 
 	"github.com/astaxie/beego/logs"
@@ -37,54 +38,54 @@ type TimeString struct {
 //使用注解路由
 
 // @router /?:key [get] 首页
-func (this *IndexController) Index() {
+func (c *IndexController) Index() {
 
 	var keywords string
 
 	var tag int
 
-	this.Ctx.Input.Bind(&keywords, "keyword")
+	c.Ctx.Input.Bind(&keywords, "keyword")
 
-	this.Ctx.Input.Bind(&tag, "tag")
+	c.Ctx.Input.Bind(&tag, "tag")
 
 	if tag != 0 {
 
-		this.getKeyword("", tag) //查询tag
+		c.getKeyword("", tag) //查询tag
 
 	} else if keywords == "" {
 
-		this.getHomeArticle() //查询数据
+		c.getHomeArticle() //查询数据
 
 	} else {
 
-		this.getKeyword(keywords, 0) //查询关键词
+		c.getKeyword(keywords, 0) //查询关键词
 	}
 
-	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
+	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
 
-	this.Data["Placard"], _ = models.GetPlacard()
+	c.Data["Placard"], _ = models.GetPlacard()
 
-	this.GetTop() //获取置顶
+	c.GetTop() //获取置顶
 	//设置模板路径
-	this.TplName = "home/index.html"
+	c.TplName = "home/index.html"
 }
 
 // 关于
 
 // @router /about [get] 首页
-func (this *IndexController) IndexAbout() {
+func (c *IndexController) IndexAbout() {
 
-	this.Data["Abort"], _ = models.GetAbort()
+	c.Data["Abort"], _ = models.GetAbort()
 	//设置模板路径
-	this.TplName = "home/about.html"
+	c.TplName = "home/about.html"
 }
 
 //消息
 
 // @router /message [get] 首页
-func (this *IndexController) IndexMessage() {
+func (c *IndexController) IndexMessage() {
 
-	this.Data["xsrfdata"] = template.HTML(this.XSRFFormHTML()) //设置模板xss
+	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML()) //设置模板xss
 
 	d := struct {
 		CaptchaId string
@@ -92,34 +93,34 @@ func (this *IndexController) IndexMessage() {
 		captcha.NewLen(4),
 	}
 
-	this.Data["CaptchaId"] = d.CaptchaId //生成验证码
+	c.Data["CaptchaId"] = d.CaptchaId //生成验证码
 
-	this.Data["Uuid"] = this.GetRandomString(24) //token
+	c.Data["Uuid"] = c.GetRandomString(24) //token
 
-	this.Data["RePage"], _ = models.GetHomeReviewCount()
+	c.Data["RePage"], _ = models.GetHomeReviewCount()
 
-	this.Data["viewList"], _ = models.SelectReview()
+	c.Data["viewList"], _ = models.SelectReview()
 	//设置模板路径
-	this.TplName = "home/message.html"
+	c.TplName = "home/message.html"
 }
 
 //详情
 
 // @router /details [get] 首页
-func (this *IndexController) IndexDetails() {
+func (c *IndexController) IndexDetails() {
 
 	//设置模板路径
-	this.TplName = "home/details.html"
+	c.TplName = "home/details.html"
 }
 
 //详情
 
 // @router /time [get] 时间线
-func (this *IndexController) IndexTime() {
+func (c *IndexController) IndexTime() {
 
-	this.getTimeLine()
+	c.getTimeLine()
 	//设置模板路径
-	this.TplName = "home/time.html"
+	c.TplName = "home/time.html"
 }
 
 /**
@@ -127,15 +128,15 @@ func (this *IndexController) IndexTime() {
 */
 
 // @router  /time/page/?:id [get]  分页代码
-func (this *IndexController) GetTimePage() {
+func (c *IndexController) GetTimePage() {
 
 	var tid int
 
-	this.Ctx.Input.Bind(&tid, "id")
+	c.Ctx.Input.Bind(&tid, "id")
 
 	if tid == 0 {
 
-		this.Abort("404")
+		c.Abort("404")
 	}
 
 	line, _ := models.GetPageTimeLine(tid, 10)
@@ -144,7 +145,7 @@ func (this *IndexController) GetTimePage() {
 
 	if len(line) == 0 {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":    "2",
 			"data":    "",
 			"message": "没有数据了！",
@@ -168,20 +169,20 @@ func (this *IndexController) GetTimePage() {
 
 		}
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":    "0",
 			"data":    arr,
 			"message": "请求成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 时间线负责前端调用 Page
 */
-func (this *IndexController) getTimeLine() {
+func (c *IndexController) getTimeLine() {
 
 	line, _ := models.GetHomeTimeLine() //多维结构体
 
@@ -204,9 +205,9 @@ func (this *IndexController) getTimeLine() {
 
 	num, _ := models.GetHomeCountTimeLine()
 
-	this.Data["count"] = num
+	c.Data["count"] = num
 
-	this.Data["line"] = arr
+	c.Data["line"] = arr
 
 }
 
@@ -214,19 +215,19 @@ func (this *IndexController) getTimeLine() {
 其他菜单处理逻辑
 */
 // @router /category/?:key [get] 菜单处理
-func (this *IndexController) TypeArticle() {
+func (c *IndexController) TypeArticle() {
 
 	var id int
 	var page int
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
 	result, num, _ := models.GetMenuAndArticle(id, page)
 
 	if len(result) == 0 {
 
-		this.Abort("500")
+		c.Abort("500")
 
 	} else {
 
@@ -257,20 +258,20 @@ func (this *IndexController) TypeArticle() {
 			data[key] = arrData
 		}
 
-		this.Data["article"] = data
+		c.Data["article"] = data
 
-		this.Data["articleNum"] = num
+		c.Data["articleNum"] = num
 	}
 
-	this.Data["Placard"], _ = models.GetPlacard()
+	c.Data["Placard"], _ = models.GetPlacard()
 
-	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
+	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
 
-	this.Data["is_category"] = id
+	c.Data["is_category"] = id
 
-	this.GetTop() //获取标签
+	c.GetTop() //获取标签
 	//设置模板路径
-	this.TplName = "home/index.html"
+	c.TplName = "home/index.html"
 }
 
 /**
@@ -278,7 +279,7 @@ func (this *IndexController) TypeArticle() {
 @param ""
 @return
 */
-func (this *IndexController) getHomeArticle() {
+func (c *IndexController) getHomeArticle() {
 
 	result, num, _ := models.GetHomeArticle()
 
@@ -309,8 +310,8 @@ func (this *IndexController) getHomeArticle() {
 		data[key] = arrData
 	}
 
-	this.Data["articleNum"] = num
-	this.Data["article"] = data
+	c.Data["articleNum"] = num
+	c.Data["article"] = data
 }
 
 /**
@@ -319,25 +320,25 @@ func (this *IndexController) getHomeArticle() {
 @return []
 */
 // @router /article/?:key [get] 文章分页
-func (this *IndexController) GetHomePageArticle() {
+func (c *IndexController) GetHomePageArticle() {
 
 	var id, category, page, tag int
 
 	var keywords string //关键词查询
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
-	this.Ctx.Input.Bind(&category, "category")
+	c.Ctx.Input.Bind(&category, "category")
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&keywords, "keywords")
+	c.Ctx.Input.Bind(&keywords, "keywords")
 
-	this.Ctx.Input.Bind(&tag, "tag")
+	c.Ctx.Input.Bind(&tag, "tag")
 
 	if id == 0 {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "获取参数错误，error",
 		}
@@ -346,7 +347,7 @@ func (this *IndexController) GetHomePageArticle() {
 
 		if tag > 0 {
 
-			result, _ = this.TagsPage(tag, page)
+			result, _ = c.TagsPage(tag, page)
 
 		} else {
 
@@ -355,7 +356,7 @@ func (this *IndexController) GetHomePageArticle() {
 		}
 
 		if len(result) == 0 {
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "1002",
 				"errmsg": "已经最后一页了，别点了",
 			}
@@ -388,7 +389,7 @@ func (this *IndexController) GetHomePageArticle() {
 				data[key] = arrData
 			}
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code": "0",
 				"data": data,
 			}
@@ -396,7 +397,7 @@ func (this *IndexController) GetHomePageArticle() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
@@ -405,45 +406,45 @@ func (this *IndexController) GetHomePageArticle() {
 @return
 */
 // @router /article/info/?:key [get] 文章详情
-func (this *IndexController) GetArticleInfo() {
+func (c *IndexController) GetArticleInfo() {
 
 	var id int
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	if id == 0 {
 
-		this.Abort("404")
+		c.Abort("404")
 	}
 
 	res, _ := models.GetHomeArticleInfo(id)
 
 	//更新阅读数
 	models.SetArticleAndRead(id)
-	this.Data["articleData"] = res
-	this.Data["TagList"] = this.getHomeTags() //展示的是热门标签
-	this.GetTop()                             //获取置顶
-	this.NexArticle(id)                       //文章条数详情
-	this.TplName = "home/details.html"
+	c.Data["articleData"] = res
+	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
+	c.GetTop()                          //获取置顶
+	c.NexArticle(id)                    //文章条数详情
+	c.TplName = "home/details.html"
 }
 
 /**
 留言处理
 */
 // @router /message/review [post] 文章详情
-func (this *IndexController) SteReview() {
+func (c *IndexController) SteReview() {
 
-	text := this.GetString("text")
+	text := c.GetString("text")
 
-	captchaId := this.GetString("captchaId")
+	captchaId := c.GetString("captchaId")
 
-	ver_code := this.GetString("ver_code")
+	ver_code := c.GetString("ver_code")
 
-	token := this.GetString("token")
+	token := c.GetString("token")
 
 	if !VerifyCaptcha(captchaId, ver_code) {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "验证码错误",
 		}
@@ -454,7 +455,7 @@ func (this *IndexController) SteReview() {
 
 		if !gorm.IsRecordNotFoundError(err) {
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "1004",
 				"errmsg": "请勿重复提交",
 			}
@@ -462,11 +463,11 @@ func (this *IndexController) SteReview() {
 
 			var ip string
 
-			ips := this.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
+			ips := c.Ctx.Request.Header.Get("X-Real-IP") //nginx设置反向代理以后获取的值
 
 			if ips == "" {
 
-				ip = this.Ctx.Request.RemoteAddr
+				ip = c.Ctx.Request.RemoteAddr
 
 				ip = ip[0:strings.LastIndex(ip, ":")]
 
@@ -477,15 +478,15 @@ func (this *IndexController) SteReview() {
 
 			res.Token = token
 
-			res.Message, _ = admin.getSummary(text)
+			res.Message, _ = admin.GetSummary(text)
 
 			res.Ip = ip
 
-			res.Address = this.GetAddress(ip)
+			res.Address = c.GetAddress(ip)
 
 			models.CreateReview(res)
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "0",
 				"errmsg": "留言成功",
 			}
@@ -494,22 +495,22 @@ func (this *IndexController) SteReview() {
 	}
 	//判断是否
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 留言分页处理
 */
 // @router /message/review/page/?:key [get] 留言分页
-func (this *IndexController) HomePageReview() {
+func (c *IndexController) HomePageReview() {
 
 	var page int
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
 	if page == 0 {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "参数错误，获取信息失败",
 		}
@@ -517,7 +518,7 @@ func (this *IndexController) HomePageReview() {
 
 		data, _ := models.SelectReviewPage(page)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"data":   data,
 			"errmsg": "请求成功",
@@ -525,54 +526,54 @@ func (this *IndexController) HomePageReview() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 文章点赞
 */
 // @router /article/click/?:key [get] 文章点赞
-func (this *IndexController) ArticleClick() {
+func (c *IndexController) ArticleClick() {
 
 	var aid int
 
-	this.Ctx.Input.Bind(&aid, "aid")
+	c.Ctx.Input.Bind(&aid, "aid")
 
 	if aid == 0 {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
 			"errmsg": "参数非法,error",
 		}
 	} else {
 		models.SetArticleAndClick(aid)
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "点赞成功",
 		}
 	}
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 评论登录
 */
 // @router /blog/pages/?:key [get] 评论
-func (this *IndexController) CommitArticle() {
+func (c *IndexController) CommitArticle() {
 
-	this.Redirect("/", 302)
+	c.Redirect("/", 302)
 }
 
 /**
 前台首页搜索框查询内容
 */
-func (this *IndexController) getKeyword(key string, tag int) {
+func (c *IndexController) getKeyword(key string, tag int) {
 
 	var result []models.LiteArticle
 	var num int
 
 	if tag != 0 {
 
-		result, num = this.TagsPage(tag, 1) //查询tag表中的数据
+		result, num = c.TagsPage(tag, 1) //查询tag表中的数据
 
 	} else {
 
@@ -606,10 +607,10 @@ func (this *IndexController) getKeyword(key string, tag int) {
 		data[key] = arrData
 	}
 
-	this.Data["article"] = data
-	this.Data["Keywords"] = key
-	this.Data["articleNum"] = num
-	this.Data["PageTag"] = tag
+	c.Data["article"] = data
+	c.Data["Keywords"] = key
+	c.Data["articleNum"] = num
+	c.Data["PageTag"] = tag
 
 }
 
@@ -617,25 +618,25 @@ func (this *IndexController) getKeyword(key string, tag int) {
 设置下载文件
 */
 // @router /download/file/?:key [get] 下载文件
-func (this *IndexController) DownFile() {
+func (c *IndexController) DownFile() {
 
 	//获取当前用户的ip地址
 
 	var fileFullPath string
 
-	this.Ctx.Input.Bind(&fileFullPath, "file")
+	c.Ctx.Input.Bind(&fileFullPath, "file")
 
 	if fileFullPath == "" {
 
-		this.Abort("404")
+		c.Abort("404")
 	}
 
 	if fileFullPath != "log.txt" {
 
-		this.Abort("404")
+		c.Abort("404")
 	}
 
-	this.Ctx.Output.Download("download/" + fileFullPath)
+	c.Ctx.Output.Download("download/" + fileFullPath)
 
 }
 
@@ -643,7 +644,7 @@ func (this *IndexController) DownFile() {
 获取前台展示的标签
 */
 
-func (this *IndexController) getHomeTags() (res []TagList) {
+func (c *IndexController) getHomeTags() (res []TagList) {
 
 	var data []TagList
 
@@ -672,7 +673,7 @@ func (this *IndexController) getHomeTags() (res []TagList) {
 	@param tid int page int 标签id 分页id
    @return
 */
-func (this *IndexController) TagsPage(tid int, page int) (list []models.LiteArticle, num int) {
+func (c *IndexController) TagsPage(tid int, page int) (list []models.LiteArticle, num int) {
 
 	res, num := models.GetHomeTagsArticle(tid, page)
 
@@ -693,13 +694,13 @@ func (this *IndexController) TagsPage(tid int, page int) (list []models.LiteArti
 /**
 获取置顶推荐
 */
-func (this *IndexController) GetTop() {
+func (c *IndexController) GetTop() {
 	//查询前10条置顶推荐
 
-	this.Data["TopArticle"], _ = models.ArticleTopList()
+	c.Data["TopArticle"], _ = models.ArticleTopList()
 
 	//查询友情链接
-	this.Data["Link"], _ = models.GetHomeLink()
+	c.Data["Link"], _ = models.GetHomeLink()
 
 	var data []TimeString
 
@@ -709,19 +710,19 @@ func (this *IndexController) GetTop() {
 
 	for _, val := range result {
 
-		arr := TimeString{val, this.TimeRangeComparison(val.CreatedAt)}
+		arr := TimeString{val, c.TimeRangeComparison(val.CreatedAt)}
 
 		data = append(data, arr)
 	}
 
 	//最新留言
-	this.Data["Commit"] = data
+	c.Data["Commit"] = data
 }
 
 /**
 获取详情页中的获取下一条and 上一条
 */
-func (this *IndexController) NexArticle(id int) {
+func (c *IndexController) NexArticle(id int) {
 	//获取当前id的上一篇和下一篇
 
 	resNext, _ := models.ArticleNext(id)
@@ -730,12 +731,12 @@ func (this *IndexController) NexArticle(id int) {
 
 	if resPrev.ID == 0 {
 
-		this.Data["articlePrev"] = map[string]string{
+		c.Data["articlePrev"] = map[string]string{
 			"id":    "0",
 			"title": "没有了",
 		}
 	} else {
-		this.Data["articlePrev"] = map[string]string{
+		c.Data["articlePrev"] = map[string]string{
 			"id":    strconv.Itoa(int(resPrev.ID)),
 			"title": resPrev.Title,
 		}
@@ -743,14 +744,14 @@ func (this *IndexController) NexArticle(id int) {
 
 	if resNext.ID == 0 {
 
-		this.Data["articleNext"] = map[string]string{
+		c.Data["articleNext"] = map[string]string{
 			"id":    "0",
 			"title": "没有了",
 		}
 
 	} else {
 
-		this.Data["articleNext"] = map[string]string{
+		c.Data["articleNext"] = map[string]string{
 			"id":    strconv.Itoa(int(resNext.ID)),
 			"title": resNext.Title,
 		}
@@ -761,50 +762,50 @@ func (this *IndexController) NexArticle(id int) {
 /**
 小说列表页
 */
-func (this *IndexController) GetHomeFiction() {
+func (c *IndexController) GetHomeFiction() {
 
-	this.Data["fictionNum"], _ = models.CountHomeFictionNum()
+	c.Data["fictionNum"], _ = models.CountHomeFictionNum()
 
-	this.Data["fictionList"], _ = this.queryFictionData(1, 10)
+	c.Data["fictionList"], _ = c.queryFictionData(1, 10)
 
-	this.TplName = "home/fiction.html"
+	c.TplName = "home/fiction.html"
 }
 
 /**
 小说展示页面
 */
-func (this *IndexController) HomeFictionPage() {
+func (c *IndexController) HomeFictionPage() {
 
 	var page, size int
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&size, "size")
+	c.Ctx.Input.Bind(&size, "size")
 
-	data, err := this.queryFictionData(page, 10)
+	data, err := c.queryFictionData(page, 10)
 
 	if err != nil {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1002",
 			"msg":  "请求错误，请稍后...",
 		}
 	} else {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"data": data,
 			"msg":  "获取成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 小说页面处理展示
 */
-func (this *IndexController) queryFictionData(page, size int) (list []admin.FictionList, err error) {
+func (c *IndexController) queryFictionData(page, size int) (list []dto.FictionList, err error) {
 
 	data, err := models.FindHomeFictionData(page, 10)
 
@@ -816,13 +817,13 @@ func (this *IndexController) queryFictionData(page, size int) (list []admin.Fict
 
 	} else {
 
-		list = make([]admin.FictionList, 0)
+		list = make([]dto.FictionList, 0)
 
 		for _, val := range data {
 
 			ids, _ := models.FictionOperation(int(val.ID))
 
-			dataRes := admin.FictionList{val, "", val.CreatedAt.Format("2006-01-02 13:04:05"), ids.DownloadNum}
+			dataRes := dto.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
 
 			if val.Tags != "" {
 
@@ -844,15 +845,15 @@ func (this *IndexController) queryFictionData(page, size int) (list []admin.Fict
 /**
 小说下载
 */
-func (this *IndexController) HomeFictionDownload() {
+func (c *IndexController) HomeFictionDownload() {
 
 	var fictionId int
 
-	this.Ctx.Input.Bind(&fictionId, "txt_id")
+	c.Ctx.Input.Bind(&fictionId, "txt_id")
 
 	if fictionId == 0 {
 
-		this.Abort500(nil)
+		c.Abort500(nil)
 	}
 
 	//查询是否存在此小说
@@ -863,23 +864,23 @@ func (this *IndexController) HomeFictionDownload() {
 
 		//写入日志
 		logs.Error(err)
-		this.Abort("500")
+		c.Abort("500")
 
 	} else {
 
 		//查询是否是封禁的ip
-		num, _ := models.QueryBanned(this.GetIP())
+		num, _ := models.QueryBanned(c.GetIP())
 
 		if num > 0 {
 
-			logs.Info(this.GetIP() + "又开始请求下载了")
+			logs.Info(c.GetIP() + "又开始请求下载了")
 
-			this.Abort("404")
+			c.Abort("404")
 		} else {
 			//获取下载的详细内容
-			this.updateOperation(data)
+			c.updateOperation(data)
 
-			this.Ctx.Output.Download(data.FileName, data.Name)
+			c.Ctx.Output.Download(data.FileName, data.Name)
 		}
 
 	}
@@ -887,13 +888,13 @@ func (this *IndexController) HomeFictionDownload() {
 
 //更新日志表和批次表
 
-func (this *IndexController) updateOperation(data models.LiteFiction) bool {
+func (c *IndexController) updateOperation(data models.LiteFiction) bool {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 
 	go func() {
-		models.CreateFictionLog(data, this.GetIP())
+		models.CreateFictionLog(data, c.GetIP())
 
 		wg.Done()
 	}()

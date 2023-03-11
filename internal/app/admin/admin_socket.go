@@ -51,9 +51,9 @@ var upgrader = websocket.Upgrader{
 /**
 请求的地址 前台访问确定链接
 */
-func (this *PushSocketController) Get() {
+func (c *PushSocketController) Get() {
 
-	ws, err := upgrader.Upgrade(this.Ctx.ResponseWriter, this.Ctx.Request, nil) //beego 框架中的接收 完成http的应答
+	ws, err := upgrader.Upgrade(c.Ctx.ResponseWriter, c.Ctx.Request, nil) //beego 框架中的接收 完成http的应答
 
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +74,7 @@ func (this *PushSocketController) Get() {
 		if res.Code == 200 { //此状态代表着登录
 			if !checkOauth(res) {
 				//写入日志
-				this.ReadLog("用户："+res.Account+"连接socket错误任务:", 4)
+				c.ReadLog("用户："+res.Account+"连接socket错误任务:", 4)
 				delete(clients, ws)
 				goto ERR
 				break

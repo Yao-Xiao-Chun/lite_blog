@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
+	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"mywork/syserror"
 	"strconv"
@@ -18,40 +19,28 @@ type AdminUserController struct {
 
 //处理提交过来的json格式
 
-type Users struct {
-	Title     string `json:"title"`
-	Account   string `json:"account"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	File      string `json:"file"`
-	Status    string `json:"status"`
-	Is_admin  string `json:"is_admin"`
-	Create_at string `json:"create_at"`
-	Title_img string `json:"title_img"`
-}
-
 // @router /admin/dologin [post] 后台 登录页面
-func (this *AdminUserController) DoLogin() {
+func (c *AdminUserController) DoLogin() {
 
-	account := this.CheckMustKey("account", "账户不能为空")
+	account := c.CheckMustKey("account", "账户不能为空")
 
-	account = this.CheckEmail(account)
+	account = c.CheckEmail(account)
 
-	pwd := this.CheckMustKey("password", "密码不能为空")
+	pwd := c.CheckMustKey("password", "密码不能为空")
 
-	pwd = this.SetMd5Pwd(pwd)
+	pwd = c.SetMd5Pwd(pwd)
 
 	user, err := models.QueryAccountAndPwd(account, pwd) //获取查询结果
 	fmt.Println(user.Account)
 	if err != nil {
 
-		this.ReadLog("账户:"+account+",在Ip地址为："+this.GetIP()+",进行尝试登陆，登陆失败", 1)
+		c.ReadLog("账户:"+account+",在Ip地址为："+c.GetIP()+",进行尝试登陆，登陆失败", 1)
 
-		this.Abort500(syserror.New("登录失败", err))
+		c.Abort500(syserror.New("登录失败", err))
 
 	} else {
 		//更新最后一次登录的ip地址
-		ip := this.Ctx.Request.RemoteAddr
+		ip := c.Ctx.Request.RemoteAddr
 
 		ip = ip[0:strings.LastIndex(ip, ":")]
 
@@ -59,38 +48,38 @@ func (this *AdminUserController) DoLogin() {
 	}
 
 	//设置session
-	this.SetSession(SESSION_ADMIN_KEY, user)
+	c.SetSession(SESSION_ADMIN_KEY, user)
 	//写入日志
-	this.ReadLog("账户:"+account+",在Ip地址为："+this.GetIP()+",进行登陆，登陆成功", 1)
+	c.ReadLog("账户:"+account+",在Ip地址为："+c.GetIP()+",进行登陆，登陆成功", 1)
 
 	TaskPushData("账户:" + account + "登陆上线了") //提示登录的用户
 	//跳转页面进入后台
-	this.Ctx.Redirect(302, "/admin") //登录成功重定向这个方法
+	c.Ctx.Redirect(302, "/admin") //登录成功重定向这个方法
 
 }
 
 // @router /admin/loginout [get] 后台 登录页面
-func (this *AdminUserController) LoginOut() {
+func (c *AdminUserController) LoginOut() {
 
 	//写入日志
-	this.ReadLog("账户:"+this.User.Account+",在Ip地址为："+this.GetIP()+",进行登出，登出成功", 1)
+	c.ReadLog("账户:"+c.User.Account+",在Ip地址为："+c.GetIP()+",进行登出，登出成功", 1)
 
-	this.DelSession(SESSION_ADMIN_KEY)
+	c.DelSession(SESSION_ADMIN_KEY)
 
-	TaskPushData("账户:" + this.User.Account + "退出了登录") //提示登录的用户
+	TaskPushData("账户:" + c.User.Account + "退出了登录") //提示登录的用户
 	//跳转页面进入后台
-	this.Ctx.Redirect(302, "/admin") //登录成功重定向这个方法
+	c.Ctx.Redirect(302, "/admin") //登录成功重定向这个方法
 
 }
 
 // @router /admin/user [get] 后台 用户列表
-func (this *AdminUserController) UserList() {
+func (c *AdminUserController) UserList() {
 
 	num, _ := models.GetUserNum()
 
-	this.Data["num"] = num
+	c.Data["num"] = num
 
-	this.TplName = "admin/user/list.html"
+	c.TplName = "admin/user/list.html"
 }
 
 /**
@@ -98,11 +87,11 @@ func (this *AdminUserController) UserList() {
 */
 
 // @router /admin/user/page/?:page [get] 后台 分页 用户列表
-func (this *AdminUserController) UserPage() {
+func (c *AdminUserController) UserPage() {
 
 	var page string
 
-	this.Ctx.Input.Bind(&page, "page") //绑定分页
+	c.Ctx.Input.Bind(&page, "page") //绑定分页
 
 	pages, _ := strconv.Atoi(page)
 
@@ -119,7 +108,7 @@ func (this *AdminUserController) UserPage() {
 
 	if err != nil {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1001",
 			"msg":  "非法操作",
 		}
@@ -146,14 +135,14 @@ func (this *AdminUserController) UserPage() {
 			arrList[key] = arr
 		}
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"data": arrList,
 			"msg":  "请求成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 
 }
 
@@ -162,17 +151,17 @@ func (this *AdminUserController) UserPage() {
 */
 
 // @router /admin/user/create [post] 后台 创建用户
-func (this *AdminUserController) CreateUser() {
+func (c *AdminUserController) CreateUser() {
 
-	data := this.CheckMustKey("data", "接受参数错误") //获取参数 json格式
+	data := c.CheckMustKey("data", "接受参数错误") //获取参数 json格式
 
-	user := Users{}
+	user := dto.Users{}
 
 	err := json.Unmarshal([]byte(data), &user) //值进行绑定
 
 	if err != nil {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1004",
 			"errmsg": "json数据请求错误！",
 		}
@@ -180,10 +169,10 @@ func (this *AdminUserController) CreateUser() {
 	} else {
 
 		//数据验证
-		acc := this.CheckEmail(user.Account)
+		acc := c.CheckEmail(user.Account)
 
 		if acc == "" {
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "1005",
 				"errmsg": "登录账户不合法！",
 			}
@@ -193,7 +182,7 @@ func (this *AdminUserController) CreateUser() {
 
 			if !gorm.IsRecordNotFoundError(err) {
 
-				this.Data["json"] = map[string]interface{}{
+				c.Data["json"] = map[string]interface{}{
 					"code":   "1006",
 					"errmsg": "此账户已存在，请勿重复添加！",
 				}
@@ -204,23 +193,23 @@ func (this *AdminUserController) CreateUser() {
 
 				users.Status, _ = strconv.Atoi(user.Status) //转换为整型
 
-				users.Uid = int(this.User.ID) //获取登录的用
+				users.Uid = int(c.User.ID) //获取登录的用
 
-				users.Is_admin, _ = strconv.Atoi(user.Is_admin) //是否是管理员 允许后台登录
+				users.Is_admin, _ = strconv.Atoi(user.IsAdmin) //是否是管理员 允许后台登录
 
 				users.Email = user.Email
 
-				users.Password = this.SetMd5Pwd(user.Password)
+				users.Password = c.SetMd5Pwd(user.Password)
 
-				users.Head_img = user.Title_img //头像地址
+				users.Head_img = user.TitleImg //头像地址
 
 				users.Nikename = user.Title //昵称
 
 				models.CreateUser(&users) //创建
 
 				//写入日志
-				this.ReadLog("账号:"+this.User.Nikename+" 操作：创建用户:'"+user.Account+"',状态：成功", 2)
-				this.Data["json"] = map[string]interface{}{
+				c.ReadLog("账号:"+c.User.Nikename+" 操作：创建用户:'"+user.Account+"',状态：成功", 2)
+				c.Data["json"] = map[string]interface{}{
 					"code":   "0",
 					"errmsg": "创建账户成功",
 				}
@@ -231,7 +220,7 @@ func (this *AdminUserController) CreateUser() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 // @router /admin/user/add [get] 后台首页
@@ -244,15 +233,15 @@ func (c *ArticleController) GetUser() {
 后台删除用户
 */
 // @router /admin/user/del/?:id [get] 删除用户
-func (this *AdminUserController) DelUser() {
+func (c *AdminUserController) DelUser() {
 
 	var id int
 
-	this.Ctx.Input.Bind(&id, "id")
+	c.Ctx.Input.Bind(&id, "id")
 
 	if id == 0 {
 
-		this.Abort("500")
+		c.Abort("500")
 	}
 
 	_, err := models.DelUser(id)
@@ -260,24 +249,24 @@ func (this *AdminUserController) DelUser() {
 	if err == nil {
 
 		//写入日志
-		this.ReadLog("账号:"+this.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：成功", 2)
+		c.ReadLog("账号:"+c.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：成功", 2)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "删除成功",
 		}
 	} else {
 
 		//写入日志
-		this.ReadLog("账号:"+this.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：失败", 2)
+		c.ReadLog("账号:"+c.User.Nikename+" 操作：删除用户id:'"+string(id)+"',状态：失败", 2)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1006",
 			"errmsg": "删除失败！",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 
 }
 
@@ -285,11 +274,11 @@ func (this *AdminUserController) DelUser() {
 后台用户编辑页面
 */
 // @router /admin/user/edit/?:id [get] 编辑用户
-func (this *AdminUserController) EditUser() {
+func (c *AdminUserController) EditUser() {
 
 	var id int
 
-	this.Ctx.Input.Bind(&id, "id") //绑定获取的数值
+	c.Ctx.Input.Bind(&id, "id") //绑定获取的数值
 
 	user, err := models.FindUser(id)
 
@@ -297,7 +286,7 @@ func (this *AdminUserController) EditUser() {
 
 	} else {
 
-		this.Data["userinfo"] = map[string]interface{}{
+		c.Data["userinfo"] = map[string]interface{}{
 			"title":    user.Nikename,
 			"status":   user.Status,
 			"is_admin": user.Is_admin,
@@ -310,28 +299,28 @@ func (this *AdminUserController) EditUser() {
 
 	}
 
-	this.TplName = "admin/user/edit.html"
+	c.TplName = "admin/user/edit.html"
 }
 
 /**
 后台编辑页面提交功能
 */
 // @router /admin/user/update [post] 编辑用户提交
-func (this *AdminUserController) EditUserData() {
+func (c *AdminUserController) EditUserData() {
 
-	data := this.CheckMustKey("data", "接受参数错误") //获取参数 json格式
+	data := c.CheckMustKey("data", "接受参数错误") //获取参数 json格式
 
-	user := Users{}
+	user := dto.Users{}
 
 	err := json.Unmarshal([]byte(data), &user) //值进行绑定
 	//修改后台登录
-	if user.Is_admin == "" {
+	if user.IsAdmin == "" {
 
-		user.Is_admin = "0"
+		user.IsAdmin = "0"
 	}
 	if err != nil {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code":   "1004",
 			"errmsg": "json数据请求错误！",
 		}
@@ -339,10 +328,10 @@ func (this *AdminUserController) EditUserData() {
 	} else {
 
 		//数据验证
-		acc := this.CheckEmail(user.Account)
+		acc := c.CheckEmail(user.Account)
 
 		if acc == "" {
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "1005",
 				"errmsg": "登录账户不合法！",
 			}
@@ -354,16 +343,16 @@ func (this *AdminUserController) EditUserData() {
 
 			users.Status, _ = strconv.Atoi(user.Status) //转换为整型
 
-			users.Is_admin, _ = strconv.Atoi(user.Is_admin) //是否是管理员 允许后台登录
+			users.Is_admin, _ = strconv.Atoi(user.IsAdmin) //是否是管理员 允许后台登录
 
 			users.Email = user.Email
 
 			if user.Password != "" {
 
-				users.Password = this.SetMd5Pwd(user.Password)
+				users.Password = c.SetMd5Pwd(user.Password)
 			}
 
-			users.Head_img = user.Title_img //头像地址
+			users.Head_img = user.TitleImg //头像地址
 
 			users.Nikename = user.Title //昵称
 
@@ -372,9 +361,9 @@ func (this *AdminUserController) EditUserData() {
 			models.EditUser(ids, users)
 
 			//写入日志
-			this.ReadLog("账号:"+this.User.Nikename+" 操作：编辑用户:'"+user.Account+"',状态：成功", 2)
+			c.ReadLog("账号:"+c.User.Nikename+" 操作：编辑用户:'"+user.Account+"',状态：成功", 2)
 
-			this.Data["json"] = map[string]interface{}{
+			c.Data["json"] = map[string]interface{}{
 				"code":   "0",
 				"errmsg": "修改用户成功",
 			}
@@ -383,5 +372,5 @@ func (this *AdminUserController) EditUserData() {
 
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }

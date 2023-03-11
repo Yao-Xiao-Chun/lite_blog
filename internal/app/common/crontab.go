@@ -33,26 +33,26 @@ type TaskData struct {
 }
 
 // @router /admin/crontab/index [get] 定时任务列表
-func (this *CronTabController) Task() {
+func (c *CronTabController) Task() {
 
-	this.Data["num"], _ = models.CountPage()
-	this.TplName = "admin/crontab/index.html"
+	c.Data["num"], _ = models.CountPage()
+	c.TplName = "admin/crontab/index.html"
 }
 
 // @router /admin/crontab/add [get] 创建页面
-func (this *CronTabController) TaskAdd() {
+func (c *CronTabController) TaskAdd() {
 
-	this.TplName = "admin/crontab/add.html"
+	c.TplName = "admin/crontab/add.html"
 }
 
 // @router /admin/crontab/add [post] 创建
-func (this *CronTabController) Create() {
+func (c *CronTabController) Create() {
 
 	//获取传输的参数
 	var data TaskData
 
-	if err := this.ParseForm(&data); err != nil {
-		this.Data["json"] = map[string]interface{}{
+	if err := c.ParseForm(&data); err != nil {
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  err,
 		}
@@ -62,64 +62,64 @@ func (this *CronTabController) Create() {
 
 		taskData.TaskName = data.TaskName
 		taskData.Descript = data.TaskDescript
-		taskData.Frequency = this.toTaskStr(data)
+		taskData.Frequency = c.toTaskStr(data)
 		taskData.Status = 0
-		taskData.CreateName = this.User.Nikename
+		taskData.CreateName = c.User.Nikename
 		taskData.TaskId = data.Task
 
 		models.TaskAdd(taskData)
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "创建计划任务成功",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 页面获取
 */
 // @router /admin/crontab/page/?:key [get]
-func (this *CronTabController) GetTaskPage() {
+func (c *CronTabController) GetTaskPage() {
 
 	var page int
 
 	var size string
 
-	this.Ctx.Input.Bind(&page, "page")
+	c.Ctx.Input.Bind(&page, "page")
 
-	this.Ctx.Input.Bind(&size, "size")
+	c.Ctx.Input.Bind(&size, "size")
 
 	result, err := models.FindTask(page, 10)
 
 	if err != nil {
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1003",
 			"msg":  err,
 		}
 	} else {
 
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "获取成功",
 			"data": result,
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 删除
 */
 // @router /admin/crontab/delete/?:key [get]
-func (this *CronTabController) CrontabDelete() {
+func (c *CronTabController) CrontabDelete() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId, "id")
+	c.Ctx.Input.Bind(&taskId, "id")
 
 	//检查次id是否在执行状态
 	resStatus, _ := models.FindInfoTask(taskId)
@@ -127,57 +127,57 @@ func (this *CronTabController) CrontabDelete() {
 	if resStatus.Status == 0 {
 		//可以删除
 		models.DeleteTask(taskId)
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "删除成功",
 		}
 
 	} else {
 		//启用状态，停止后可以删除
-		this.Data["json"] = map[string]interface{}{
+		c.Data["json"] = map[string]interface{}{
 			"code": "1002",
 			"msg":  "请停止该定时任务后，进行删除",
 		}
 	}
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 启用任务
 */
 // @router /admin/crontab/startTask/?:key [get] 开通任务计划
-func (this *CronTabController) StartTask() {
+func (c *CronTabController) StartTask() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId, "task_id")
+	c.Ctx.Input.Bind(&taskId, "task_id")
 	//查询要启用的任务
 	result, _ := models.FindInfoTask(taskId)
 
-	this.setTask(result.Frequency, result.TaskName, result.TaskId) //设定任务
+	c.setTask(result.Frequency, result.TaskName, result.TaskId) //设定任务
 
 	//更新后台数据库
 	result.Status = 1
 	models.UpdateTaskStatus(result)
 	//写入日志
-	this.ReadLog("用户："+this.User.Nikename+"开启定时任务:"+result.TaskName+"。", 3)
-	this.Data["json"] = map[string]interface{}{
+	c.ReadLog("用户："+c.User.Nikename+"开启定时任务:"+result.TaskName+"。", 3)
+	c.Data["json"] = map[string]interface{}{
 		"code": "0",
 		"msg":  "创建定时任务成功",
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 停用任务
 */
 // @router /admin/crontab/stopTask/?:key [get] 开通任务计划
-func (this *CronTabController) StopTask() {
+func (c *CronTabController) StopTask() {
 
 	var taskId int
 
-	this.Ctx.Input.Bind(&taskId, "task_id")
+	c.Ctx.Input.Bind(&taskId, "task_id")
 
 	//查询要启用的任务
 	result, _ := models.FindInfoTask(taskId)
@@ -189,38 +189,38 @@ func (this *CronTabController) StopTask() {
 
 	models.UpdateTaskStatus(result)
 
-	this.ReadLog("用户："+this.User.Nikename+"停用定时任务:"+result.TaskName+"。", 3)
+	c.ReadLog("用户："+c.User.Nikename+"停用定时任务:"+result.TaskName+"。", 3)
 
-	this.Data["json"] = map[string]interface{}{
+	c.Data["json"] = map[string]interface{}{
 		"code": "0",
 		"msg":  "停止定时任务：" + result.TaskName,
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
 停止全部任务
 */
 // @router /admin/crontab/allstop [get] 停止所有任务
-func (this *CronTabController) StopAllTask() {
+func (c *CronTabController) StopAllTask() {
 
-	flag := this.GetRunTask()
+	flag := c.GetRunTask()
 
 	if flag {
 		toolbox.StopTask() //停止所有任务执行
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "0",
 			"msg":  "所有定时任务停止成功",
 		}
 	} else {
-		this.Data["json"] = map[string]string{
+		c.Data["json"] = map[string]string{
 			"code": "1003",
 			"msg":  "停止失败",
 		}
 	}
 
-	this.ServeJSON()
+	c.ServeJSON()
 }
 
 /**
@@ -259,7 +259,7 @@ func (this *CronTabController) StopAllTask() {
 //  0 2 8-20/3 * * *　　　　　　             8:02,11:02,14:02,17:02,20:02 执行
 //  0 30 5 1,15 * *　　　　　　              1 日 和 15 日的 5:30 执
 
-func (this *CronTabController) setTask(taskTime, name, taskId string) {
+func (c *CronTabController) setTask(taskTime, name, taskId string) {
 
 	logs.Info(taskTime, taskId)
 
@@ -335,7 +335,7 @@ func DeleteTask(name string) {
 @param struct 上传参数结构体
 @return string 执行任务格式
 */
-func (this *CronTabController) toTaskStr(data TaskData) string {
+func (c *CronTabController) toTaskStr(data TaskData) string {
 
 	var task, s, m, d, date, month, week string
 
@@ -409,7 +409,7 @@ func (this *CronTabController) toTaskStr(data TaskData) string {
 /**
 获取系统正在执行的定时任务
 */
-func (this *CronTabController) GetRunTask() bool {
+func (c *CronTabController) GetRunTask() bool {
 
 	list, err := models.RunTask()
 
@@ -424,7 +424,7 @@ func (this *CronTabController) GetRunTask() bool {
 		models.UpdateTaskStatus(val)
 
 		//写入日志
-		this.ReadLog("用户："+this.User.Nikename+"停止定时任务:"+val.TaskName+"。", 3)
+		c.ReadLog("用户："+c.User.Nikename+"停止定时任务:"+val.TaskName+"。", 3)
 	}
 
 	return true
