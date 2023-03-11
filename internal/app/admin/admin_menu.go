@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"mywork/internal/pkg"
 	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"strconv"
@@ -287,19 +288,6 @@ func (c *AdminMenuController) getFidAndLevel(fid string) (str string, num int) {
 	}
 }
 
-// SuperCategory /**
-func SuperCategory(allCate []dto.Cat, pid int) []dto.Cat {
-	var arr []dto.Cat
-	for _, v := range allCate {
-		if pid == v.MenuParent {
-			arr = append(arr, v)
-			sonCate := SuperCategory(allCate, v.ID)
-			arr = append(arr, sonCate...)
-		}
-	}
-	return arr
-}
-
 /**
 遍历符号
 */
@@ -348,7 +336,7 @@ func (c *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string]in
 		//listA[i] = &list[i]
 	}
 
-	menus := SuperCategory(list, 0)
+	menus := pkg.SuperCategory(list, 0)
 
 	var menuData map[int]map[string]interface{}
 

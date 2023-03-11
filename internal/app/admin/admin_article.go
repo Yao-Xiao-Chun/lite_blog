@@ -1,9 +1,8 @@
 package admin
 
 import (
-	"bytes"
-	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego/logs"
+	"mywork/internal/pkg"
 	"mywork/models"
 	"strconv"
 	"strings"
@@ -197,7 +196,7 @@ func (c *ArticleController) AddArticle() {
 		//是否存在描述 不存在就去截取前300字
 		if descript == "" {
 
-			descript, _ = GetSummary(contents)
+			descript, _ = pkg.GetSummary(contents)
 		}
 
 		var article models.LiteArticle
@@ -274,7 +273,7 @@ func (c *ArticleController) EditArticle() {
 		//是否存在描述
 		if descript == "" {
 
-			descript, _ = GetSummary(contents)
+			descript, _ = pkg.GetSummary(contents)
 		}
 
 		var article models.LiteArticle
@@ -396,36 +395,4 @@ func (c *ArticleController) checkTag(str string) []string {
 	ids = strings.Split(str, ",")
 
 	return ids
-}
-
-/**
-  文章截取前300字
-*/
-func GetSummary(content string) (string, error) {
-
-	// bytes.Buffer，非常常用。
-	var buf bytes.Buffer
-
-	buf.Write([]byte(content))
-
-	// 用goquery来解析content
-	doc, err := goquery.NewDocumentFromReader(&buf)
-
-	if err != nil {
-
-		return "", err
-
-	}
-
-	// Text() 得到body元素下的文本内容（去掉html元素）
-	str := doc.Find("body").Text()
-
-	// 截取字符串
-	if len(str) > 300 {
-
-		str = str[0:300] + "..."
-	}
-
-	return str, nil
-
 }

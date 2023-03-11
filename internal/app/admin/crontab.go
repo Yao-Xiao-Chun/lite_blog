@@ -1,10 +1,9 @@
-package common
+package admin
 
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/toolbox"
 	"mywork/bins"
-	"mywork/internal/app/admin"
 	"mywork/models"
 	"strings"
 	"time"
@@ -14,7 +13,7 @@ import (
 定时任务控制器
 */
 type CronTabController struct {
-	admin.AdminBaseController
+	AdminBaseController
 }
 
 /**
@@ -284,7 +283,7 @@ func (c *CronTabController) setTask(taskTime, name, taskId string) {
 			return bins.StartYeWu()
 		case "2":
 
-			return admin.TaskPushData("")
+			return TaskPushData("")
 		default:
 
 			return ToStr()

@@ -5,14 +5,15 @@ import (
 	"github.com/dchest/captcha"
 	"mywork/internal/app/admin"
 	"mywork/internal/app/common"
+	"mywork/internal/app/home"
 )
 
-func init() {
+func initRoute() {
 
 	//注册错误处理
 	beego.ErrorController(&common.ErrorController{})
 
-	beego.Include(&common.IndexController{}) //前台首页
+	beego.Include(&home.IndexController{}) //前台首页
 
 	beego.Include(&admin.AdminIndexController{}) //后台首页
 
@@ -30,9 +31,9 @@ func init() {
 
 	beego.Include(&admin.AdminLinkController{}) //友情链接
 
-	beego.Include(&common.UploadController{}) //大文件上传demo
+	beego.Include(&admin.UploadController{}) //大文件上传demo
 
-	beego.Include(&common.CronTabController{}) //定时任务控制器
+	beego.Include(&admin.CronTabController{}) //定时任务控制器
 
 	beego.Handler("/captcha/*.png", captcha.Server(120, 38)) //设置验证码
 
@@ -46,11 +47,11 @@ func init() {
 
 	beego.Router("admin/fiction/index/page/?:key", &admin.FileController{}, "get:FilePage") //小说列表页
 
-	beego.Router("/fiction", &common.IndexController{}, "get:GetHomeFiction") //前台小说列表页
+	beego.Router("/fiction", &home.IndexController{}, "get:GetHomeFiction") //前台小说列表页
 
-	beego.Router("/fiction/page/?:key", &common.IndexController{}, "get:HomeFictionPage") //前台小说列表页
+	beego.Router("/fiction/page/?:key", &home.IndexController{}, "get:HomeFictionPage") //前台小说列表页
 
-	beego.Router("/fiction/download/?:key", &common.IndexController{}, "get:HomeFictionDownload") //前台小说下载
+	beego.Router("/fiction/download/?:key", &home.IndexController{}, "get:HomeFictionDownload") //前台小说下载
 
 	//小说日志路由模块 admin
 	beego.Router("admin/fiction/log", &admin.FileController{}, "get:FictionLog") //小说日志访问路由
@@ -59,4 +60,9 @@ func init() {
 
 	beego.Router("/admin/fiction/banned/?:key", &admin.FileController{}, "get:FictionBanned") //ip黑名单
 
+}
+
+func HomeApi() {
+
+	beego.Router("/", &home.IndexController{}, "*:Index")
 }

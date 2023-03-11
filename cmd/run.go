@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"github.com/astaxie/beego"
 	"mywork/models"
+	"mywork/routers"
 	"strconv"
 	"strings"
 )
@@ -12,6 +13,8 @@ import (
 func Execute() {
 
 	tip()
+
+	routers.HomeApi()
 
 }
 

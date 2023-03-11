@@ -1,10 +1,9 @@
-package common
+package admin
 
 import (
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"mime/multipart"
-	"mywork/internal/app/admin"
 	"mywork/models"
 	"os"
 	"path"
@@ -16,7 +15,7 @@ import (
 文件上传控制器
 */
 type UploadController struct {
-	admin.AdminBaseController
+	AdminBaseController
 }
 
 type UploadNames struct {

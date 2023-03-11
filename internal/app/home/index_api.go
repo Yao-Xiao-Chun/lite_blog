@@ -1,8 +1,7 @@
-package common
+package home
 
 import (
-	"mywork/internal/app/admin"
-	"mywork/internal/app/home"
+	"mywork/internal/pkg"
 	"mywork/internal/pkg/dto"
 	"mywork/models"
 
@@ -16,7 +15,7 @@ import (
 )
 
 type IndexController struct {
-	controllers.HomeBaseController
+	HomeBaseController
 }
 
 type TagList struct {
@@ -442,7 +441,7 @@ func (c *IndexController) SteReview() {
 
 	token := c.GetString("token")
 
-	if !VerifyCaptcha(captchaId, ver_code) {
+	if !pkg.VerifyCaptcha(captchaId, ver_code) {
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   "1003",
@@ -478,7 +477,7 @@ func (c *IndexController) SteReview() {
 
 			res.Token = token
 
-			res.Message, _ = admin.GetSummary(text)
+			res.Message, _ = pkg.GetSummary(text)
 
 			res.Ip = ip
 

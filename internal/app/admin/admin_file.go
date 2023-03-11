@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"mywork/internal/app/common"
 	"mywork/internal/pkg/dto"
 	"mywork/models"
 )
@@ -11,7 +10,7 @@ import (
 */
 
 type FileController struct {
-	common.UploadController
+	UploadController
 }
 
 func (c *FileController) FileIndex() {

@@ -1,9 +1,9 @@
-package controllers
+package home
 
 import (
 	"math/rand"
-	"mywork/internal/app/admin"
 	"mywork/internal/app/common"
+	"mywork/internal/pkg"
 	"mywork/internal/pkg/dto"
 	"mywork/models"
 	"time"
@@ -72,7 +72,7 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 		//listA[i] = &list[i]
 	}
 
-	menus := admin.SuperCategory(list, 0)
+	menus := pkg.SuperCategory(list, 0)
 
 	var menuData map[int]map[string]interface{}
 

@@ -2,11 +2,10 @@ package common
 
 import (
 	"errors"
-	"mywork/internal/app/admin"
 )
 
 type DatabaseCheckController struct {
-	admin.AdminBaseController
+	BaseController
 }
 
 func (dc *DatabaseCheckController) Check() error {
