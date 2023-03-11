@@ -11,10 +11,8 @@ import (
 
 // Execute 初始化执行命令
 func Execute() {
-
-	tip()
-
 	routers.HomeApi()
+	tip()
 
 }
 
