@@ -33,22 +33,32 @@ func initRoute() {
 
 }
 
-// TODO
+// HomeApi TODO
 func HomeApi() {
 
 	beego.Router("/", &home.IndexController{}, "*:Index")
 
 	beego.Handler("/captcha/*.png", captcha.Server(120, 38)) //设置验证码
 
-	beego.Router("/ws/index", &admin.PushSocketController{}) //websocket控制器
-
 	beego.Router("/fiction", &home.IndexController{}, "get:GetHomeFiction") //前台小说列表页
 
 	beego.Router("/fiction/page/?:key", &home.IndexController{}, "get:HomeFictionPage") //前台小说列表页
 
 	beego.Router("/fiction/download/?:key", &home.IndexController{}, "get:HomeFictionDownload") //前台小说下载
-
-	beego.Include(&home.IndexController{}) //前台首页
+	beego.Router("/about", &home.IndexController{}, "get:IndexAbout")                           //关于
+	beego.Router("/message", &home.IndexController{}, "get:IndexMessage")
+	beego.Router("/details", &home.IndexController{}, "get:IndexDetails")
+	beego.Router("/time", &home.IndexController{}, "get:IndexTime")
+	beego.Router("/time/page/?:id", &home.IndexController{}, "get:GetTimePage")
+	beego.Router("/category/?:key", &home.IndexController{}, "get:TypeArticle")
+	beego.Router("/article/?:key", &home.IndexController{}, "get:GetHomePageArticle")
+	beego.Router("/article/info/?:key", &home.IndexController{}, "get:GetArticleInfo")
+	beego.Router("/message/review", &home.IndexController{}, "post:SteReview")
+	beego.Router("/message/review/page/?:key", &home.IndexController{}, "get:HomePageReview")
+	beego.Router("/article/click/?:key", &home.IndexController{}, "get:ArticleClick") //文章点赞
+	beego.Router("/blog/pages/?:key", &home.IndexController{}, "get:CommitArticle")   //文章点赞
+	beego.Router("/download/file/?:key", &home.IndexController{}, "get:DownFile")     //文章点赞
+	beego.Router("/download/file/?:key", &home.IndexController{}, "get:DownFile")     //文章点赞
 
 	includeApi()
 	initRoute()
@@ -72,5 +82,5 @@ func includeApi() {
 	beego.Router("/admin/fiction/log/page/?:key", &admin.FileController{}, "get:FictionLogPage") //小说日志列表
 
 	beego.Router("/admin/fiction/banned/?:key", &admin.FileController{}, "get:FictionBanned") //ip黑名单
-
+	beego.Router("/ws/index", &admin.PushSocketController{})                                  //websocket控制器
 }

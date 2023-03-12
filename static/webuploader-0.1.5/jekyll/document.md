@@ -144,18 +144,18 @@ define([
     function File( ruid, file ) {
         var ext;
 
-        Blob.apply( this, arguments );
-        this.name = file.name || ('untitled' + uid++);
+        Blob.apply( e, arguments );
+        e.name = file.name || ('untitled' + uid++);
 
-        if ( !this.type ) {
+        if ( !e.type ) {
             ext = rExt.exec( file.name ) ? RegExp.$1.toLowerCase() : '';
             if ( ~'jpg,jpeg,png,gif,bmp'.indexOf( ext ) ) {
-                this.type = 'image/' + ext;
+                e.type = 'image/' + ext;
             }
         }
 
-        this.ext = ext;
-        this.lastModifiedDate = file.lastModifiedDate ||
+        e.ext = ext;
+        e.lastModifiedDate = file.lastModifiedDate ||
                 (new Date()).toLocaleString();
     }
 

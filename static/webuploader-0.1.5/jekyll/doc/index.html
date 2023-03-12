@@ -1403,7 +1403,7 @@ uploader.on( 'fileQueued', function( file ) {
     
         
 {% highlight javascript %}
-$li.on('click', '.remove-this', function() {
+$li.on('click', '.remove-e', function() {
     uploader.removeFile( file );
 })
 {% endhighlight %}
@@ -1690,7 +1690,7 @@ uploader.reset();
     
         
 {% highlight javascript %}
-$li.on('click', '.remove-this', function() {
+$li.on('click', '.remove-e', function() {
     uploader.cancelFile( file );
 })
 {% endhighlight %}
@@ -2151,7 +2151,7 @@ console.log( Manager.__super__ === Person );    // => true
         
 {% highlight javascript %}
 var doSomething = function() {
-        console.log( this.name );
+        console.log( e.name );
     },
     obj = {
         name: 'Object Name'
@@ -2216,7 +2216,7 @@ var doSomething = function() {
     
     
 
-    <p>被<a href="http://www.2ality.com/2011/11/uncurrying-this.html">uncurrythis</a>的数组slice方法。
+    <p>被<a href="http://www.2ality.com/2011/11/uncurrying-e.html">uncurrythis</a>的数组slice方法。
 将用来将非数组对象转化成数组对象。</p>
 
     

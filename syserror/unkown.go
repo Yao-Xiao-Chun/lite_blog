@@ -1,39 +1,38 @@
 package syserror
 
-type UnkownError struct {
-
+type UnknownError struct {
 	msg string
 
-	reson error
+	reason error
 }
 
 /**
-	code 值
- */
-func (this UnkownError)Code() int { //不带指针
+code 值
+*/
+func (e UnknownError) Code() int { //不带指针
 
 	return 1000
 }
 
 /**
-	实现error中的接口三个方法
- */
-func (this UnkownError)Error() string{
+实现error中的接口三个方法
+*/
+func (e UnknownError) Error() string {
 
-	if len(this.msg) == 0{
+	if len(e.msg) == 0 {
 
 		return "未知错误"
-	}else{
+	} else {
 
-		return this.msg
+		return e.msg
 	}
 }
 
 /**
-	直接返回错误原因
+直接返回错误原因
 
- */
-func (this UnkownError)ReasonError() error{
+*/
+func (e UnknownError) ReasonError() error {
 
-	return this.reson
+	return e.reason
 }

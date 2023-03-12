@@ -199,8 +199,8 @@ layui.use(['layim', 'flow'], function(){
   };
 
   $('body').on('click', '.layui-btn', function(){
-    var othis = $(this), type = othis.data('type');
-    active[type] ? active[type].call(this, othis) : '';
+    var othis = $(e), type = othis.data('type');
+    active[type] ? active[type].call(e, othis) : '';
   });
 });
 </script>

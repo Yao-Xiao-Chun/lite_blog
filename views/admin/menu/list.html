@@ -105,7 +105,7 @@
 
             $('.addmenus').click(function () {
                 //弹出新增窗口
-                var id = $(this).attr('data-id');
+                var id = $(e).attr('data-id');
                 layer.open({
                     type: 2,
                     title: '创建菜单',
@@ -120,7 +120,7 @@
             //删除本条数据
             $('.del-user').live("click",function () {
 
-                var id =   $(this).attr("data-id");
+                var id =   $(e).attr("data-id");
                 //询问框
                 layer.confirm('确定删除该标签？', {
                     btn: ['确定','取消'] //按钮
@@ -161,7 +161,7 @@
              */
             $('.edit-user').live("click",function () {
 
-                var id = $(this).attr("data-id");
+                var id = $(e).attr("data-id");
 
                 if(id == ''){
 

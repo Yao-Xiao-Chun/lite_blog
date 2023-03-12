@@ -16,11 +16,11 @@
         </form>
         <div class="blog-nav pull-right">
             <ul class="layui-nav pull-left">
-                <li class="layui-nav-item {{if equrl .Path "/"}}layui-this{{end}}" ><a href="/">首页</a></li>
+                <li class="layui-nav-item {{if equrl .Path "/"}}layui-e{{end}}" ><a href="/">首页</a></li>
 
                 {{range $key,$val := .Menus}}
 
-                    <li class="layui-nav-item {{if equrl $.Path (urljoin "/category?id=" $val.id)}}layui-this{{end}}" ><a href="/category?id={{$val.id}}">{{$val.name}}</a></li>
+                    <li class="layui-nav-item {{if equrl $.Path (urljoin "/category?id=" $val.id)}}layui-e{{end}}" ><a href="/category?id={{$val.id}}">{{$val.name}}</a></li>
 
                     {{/*{{if gt $val.level 0}}
 
@@ -38,10 +38,10 @@
 
                 {{end}}
 
-                <li class="layui-nav-item {{if equrl .Path "/message"}}layui-this{{end}}"><a href="/message">留言</a></li>
-                <li class="layui-nav-item {{if equrl .Path "/time"}}layui-this{{end}}"><a href="/time">时间线</a></li>
-                <li class="layui-nav-item {{if equrl .Path "/fiction"}}layui-this{{end}}"><a href="/fiction">小说</a></li>
-               {{/* <li class="layui-nav-item {{if equrl .Path "/about"}}layui-this{{end}}"><a href="/about">关于</a></li>*/}}
+                <li class="layui-nav-item {{if equrl .Path "/message"}}layui-e{{end}}"><a href="/message">留言</a></li>
+                <li class="layui-nav-item {{if equrl .Path "/time"}}layui-e{{end}}"><a href="/time">时间线</a></li>
+                <li class="layui-nav-item {{if equrl .Path "/fiction"}}layui-e{{end}}"><a href="/fiction">小说</a></li>
+               {{/* <li class="layui-nav-item {{if equrl .Path "/about"}}layui-e{{end}}"><a href="/about">关于</a></li>*/}}
             </ul>
             {{/*<a href="#" class="personal pull-left" title="登录">
                 <i class="layui-icon layui-icon-username"></i>

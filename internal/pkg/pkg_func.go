@@ -7,6 +7,8 @@ import (
 	"mywork/internal/pkg/dto"
 )
 
+// 公共的方法
+
 // SuperCategory /**
 func SuperCategory(allCate []dto.Cat, pid int) []dto.Cat {
 	var arr []dto.Cat

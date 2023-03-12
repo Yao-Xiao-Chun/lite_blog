@@ -113,7 +113,7 @@
             //删除本条数据
             $('.del-user').live("click",function () {
 
-                var id =   $(this).attr("data-id");
+                var id =   $(e).attr("data-id");
                 //询问框
                 layer.confirm('确定删除此条留言？', {
                     btn: ['确定','取消'] //按钮
@@ -152,7 +152,7 @@
              *  处理编辑用户的js
              */
             $('.edit-user').live("click",function () {
-                var id = $(this).attr("data-id");
+                var id = $(e).attr("data-id");
 
                 if(id == ''){
 

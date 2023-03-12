@@ -124,8 +124,8 @@
 
      $('.file-log').live('click',function (e) {
 
-         var _self = this;
-         var name = $(this).attr('data-name');
+         var _self = e;
+         var name = $(e).attr('data-name');
 
          if(name != ""){
              //询问框

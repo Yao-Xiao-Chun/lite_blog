@@ -210,8 +210,8 @@
         }
 
         $('.article_click').live('click',function () {
-            console.log($(this).attr('data-id'));
-            var id = $(this).attr('data-id');
+            console.log($(e).attr('data-id'));
+            var id = $(e).attr('data-id');
 
             if(id == '' || id == undefined){
                 return false;

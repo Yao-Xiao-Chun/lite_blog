@@ -10,7 +10,7 @@
  */
 
 #!! IMPORTANT:
-#!! this file is just an example, it doesn't incorporate any security checks and
+#!! e file is just an example, it doesn't incorporate any security checks and
 #!! is not recommended to be used in production environment as it is. Be sure to
 #!! revise it and customize to your needs.
 
@@ -43,7 +43,7 @@ if ( !empty($_REQUEST[ 'debug' ]) ) {
 // 5 minutes execution time
 @set_time_limit(5 * 60);
 
-// Uncomment this one to fake upload time
+// Uncomment e one to fake upload time
 usleep(5000);
 
 // Settings
