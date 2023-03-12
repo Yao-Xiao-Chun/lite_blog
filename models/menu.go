@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"mywork/pkg/model"
 )
 
 // LiteAdminMenu /**
@@ -28,14 +29,14 @@ type LiteAdminMenu struct {
 
 func GetMenuAndRoule(id int) (menu LiteAdminMenu, err error) {
 
-	return menu, db.Where("id = ?", id).Take(&menu).Error
+	return menu, model.Db.Where("id = ?", id).Take(&menu).Error
 
 }
 
 // SetMenu /**
 func SetMenu(menu LiteAdminMenu) {
 
-	db.Create(&menu)
+	model.Db.Create(&menu)
 }
 
 /**
@@ -43,7 +44,7 @@ func SetMenu(menu LiteAdminMenu) {
 */
 func GetMenuInfo() (menu []LiteAdminMenu, err error) {
 
-	return menu, db.Select([]string{"menu_name", "menu_status", "menu_level", "menu_parent", "id", "menu_roule"}).Where("menu_status = ?", "1").Order("menu_parent asc,menu_roule asc,id desc,created_at desc").Find(&menu).Error
+	return menu, model.Db.Select([]string{"menu_name", "menu_status", "menu_level", "menu_parent", "id", "menu_roule"}).Where("menu_status = ?", "1").Order("menu_parent asc,menu_roule asc,id desc,created_at desc").Find(&menu).Error
 
 }
 
@@ -54,7 +55,7 @@ func GetMenuNumber() (count int, err error) {
 
 	var menu []LiteAdminMenu
 
-	return count, db.Model(&menu).Where("menu_status = ?", "1").Count(&count).Error
+	return count, model.Db.Model(&menu).Where("menu_status = ?", "1").Count(&count).Error
 }
 
 /**
@@ -62,7 +63,7 @@ func GetMenuNumber() (count int, err error) {
 */
 func GetAll() (menu []LiteAdminMenu, err error) {
 
-	return menu, db.Select([]string{"menu_name", "menu_status", "menu_level", "menu_parent", "id", "menu_roule"}).Order("menu_parent asc,menu_roule asc,id desc,created_at desc").Find(&menu).Error
+	return menu, model.Db.Select([]string{"menu_name", "menu_status", "menu_level", "menu_parent", "id", "menu_roule"}).Order("menu_parent asc,menu_roule asc,id desc,created_at desc").Find(&menu).Error
 }
 
 /**
@@ -70,7 +71,7 @@ func GetAll() (menu []LiteAdminMenu, err error) {
 */
 func DeleteMenu(id uint) (menu LiteAdminMenu, err error) {
 
-	return menu, db.Where("id = ?", id).Limit(1).Delete(&menu).Error
+	return menu, model.Db.Where("id = ?", id).Limit(1).Delete(&menu).Error
 }
 
 /**
@@ -78,7 +79,7 @@ func DeleteMenu(id uint) (menu LiteAdminMenu, err error) {
 */
 func GetMenuAndFindInfo(id uint) (menu LiteAdminMenu, err error) {
 
-	return menu, db.Where("id = ?", id).First(&menu).Limit(1).Error
+	return menu, model.Db.Where("id = ?", id).First(&menu).Limit(1).Error
 }
 
 /**
@@ -86,7 +87,7 @@ func GetMenuAndFindInfo(id uint) (menu LiteAdminMenu, err error) {
 */
 func EditMenu(menu LiteAdminMenu) bool {
 
-	db.Save(&menu)
+	model.Db.Save(&menu)
 
 	return true
 }

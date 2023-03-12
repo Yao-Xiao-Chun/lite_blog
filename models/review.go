@@ -1,6 +1,9 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"mywork/pkg/model"
+)
 
 // LiteReview /**
 type LiteReview struct {
@@ -19,7 +22,7 @@ type LiteReview struct {
 */
 func SelectReviewToken(token string) (review LiteReview, err error) {
 
-	return review, db.Where("token = ?", token).Limit(1).Find(&review).Error
+	return review, model.Db.Where("token = ?", token).Limit(1).Find(&review).Error
 
 }
 
@@ -28,7 +31,7 @@ func SelectReviewToken(token string) (review LiteReview, err error) {
 */
 func CreateReview(review LiteReview) error {
 
-	return db.Create(&review).Error
+	return model.Db.Create(&review).Error
 
 }
 
@@ -38,7 +41,7 @@ func CreateReview(review LiteReview) error {
 func ReviewCount() (num int, err error) {
 	var review []LiteReview
 
-	return num, db.Find(&review).Count(&num).Error
+	return num, model.Db.Find(&review).Count(&num).Error
 }
 
 /**
@@ -46,7 +49,7 @@ func ReviewCount() (num int, err error) {
 */
 func SelectReview() (review []LiteReview, err error) {
 
-	return review, db.Order("created_at desc,id desc").Limit(10).Find(&review).Error
+	return review, model.Db.Order("created_at desc,id desc").Limit(10).Find(&review).Error
 }
 
 /**
@@ -54,7 +57,7 @@ func SelectReview() (review []LiteReview, err error) {
 */
 func SelectReviewPage(page int) (review []LiteReview, err error) {
 
-	return review, db.Order("is_top desc,click desc,created_at desc,id desc").Offset((page - 1) * 10).Limit(10).Find(&review).Error
+	return review, model.Db.Order("is_top desc,click desc,created_at desc,id desc").Offset((page - 1) * 10).Limit(10).Find(&review).Error
 
 }
 
@@ -65,7 +68,7 @@ func DeleteReview(id int) {
 
 	var reView LiteReview
 
-	db.Where("id = ?", id).Limit(1).Delete(&reView)
+	model.Db.Where("id = ?", id).Limit(1).Delete(&reView)
 }
 
 /**
@@ -75,7 +78,7 @@ func GetHomeReviewCount() (count int, err error) {
 
 	var review []LiteReview
 
-	return count, db.Where("status = 1").Find(&review).Count(&count).Error
+	return count, model.Db.Where("status = 1").Find(&review).Count(&count).Error
 
 }
 
@@ -86,5 +89,5 @@ func GetWhereReviewCount(str string) (count int, err error) {
 
 	var review []LiteReview
 
-	return count, db.Where("created_at > ?", str).Find(&review).Count(&count).Error
+	return count, model.Db.Where("created_at > ?", str).Find(&review).Count(&count).Error
 }

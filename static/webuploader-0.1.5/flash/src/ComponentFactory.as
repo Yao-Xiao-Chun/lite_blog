@@ -55,7 +55,7 @@ package
                 compClass = getDefinitionByName(compFQName) as Class;
                 comp = new compClass;
 
-                // if object dispatches events attach event listeners (@see for example FileInput for the interface)
+                // if object dispatches events attach event listeners (@see for example FileInput for the interfaces)
                 if (compClass.dispatches) {
                     for (exType in compClass.dispatches) {
                         // new context required to handle this properly

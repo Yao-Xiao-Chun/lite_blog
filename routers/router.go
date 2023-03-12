@@ -63,7 +63,7 @@ func HomeApi() {
 	includeApi()
 	initRoute()
 }
-
+ 
 func includeApi() {
 
 	beego.Include(&admin.AdminIndexController{}) //后台首页

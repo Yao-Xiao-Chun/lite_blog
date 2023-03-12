@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
+	"mywork/pkg/model"
 
 	_ "github.com/astaxie/beego/logs"
 )
@@ -31,8 +32,8 @@ type LiteOauthUser struct {
 */
 func QueryAccountAndPwd(account string, pwd string) (user LiteOauthUser, err error) {
 
-	logs.Info(db.Debug().Where("account = ? and password = ?", account, pwd).Take(&user)) //注意Take里面穿的参数，不能出啊挪了
-	return user, db.Where("account = ? and password = ? and status = 1 and is_admin = 1", account, pwd).Take(&user).Error
+	logs.Info(model.Db.Debug().Where("account = ? and password = ?", account, pwd).Take(&user)) //注意Take里面穿的参数，不能出啊挪了
+	return user, model.Db.Where("account = ? and password = ? and status = 1 and is_admin = 1", account, pwd).Take(&user).Error
 
 }
 
@@ -48,7 +49,7 @@ func QueryUserList(page int, limit int) (user []LiteOauthUser, err error) {
 
 	var list []LiteOauthUser
 
-	return list, db.Order("created_at desc,id desc").Offset((page - 1) * limit).Limit(limit).Find(&list).Error
+	return list, model.Db.Order("created_at desc,id desc").Offset((page - 1) * limit).Limit(limit).Find(&list).Error
 }
 
 /**
@@ -60,7 +61,7 @@ func GetUserNum() (num int, err error) {
 
 	var user []LiteOauthUser
 
-	return count, db.Order("id desc").Find(&user).Count(&count).Error
+	return count, model.Db.Order("id desc").Find(&user).Count(&count).Error
 }
 
 /**
@@ -68,7 +69,7 @@ func GetUserNum() (num int, err error) {
 */
 func GetIsAccount(account string) (user LiteOauthUser, err error) {
 
-	return user, db.Where("account = ?", account).Limit(1).Take(&user).Error
+	return user, model.Db.Where("account = ?", account).Limit(1).Take(&user).Error
 }
 
 /**
@@ -76,7 +77,7 @@ func GetIsAccount(account string) (user LiteOauthUser, err error) {
 */
 func CreateUser(user *LiteOauthUser) {
 
-	db.Save(&user)
+	model.Db.Save(&user)
 }
 
 /**
@@ -86,7 +87,7 @@ func UpdateIP(ip string, id int) {
 
 	var user LiteOauthUser
 
-	db.Model(&user).Where("id = ?", id).Update("last_login_ip", ip).Limit(1)
+	model.Db.Model(&user).Where("id = ?", id).Update("last_login_ip", ip).Limit(1)
 }
 
 /**
@@ -94,7 +95,7 @@ func UpdateIP(ip string, id int) {
 */
 func DelUser(id int) (user LiteOauthUser, err error) {
 
-	return user, db.Where("id = ?", id).Delete(&user).Error
+	return user, model.Db.Where("id = ?", id).Delete(&user).Error
 }
 
 /**
@@ -102,7 +103,7 @@ func DelUser(id int) (user LiteOauthUser, err error) {
 */
 func FindUser(id int) (user LiteOauthUser, err error) {
 
-	return user, db.Where("id = ?", id).Limit(1).First(&user).Error
+	return user, model.Db.Where("id = ?", id).Limit(1).First(&user).Error
 }
 
 /**
@@ -110,6 +111,6 @@ func FindUser(id int) (user LiteOauthUser, err error) {
 */
 func EditUser(id uint, user LiteOauthUser) {
 
-	db.Save(&user)
+	model.Db.Save(&user)
 
 }

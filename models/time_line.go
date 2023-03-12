@@ -3,6 +3,7 @@ package models
 import (
 	_ "github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
+	"mywork/pkg/model"
 )
 
 /**
@@ -29,7 +30,7 @@ type LiteTimeLine struct {
 
 func CreateTimeLine(line LiteTimeLine) {
 
-	db.Save(&line)
+	model.Db.Save(&line)
 
 }
 
@@ -38,7 +39,7 @@ func CreateTimeLine(line LiteTimeLine) {
 */
 func QueryToken(key string) (line LiteTimeLine, err error) {
 
-	return line, db.Where("token = ?", key).Take(&line).Error
+	return line, model.Db.Where("token = ?", key).Take(&line).Error
 
 }
 
@@ -49,7 +50,7 @@ func GetHomeTimeLine() (line []LiteTimeLine, err error) {
 
 	var nx2 []LiteTimeLine
 	//启用状态
-	return nx2, db.Where("status = 1").Order("id desc").Limit(10).Find(&nx2).Error
+	return nx2, model.Db.Where("status = 1").Order("id desc").Limit(10).Find(&nx2).Error
 }
 
 /**
@@ -62,7 +63,7 @@ func GetHomeCountTimeLine() (num int, err error) {
 
 	var lite []LiteTimeLine
 
-	return count, db.Where("status = 1").Order("id desc").Find(&lite).Count(&count).Error
+	return count, model.Db.Where("status = 1").Order("id desc").Find(&lite).Count(&count).Error
 }
 
 /**
@@ -73,7 +74,7 @@ func GetAdminTimeLine() (line []LiteTimeLine, err error) {
 
 	var nx2 []LiteTimeLine
 	//启用状态
-	return nx2, db.Order("id desc").Limit(10).Find(&nx2).Error
+	return nx2, model.Db.Order("id desc").Limit(10).Find(&nx2).Error
 }
 
 /**
@@ -82,7 +83,7 @@ func GetAdminTimeLine() (line []LiteTimeLine, err error) {
 
 func SetDelTimes(id string, token string) (line LiteTimeLine, err error) {
 
-	return line, db.Where("id = ? and token = ?", id, token).Delete(&line).Error
+	return line, model.Db.Where("id = ? and token = ?", id, token).Delete(&line).Error
 
 }
 
@@ -91,7 +92,7 @@ func SetDelTimes(id string, token string) (line LiteTimeLine, err error) {
 */
 func GetTileLineFind(id int, token string) (line LiteTimeLine, err error) {
 
-	return line, db.Where("id = ? and token = ?", id, token).First(&line).Error
+	return line, model.Db.Where("id = ? and token = ?", id, token).First(&line).Error
 }
 
 /**
@@ -99,7 +100,7 @@ func GetTileLineFind(id int, token string) (line LiteTimeLine, err error) {
 */
 func SetTimeInfo(id string, line LiteTimeLine) bool {
 
-	db.Save(&line)
+	model.Db.Save(&line)
 
 	return true
 }
@@ -116,6 +117,6 @@ func GetPageTimeLine(id int, limit int) (line []LiteTimeLine, err error) {
 
 	var nx2 []LiteTimeLine
 	//启用状态
-	return nx2, db.Where("status = 1 and id < ?", id).Order("id desc").Limit(limit).Find(&nx2).Error
+	return nx2, model.Db.Where("status = 1 and id < ?", id).Order("id desc").Limit(limit).Find(&nx2).Error
 
 }

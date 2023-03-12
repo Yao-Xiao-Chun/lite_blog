@@ -149,7 +149,7 @@ package com.image.formatlos
 		 *
 		 * @see http://blog.formatlos.de/2008/12/11/bitmapdatadraw-is-limited-to-4096px/
 		 *
-		 * @param source_ The display object or BitmapData object to draw to the BitmapData object. (The DisplayObject and BitmapData classes implement the IBitmapDrawable interface.)
+		 * @param source_ The display object or BitmapData object to draw to the BitmapData object. (The DisplayObject and BitmapData classes implement the IBitmapDrawable interfaces.)
 		 * @param colorTransform_ A ColorTransform object that you use to adjust the color values of the bitmap. If no object is supplied, the bitmap image's colors are not transformed
 		 * @param blendMode_ A string value, from the flash.display.BlendMode class, specifying the blend mode to be applied to the resulting bitmap.
 		 * @param clipRect_ A Rectangle object that defines the area of the source object to draw. If you do not supply this value, no clipping occurs and the entire source object is drawn.

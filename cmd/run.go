@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"encoding/gob"
+	"fmt"
 	"github.com/astaxie/beego"
 	"mywork/models"
+	"mywork/pkg/search"
 	"mywork/routers"
 	"strconv"
 	"strings"
@@ -11,7 +13,11 @@ import (
 
 // Execute 初始化执行命令
 func Execute() {
+
 	routers.HomeApi()
+
+	initSearch()
+
 	tip()
 
 }
@@ -96,4 +102,20 @@ func initSetSession() {
 	beego.BConfig.WebConfig.Session.SessionProvider = "file"
 
 	beego.BConfig.WebConfig.Session.SessionProviderConfig = "docs/session"
+}
+
+//初始化搜索引擎
+func initSearch() {
+
+	fmt.Println("初始化搜索引擎配置")
+	host := beego.AppConfig.String("searchhost")
+	port := beego.AppConfig.String("searchport")
+	key := beego.AppConfig.String("searchkey")
+
+	ser := NewMeiliSearch(host, port, key)
+
+	search.SearchSDK = ser.OpenClient() //创建全局使用变量
+
+	fmt.Println("init search success...")
+
 }
