@@ -1,8 +1,6 @@
 package main
 
-import (
-	"mywork/cmd"
-)
+import "mywork/cmd"
 
 func main() {
 

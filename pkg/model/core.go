@@ -6,7 +6,6 @@ import (
 	"github.com/astaxie/beego/logs"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"mywork/migrate"
 )
 
 var (
@@ -49,9 +48,7 @@ func init() {
 		panic("Mysql:连接数据库错误！请确认是否启动Mysql")
 	}
 	//初始化
-	o := new(MysqlSdk)
 
-	migrate.MigrateData(o)
 	//defer db.Close()
 
 }

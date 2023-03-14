@@ -33,17 +33,17 @@ type cat struct {
   这个函数主要是为了用户扩展用的，这个函数会在下面定义的这些 Method 方法之前执行，用户可以重写这个函数实现类似用户验证之类
 */
 
-func (this *HomeBaseController) Prepare() {
+func (c *HomeBaseController) Prepare() {
 
-	this.Data["Path"] = this.Ctx.Request.RequestURI //获取当前中的url
+	c.Data["Path"] = c.Ctx.Request.RequestURI //获取当前中的url
 
-	menuData := this.GetMenuList(false) //获取列表
+	menuData := c.GetMenuList(false) //获取列表
 
-	this.Data["Menus"] = menuData
+	c.Data["Menus"] = menuData
 
 }
 
-func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]interface{}) {
+func (c *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]interface{}) {
 
 	var menu []models.LiteAdminMenu
 	//是获取所有的还是获取选择的
@@ -112,7 +112,7 @@ func (this *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]
 	@param int 长度
     @return string
 */
-func (this *HomeBaseController) GetRandomString(lens int) string {
+func (c *HomeBaseController) GetRandomString(lens int) string {
 
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 

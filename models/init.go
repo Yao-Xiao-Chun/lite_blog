@@ -2,7 +2,10 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-func AutoData(Db *gorm.DB) bool {
+type MysqlAutoData struct {
+}
+
+func (m MysqlAutoData) AutoData(Db *gorm.DB) bool {
 
 	var count int
 
