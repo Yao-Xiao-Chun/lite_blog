@@ -1,8 +1,8 @@
 package admin
 
 import (
-	"mywork/internal/app/common/dto"
-	"mywork/models"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/models"
 )
 
 /**

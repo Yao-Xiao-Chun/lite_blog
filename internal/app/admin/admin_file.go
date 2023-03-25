@@ -1,9 +1,9 @@
 package admin
 
 import (
-	"mywork/internal/app/common/dto"
-	models "mywork/internal/app/common/dto"
-	"mywork/internal/pkg/entity"
+	"lite_blog/internal/app/common/dto"
+	models "lite_blog/internal/app/common/dto"
+	"lite_blog/internal/pkg/entity"
 )
 
 /**

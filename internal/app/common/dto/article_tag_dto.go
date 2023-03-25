@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"mywork/models"
-	"mywork/pkg/model"
+	"lite_blog/models"
+	"lite_blog/pkg/model"
 	"strconv"
 	"time"
 )

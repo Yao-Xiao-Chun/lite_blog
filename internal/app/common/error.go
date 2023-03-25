@@ -2,7 +2,7 @@ package common
 
 import (
 	"github.com/astaxie/beego/logs"
-	"mywork/syserror"
+	"lite_blog/syserror"
 )
 
 /**

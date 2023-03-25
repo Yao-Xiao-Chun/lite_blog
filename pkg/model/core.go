@@ -6,7 +6,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"mywork/models"
+	"lite_blog/models"
 )
 
 var (

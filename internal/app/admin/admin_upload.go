@@ -3,9 +3,9 @@ package admin
 import (
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/models"
 	"mime/multipart"
-	"mywork/internal/app/common/dto"
-	"mywork/models"
 	"os"
 	"path"
 	"sort"

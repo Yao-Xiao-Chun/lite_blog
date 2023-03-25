@@ -1,7 +1,7 @@
 package test
 
 import (
-	"mywork/internal/app/common"
+	"lite_blog/internal/app/common"
 	"testing"
 )
 

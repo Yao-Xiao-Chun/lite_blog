@@ -2,9 +2,9 @@ package admin
 
 import (
 	"github.com/astaxie/beego/logs"
-	"mywork/internal/app/common/dto"
-	"mywork/internal/pkg"
-	"mywork/models"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/internal/pkg"
+	"lite_blog/models"
 	"strconv"
 	"strings"
 )

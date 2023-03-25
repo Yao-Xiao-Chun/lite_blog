@@ -3,9 +3,9 @@ package admin
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/toolbox"
-	"mywork/bins"
-	"mywork/internal/app/common/dto"
-	"mywork/models"
+	"lite_blog/bins"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/models"
 	"strings"
 	"time"
 )

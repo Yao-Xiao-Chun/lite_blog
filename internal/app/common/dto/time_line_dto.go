@@ -2,8 +2,8 @@ package dto
 
 import (
 	_ "github.com/astaxie/beego/logs"
-	"mywork/models"
-	"mywork/pkg/model"
+	"lite_blog/models"
+	"lite_blog/pkg/model"
 )
 
 /**

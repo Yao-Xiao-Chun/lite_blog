@@ -1,6 +1,6 @@
 package entity
 
-import "mywork/models"
+import "lite_blog/models"
 
 type FictionList struct {
 	models.LiteFiction

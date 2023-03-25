@@ -1,6 +1,6 @@
 package main
 
-import "mywork/cmd"
+import "lite_blog/cmd"
 
 func main() {
 

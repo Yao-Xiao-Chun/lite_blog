@@ -1,7 +1,7 @@
 package models
 
 import (
-	"mywork/pkg/interfaces"
+	"lite_blog/pkg/interfaces"
 )
 
 // MigrateData TODO

@@ -3,7 +3,7 @@ package bins
 import (
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
-	dos "mywork/pkg/entity"
+	dos "lite_blog/pkg/entity"
 )
 
 /**

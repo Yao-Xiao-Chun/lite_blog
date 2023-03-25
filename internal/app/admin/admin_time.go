@@ -3,7 +3,7 @@ package admin
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
-	"mywork/internal/app/common/dto"
+	"lite_blog/internal/app/common/dto"
 )
 
 /**

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dchest/captcha"
-	"mywork/internal/pkg/entity"
+	"lite_blog/internal/pkg/entity"
 )
 
 // 公共的方法

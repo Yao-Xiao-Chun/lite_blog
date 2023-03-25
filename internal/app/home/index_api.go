@@ -1,10 +1,10 @@
 package home
 
 import (
-	"mywork/internal/app/common/dto"
-	"mywork/internal/pkg"
-	"mywork/internal/pkg/entity"
-	"mywork/models"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/internal/pkg"
+	"lite_blog/internal/pkg/entity"
+	"lite_blog/models"
 
 	"github.com/astaxie/beego/logs"
 	"github.com/dchest/captcha"

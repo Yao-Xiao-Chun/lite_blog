@@ -2,8 +2,8 @@ package admin
 
 import (
 	"github.com/jinzhu/gorm"
-	"mywork/internal/app/common/dto"
-	"mywork/models"
+	"lite_blog/internal/app/common/dto"
+	"lite_blog/models"
 	"strconv"
 	"strings"
 

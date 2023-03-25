@@ -3,9 +3,9 @@ package routers
 import (
 	"github.com/astaxie/beego"
 	"github.com/dchest/captcha"
-	"mywork/internal/app/admin"
-	"mywork/internal/app/common"
-	"mywork/internal/app/home"
+	"lite_blog/internal/app/admin"
+	"lite_blog/internal/app/common"
+	"lite_blog/internal/app/home"
 )
 
 func initRoute() {
@@ -63,7 +63,7 @@ func HomeApi() {
 	includeApi()
 	initRoute()
 }
- 
+
 func includeApi() {
 
 	beego.Include(&admin.AdminIndexController{}) //后台首页

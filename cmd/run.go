@@ -4,9 +4,9 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/astaxie/beego"
-	"mywork/models"
-	"mywork/pkg/search"
-	"mywork/routers"
+	"lite_blog/models"
+	"lite_blog/pkg/search"
+	"lite_blog/routers"
 	"strconv"
 	"strings"
 )

@@ -2,8 +2,8 @@ package dto
 
 import (
 	"github.com/jinzhu/gorm"
-	"mywork/models"
-	"mywork/pkg/model"
+	"lite_blog/models"
+	"lite_blog/pkg/model"
 	"strconv"
 )
 
