@@ -1,4 +1,4 @@
-package dto
+package entity
 
 type Cat struct {
 	ID         int

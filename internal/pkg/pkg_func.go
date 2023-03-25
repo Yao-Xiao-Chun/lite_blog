@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dchest/captcha"
-	"mywork/internal/pkg/dto"
+	"mywork/internal/pkg/entity"
 )
 
 // 公共的方法
 
 // SuperCategory /**
-func SuperCategory(allCate []dto.Cat, pid int) []dto.Cat {
-	var arr []dto.Cat
+func SuperCategory(allCate []entity.Cat, pid int) []entity.Cat {
+	var arr []entity.Cat
 	for _, v := range allCate {
 		if pid == v.MenuParent {
 			arr = append(arr, v)
@@ -22,9 +22,7 @@ func SuperCategory(allCate []dto.Cat, pid int) []dto.Cat {
 	return arr
 }
 
-/**
-  文章截取前300字
-*/
+// GetSummary /**
 func GetSummary(content string) (string, error) {
 
 	// bytes.Buffer，非常常用。

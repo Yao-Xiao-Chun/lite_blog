@@ -3,7 +3,7 @@ package admin
 import (
 	"github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
-	"mywork/models"
+	"mywork/internal/app/common/dto"
 )
 
 /**
@@ -19,7 +19,7 @@ func (c *AdminTimeController) AddTime() {
 	token := c.Ctx.Input.Param(":key")
 
 	//查询token是否存在
-	line, err := models.QueryToken(token)
+	line, err := dto.QueryToken(token)
 
 	//判断是否查找到记录
 	if !gorm.IsRecordNotFoundError(err) {
@@ -49,7 +49,7 @@ func (c *AdminTimeController) AddTime() {
 
 		line.Status = status
 
-		models.CreateTimeLine(line)
+		dto.CreateTimeLine(line)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": 0,
@@ -81,7 +81,7 @@ func (c *AdminTimeController) DelTime() {
 
 	} else {
 
-		_, err := models.SetDelTimes(tid, token)
+		_, err := dto.SetDelTimes(tid, token)
 
 		if err == nil {
 
@@ -117,7 +117,7 @@ func (c *AdminTimeController) GetTimeInfo() {
 
 	c.Ctx.Input.Bind(&token, "token")
 
-	line, _ := models.GetTileLineFind(tid, token)
+	line, _ := dto.GetTileLineFind(tid, token)
 
 	data := map[string]interface{}{
 
@@ -143,7 +143,7 @@ func (c *AdminTimeController) SetTimeInfo() {
 	token := c.Ctx.Input.Param(":key")
 
 	//查询token是否存在
-	line, err := models.QueryToken(token)
+	line, err := dto.QueryToken(token)
 
 	//判断是否查找到记录
 	if !gorm.IsRecordNotFoundError(err) {
@@ -162,7 +162,7 @@ func (c *AdminTimeController) SetTimeInfo() {
 
 		line.Title = title
 
-		models.SetTimeInfo(id, line)
+		dto.SetTimeInfo(id, line)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": 0,

@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	"mywork/models"
 )
 
 var (
@@ -40,7 +41,7 @@ func init() {
 	sqluser = beego.AppConfig.String("mysqluser")
 
 	dbtype = beego.AppConfig.String("dbtype")
-	fmt.Println(dbtype)
+
 	Db, err = gorm.Open(dbtype, ""+sqluser+":"+pwd+"@tcp("+sqlhost+")/"+mysqldb+"?charset=utf8&parseTime=True&loc=Local") //连接数据库
 
 	if err != nil {
@@ -48,6 +49,7 @@ func init() {
 		panic("Mysql:连接数据库错误！请确认是否启动Mysql")
 	}
 	//初始化
+	models.MigrateData(&MysqlSdk{})
 
 	//defer db.Close()
 

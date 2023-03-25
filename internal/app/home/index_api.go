@@ -1,8 +1,9 @@
 package home
 
 import (
+	"mywork/internal/app/common/dto"
 	"mywork/internal/pkg"
-	"mywork/internal/pkg/dto"
+	"mywork/internal/pkg/entity"
 	"mywork/models"
 
 	"github.com/astaxie/beego/logs"
@@ -62,7 +63,7 @@ func (c *IndexController) Index() {
 
 	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
 
-	c.Data["Placard"], _ = models.GetPlacard()
+	c.Data["Placard"], _ = dto.GetPlacard()
 
 	c.GetTop() //获取置顶
 	//设置模板路径
@@ -74,7 +75,7 @@ func (c *IndexController) Index() {
 // @router /about [get] 首页
 func (c *IndexController) IndexAbout() {
 
-	c.Data["Abort"], _ = models.GetAbort()
+	c.Data["Abort"], _ = dto.GetAbort()
 	//设置模板路径
 	c.TplName = "home/about.html"
 }
@@ -96,9 +97,9 @@ func (c *IndexController) IndexMessage() {
 
 	c.Data["Uuid"] = c.GetRandomString(24) //token
 
-	c.Data["RePage"], _ = models.GetHomeReviewCount()
+	c.Data["RePage"], _ = dto.GetHomeReviewCount()
 
-	c.Data["viewList"], _ = models.SelectReview()
+	c.Data["viewList"], _ = dto.SelectReview()
 	//设置模板路径
 	c.TplName = "home/message.html"
 }
@@ -138,7 +139,7 @@ func (c *IndexController) GetTimePage() {
 		c.Abort("404")
 	}
 
-	line, _ := models.GetPageTimeLine(tid, 10)
+	line, _ := dto.GetPageTimeLine(tid, 10)
 
 	arr := make(map[int]map[string]interface{}, 10)
 
@@ -183,7 +184,7 @@ func (c *IndexController) GetTimePage() {
 */
 func (c *IndexController) getTimeLine() {
 
-	line, _ := models.GetHomeTimeLine() //多维结构体
+	line, _ := dto.GetHomeTimeLine() //多维结构体
 
 	arr := make(map[int]map[string]interface{}, 10)
 
@@ -202,7 +203,7 @@ func (c *IndexController) getTimeLine() {
 
 	}
 
-	num, _ := models.GetHomeCountTimeLine()
+	num, _ := dto.GetHomeCountTimeLine()
 
 	c.Data["count"] = num
 
@@ -222,7 +223,7 @@ func (c *IndexController) TypeArticle() {
 
 	c.Ctx.Input.Bind(&page, "page")
 
-	result, num, _ := models.GetMenuAndArticle(id, page)
+	result, num, _ := dto.GetMenuAndArticle(id, page)
 
 	if len(result) == 0 {
 
@@ -241,7 +242,7 @@ func (c *IndexController) TypeArticle() {
 			arrData = make(map[string]interface{}, 12)
 			arrData["created_time"] = val.CreatedAt.Format("2006-01-02 15:04:05") //创建时间
 			arrData["id"] = val.ID
-			arrData["tags"] = models.GetAidAndTagName(val.ID)
+			arrData["tags"] = dto.GetAidAndTagName(val.ID)
 			arrData["is_top"] = val.Is_top
 			arrData["is_copy"] = val.Priority
 			arrData["status"] = val.Status
@@ -262,7 +263,7 @@ func (c *IndexController) TypeArticle() {
 		c.Data["articleNum"] = num
 	}
 
-	c.Data["Placard"], _ = models.GetPlacard()
+	c.Data["Placard"], _ = dto.GetPlacard()
 
 	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
 
@@ -280,7 +281,7 @@ func (c *IndexController) TypeArticle() {
 */
 func (c *IndexController) getHomeArticle() {
 
-	result, num, _ := models.GetHomeArticle()
+	result, num, _ := dto.GetHomeArticle()
 
 	var data map[int]map[string]interface{}
 
@@ -293,7 +294,7 @@ func (c *IndexController) getHomeArticle() {
 		arrData = make(map[string]interface{}, 12)
 		arrData["created_time"] = val.CreatedAt.Format("2006-01-02 15:04:05") //创建时间
 		arrData["id"] = val.ID
-		arrData["tags"] = models.GetAidAndTagName(val.ID)
+		arrData["tags"] = dto.GetAidAndTagName(val.ID)
 		arrData["is_top"] = val.Is_top
 		arrData["is_copy"] = val.Priority
 		arrData["status"] = val.Status
@@ -350,7 +351,7 @@ func (c *IndexController) GetHomePageArticle() {
 
 		} else {
 
-			result, _, _ = models.GetHomeAndPageArticle(id, category, page, keywords)
+			result, _, _ = dto.GetHomeAndPageArticle(id, category, page, keywords)
 
 		}
 
@@ -372,7 +373,7 @@ func (c *IndexController) GetHomePageArticle() {
 				arrData = make(map[string]interface{}, 12)
 				arrData["created_time"] = val.CreatedAt.Format("2006-01-02 15:04:05") //创建时间
 				arrData["id"] = val.ID
-				arrData["tags"] = models.GetAidAndTagName(val.ID)
+				arrData["tags"] = dto.GetAidAndTagName(val.ID)
 				arrData["is_top"] = val.Is_top
 				arrData["is_copy"] = val.Priority
 				arrData["status"] = val.Status
@@ -416,10 +417,10 @@ func (c *IndexController) GetArticleInfo() {
 		c.Abort("404")
 	}
 
-	res, _ := models.GetHomeArticleInfo(id)
+	res, _ := dto.GetHomeArticleInfo(id)
 
 	//更新阅读数
-	models.SetArticleAndRead(id)
+	dto.SetArticleAndRead(id)
 	c.Data["articleData"] = res
 	c.Data["TagList"] = c.getHomeTags() //展示的是热门标签
 	c.GetTop()                          //获取置顶
@@ -450,7 +451,7 @@ func (c *IndexController) SteReview() {
 
 	} else {
 
-		res, err := models.SelectReviewToken(token)
+		res, err := dto.SelectReviewToken(token)
 
 		if !gorm.IsRecordNotFoundError(err) {
 
@@ -483,7 +484,7 @@ func (c *IndexController) SteReview() {
 
 			res.Address = c.GetAddress(ip)
 
-			models.CreateReview(res)
+			dto.CreateReview(res)
 
 			c.Data["json"] = map[string]interface{}{
 				"code":   "0",
@@ -515,7 +516,7 @@ func (c *IndexController) HomePageReview() {
 		}
 	} else {
 
-		data, _ := models.SelectReviewPage(page)
+		data, _ := dto.SelectReviewPage(page)
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
@@ -544,7 +545,7 @@ func (c *IndexController) ArticleClick() {
 			"errmsg": "参数非法,error",
 		}
 	} else {
-		models.SetArticleAndClick(aid)
+		dto.SetArticleAndClick(aid)
 		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
 			"errmsg": "点赞成功",
@@ -576,7 +577,7 @@ func (c *IndexController) getKeyword(key string, tag int) {
 
 	} else {
 
-		result, num, _ = models.GetArticleKeywords(key) //关键词查询的代码
+		result, num, _ = dto.GetArticleKeywords(key) //关键词查询的代码
 	}
 
 	var data map[int]map[string]interface{}
@@ -590,7 +591,7 @@ func (c *IndexController) getKeyword(key string, tag int) {
 		arrData = make(map[string]interface{}, 12)
 		arrData["created_time"] = val.CreatedAt.Format("2006-01-02 15:04:05") //创建时间
 		arrData["id"] = val.ID
-		arrData["tags"] = models.GetAidAndTagName(val.ID)
+		arrData["tags"] = dto.GetAidAndTagName(val.ID)
 		arrData["is_top"] = val.Is_top
 		arrData["is_copy"] = val.Priority
 		arrData["status"] = val.Status
@@ -649,14 +650,14 @@ func (c *IndexController) getHomeTags() (res []TagList) {
 
 	data = make([]TagList, 0)
 
-	list, _ := models.FindTagChecked()
+	list, _ := dto.FindTagChecked()
 	i := 0
 	for _, val := range list {
 		//解决前台样式
 		if i > 3 {
 			i = 0
 		}
-		num := models.CountArticleAndTag(int(val.ID))
+		num := dto.CountArticleAndTag(int(val.ID))
 
 		res := TagList{val.Tag_name, num.Total, int(val.ID), i + 1}
 
@@ -674,14 +675,14 @@ func (c *IndexController) getHomeTags() (res []TagList) {
 */
 func (c *IndexController) TagsPage(tid int, page int) (list []models.LiteArticle, num int) {
 
-	res, num := models.GetHomeTagsArticle(tid, page)
+	res, num := dto.GetHomeTagsArticle(tid, page)
 
 	var arr []models.LiteArticle
 
 	for _, val := range res {
 
 		//获取文章id进行获取文章
-		data, _ := models.GetTagArticleInfo(val.Aid)
+		data, _ := dto.GetTagArticleInfo(val.Aid)
 
 		arr = append(arr, data)
 
@@ -696,14 +697,14 @@ func (c *IndexController) TagsPage(tid int, page int) (list []models.LiteArticle
 func (c *IndexController) GetTop() {
 	//查询前10条置顶推荐
 
-	c.Data["TopArticle"], _ = models.ArticleTopList()
+	c.Data["TopArticle"], _ = dto.ArticleTopList()
 
 	//查询友情链接
-	c.Data["Link"], _ = models.GetHomeLink()
+	c.Data["Link"], _ = dto.GetHomeLink()
 
 	var data []TimeString
 
-	result, _ := models.SelectReview()
+	result, _ := dto.SelectReview()
 
 	data = make([]TimeString, 0)
 
@@ -724,9 +725,9 @@ func (c *IndexController) GetTop() {
 func (c *IndexController) NexArticle(id int) {
 	//获取当前id的上一篇和下一篇
 
-	resNext, _ := models.ArticleNext(id)
+	resNext, _ := dto.ArticleNext(id)
 
-	resPrev, _ := models.ArticlePrev(id)
+	resPrev, _ := dto.ArticlePrev(id)
 
 	if resPrev.ID == 0 {
 
@@ -763,7 +764,7 @@ func (c *IndexController) NexArticle(id int) {
 */
 func (c *IndexController) GetHomeFiction() {
 
-	c.Data["fictionNum"], _ = models.CountHomeFictionNum()
+	c.Data["fictionNum"], _ = dto.CountHomeFictionNum()
 
 	c.Data["fictionList"], _ = c.queryFictionData(1, 10)
 
@@ -804,9 +805,9 @@ func (c *IndexController) HomeFictionPage() {
 /**
 小说页面处理展示
 */
-func (c *IndexController) queryFictionData(page, size int) (list []dto.FictionList, err error) {
+func (c *IndexController) queryFictionData(page, size int) (list []entity.FictionList, err error) {
 
-	data, err := models.FindHomeFictionData(page, 10)
+	data, err := dto.FindHomeFictionData(page, 10)
 
 	//var list []FictionList
 
@@ -816,17 +817,17 @@ func (c *IndexController) queryFictionData(page, size int) (list []dto.FictionLi
 
 	} else {
 
-		list = make([]dto.FictionList, 0)
+		list = make([]entity.FictionList, 0)
 
 		for _, val := range data {
 
-			ids, _ := models.FictionOperation(int(val.ID))
+			ids, _ := dto.FictionOperation(int(val.ID))
 
-			dataRes := dto.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
+			dataRes := entity.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
 
 			if val.Tags != "" {
 
-				res := models.FictionAndTag(val.Tags)
+				res := dto.FictionAndTag(val.Tags)
 
 				dataRes.Tags = res.Fname
 
@@ -857,7 +858,7 @@ func (c *IndexController) HomeFictionDownload() {
 
 	//查询是否存在此小说
 
-	data, err := models.FirstFictionDownload(fictionId)
+	data, err := dto.FirstFictionDownload(fictionId)
 
 	if err != nil {
 
@@ -868,7 +869,7 @@ func (c *IndexController) HomeFictionDownload() {
 	} else {
 
 		//查询是否是封禁的ip
-		num, _ := models.QueryBanned(c.GetIP())
+		num, _ := dto.QueryBanned(c.GetIP())
 
 		if num > 0 {
 
@@ -890,18 +891,18 @@ func (c *IndexController) HomeFictionDownload() {
 func (c *IndexController) updateOperation(data models.LiteFiction) bool {
 	var wg sync.WaitGroup
 
-	wg.Add(1)
+	wg.Add(2)
 
 	go func() {
-		models.CreateFictionLog(data, c.GetIP())
+		dto.CreateFictionLog(data, c.GetIP())
 
 		wg.Done()
 	}()
 
 	go func() {
 
-		models.UpdateOperation(data)
-
+		dto.UpdateOperation(data)
+		wg.Done()
 	}()
 
 	wg.Wait() //执行完成，解除阻塞

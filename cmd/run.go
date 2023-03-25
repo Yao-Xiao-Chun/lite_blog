@@ -29,7 +29,7 @@ func tip() {
 
 	gob.Register(models.LiteOauthUser{})
 
-	beego.Run()
+	beego.Run("127.0.0.1:8089")
 }
 
 func setTemplate() {

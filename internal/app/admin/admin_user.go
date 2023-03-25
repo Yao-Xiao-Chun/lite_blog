@@ -5,8 +5,8 @@ import (
 	"fmt"
 	_ "github.com/astaxie/beego/logs"
 	"github.com/jinzhu/gorm"
-	"mywork/internal/pkg/dto"
-	"mywork/models"
+	"mywork/internal/app/common/dto"
+	"mywork/internal/pkg/entity"
 	"mywork/syserror"
 	"strconv"
 	"strings"
@@ -30,7 +30,7 @@ func (c *AdminUserController) DoLogin() {
 
 	pwd = c.SetMd5Pwd(pwd)
 
-	user, err := models.QueryAccountAndPwd(account, pwd) //获取查询结果
+	user, err := dto.QueryAccountAndPwd(account, pwd) //获取查询结果
 	fmt.Println(user.Account)
 	if err != nil {
 
@@ -44,7 +44,7 @@ func (c *AdminUserController) DoLogin() {
 
 		ip = ip[0:strings.LastIndex(ip, ":")]
 
-		models.UpdateIP(ip, int(user.ID))
+		dto.UpdateIP(ip, int(user.ID))
 	}
 
 	//设置session
@@ -75,7 +75,7 @@ func (c *AdminUserController) LoginOut() {
 // @router /admin/user [get] 后台 用户列表
 func (c *AdminUserController) UserList() {
 
-	num, _ := models.GetUserNum()
+	num, _ := dto.GetUserNum()
 
 	c.Data["num"] = num
 
@@ -100,7 +100,7 @@ func (c *AdminUserController) UserPage() {
 		pages = 1
 	}
 
-	users, err := models.QueryUserList(pages, 10)
+	users, err := dto.QueryUserList(pages, 10)
 
 	var arrList map[int]map[string]interface{}
 
@@ -155,7 +155,7 @@ func (c *AdminUserController) CreateUser() {
 
 	data := c.CheckMustKey("data", "接受参数错误") //获取参数 json格式
 
-	user := dto.Users{}
+	user := entity.Users{}
 
 	err := json.Unmarshal([]byte(data), &user) //值进行绑定
 
@@ -178,7 +178,7 @@ func (c *AdminUserController) CreateUser() {
 			}
 		} else {
 
-			users, err := models.GetIsAccount(acc) //检测当前用户是否存在
+			users, err := dto.GetIsAccount(acc) //检测当前用户是否存在
 
 			if !gorm.IsRecordNotFoundError(err) {
 
@@ -205,7 +205,7 @@ func (c *AdminUserController) CreateUser() {
 
 				users.Nikename = user.Title //昵称
 
-				models.CreateUser(&users) //创建
+				dto.CreateUser(&users) //创建
 
 				//写入日志
 				c.ReadLog("账号:"+c.User.Nikename+" 操作：创建用户:'"+user.Account+"',状态：成功", 2)
@@ -244,7 +244,7 @@ func (c *AdminUserController) DelUser() {
 		c.Abort("500")
 	}
 
-	_, err := models.DelUser(id)
+	_, err := dto.DelUser(id)
 
 	if err == nil {
 
@@ -280,7 +280,7 @@ func (c *AdminUserController) EditUser() {
 
 	c.Ctx.Input.Bind(&id, "id") //绑定获取的数值
 
-	user, err := models.FindUser(id)
+	user, err := dto.FindUser(id)
 
 	if err != nil {
 
@@ -310,7 +310,7 @@ func (c *AdminUserController) EditUserData() {
 
 	data := c.CheckMustKey("data", "接受参数错误") //获取参数 json格式
 
-	user := dto.Users{}
+	user := entity.Users{}
 
 	err := json.Unmarshal([]byte(data), &user) //值进行绑定
 	//修改后台登录
@@ -337,7 +337,7 @@ func (c *AdminUserController) EditUserData() {
 			}
 		} else {
 
-			users, _ := models.GetIsAccount(acc) //检测当前用户是否存在
+			users, _ := dto.GetIsAccount(acc) //检测当前用户是否存在
 
 			//users.Account = user.Account //不准修改账号
 
@@ -358,7 +358,7 @@ func (c *AdminUserController) EditUserData() {
 
 			ids := users.ID
 
-			models.EditUser(ids, users)
+			dto.EditUser(ids, users)
 
 			//写入日志
 			c.ReadLog("账号:"+c.User.Nikename+" 操作：编辑用户:'"+user.Account+"',状态：成功", 2)

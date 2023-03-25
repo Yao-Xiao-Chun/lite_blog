@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/jinzhu/gorm"
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ type AdminTagController struct {
 // @router /admin/tag [get] 后台 tag列表
 func (c *AdminTagController) TagList() {
 
-	count, _ := models.QueryCountTag()
+	count, _ := dto.QueryCountTag()
 
 	c.Data["num"] = count
 
@@ -43,7 +44,7 @@ func (c *AdminTagController) GetTagList() {
 		page = "1"
 	}
 
-	list, _, err := models.QueryTagList(page, tagSize)
+	list, _, err := dto.QueryTagList(page, tagSize)
 
 	if !gorm.IsRecordNotFoundError(err) {
 
@@ -113,7 +114,7 @@ func (c *AdminTagController) DelTag() {
 		}
 	} else {
 		logs.Info(ids)
-		_, err := models.TagDel(ids)
+		_, err := dto.TagDel(ids)
 
 		if err == nil {
 
@@ -162,7 +163,7 @@ func (c *AdminTagController) TagAddPost() {
 
 			if val != "" {
 
-				models.CreateTag(tag)
+				dto.CreateTag(tag)
 			}
 
 		}
@@ -197,7 +198,7 @@ func (c *AdminTagController) GatTagInfo() {
 
 	}
 
-	tag, err := models.QueryTagFirst(ids)
+	tag, err := dto.QueryTagFirst(ids)
 
 	if !gorm.IsRecordNotFoundError(err) {
 
@@ -242,7 +243,7 @@ func (c *AdminTagController) SetTagInfo() {
 
 		tag.Is_status, _ = strconv.Atoi(tagStatus)
 
-		models.UpdateTagFirst(tag)
+		dto.UpdateTagFirst(tag)
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   "0",

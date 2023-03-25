@@ -1,4 +1,4 @@
-package dto
+package entity
 
 type FileInfo struct {
 	FileName    string //名称

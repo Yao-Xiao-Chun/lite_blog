@@ -4,7 +4,8 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/tealeg/xlsx"
 	"io/ioutil"
-	"mywork/internal/pkg/dto"
+	"mywork/internal/app/common/dto"
+	"mywork/internal/pkg/entity"
 	"mywork/models"
 	"os"
 	"path"
@@ -80,7 +81,7 @@ func (c *AdminIndexController) AdminGettime() {
 
 func (c *AdminIndexController) getTimeLines() {
 
-	line, err := models.GetAdminTimeLine() //多维结构体
+	line, err := dto.GetAdminTimeLine() //多维结构体
 
 	arr := make(map[int]map[string]interface{}, 10)
 
@@ -110,7 +111,7 @@ func (c *AdminIndexController) getTimeLines() {
 		}
 	}
 
-	num, _ := models.GetHomeCountTimeLine()
+	num, _ := dto.GetHomeCountTimeLine()
 
 	c.Data["count"] = num
 
@@ -128,7 +129,7 @@ func (c *AdminIndexController) GetUserMessage() {
 
 	id := c.User.ID
 
-	user, err := models.FindUser(int(id))
+	user, err := dto.FindUser(int(id))
 
 	if err != nil {
 
@@ -159,7 +160,7 @@ func (c *AdminIndexController) countMessage() {
 	//获取今天的时间
 	timeStr := time.Now().Format("2006-01-02 00:00:00")
 
-	count, _ := models.GetWhereReviewCount(timeStr)
+	count, _ := dto.GetWhereReviewCount(timeStr)
 
 	c.Data["reviewCount"] = count
 
@@ -171,7 +172,7 @@ func (c *AdminIndexController) countMessage() {
 // @router /admin/baseseting [get] 后台 获取用户资料
 func (c *AdminIndexController) SetAbort() {
 
-	c.Data["abort"], _ = models.GetAbort()
+	c.Data["abort"], _ = dto.GetAbort()
 
 	c.TplName = "admin/abort/index.html"
 }
@@ -191,7 +192,7 @@ func (c *AdminIndexController) AbortFormData() {
 			"errmsg": "数据丢失",
 		}
 	} else {
-		models.UpdateBase(data)
+		dto.UpdateBase(data)
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   0,
@@ -208,7 +209,7 @@ func (c *AdminIndexController) AbortFormData() {
 // @router /admin/baseplacard [get] 后台 获取用户资料
 func (c *AdminIndexController) SetPlacard() {
 
-	c.Data["abort"], _ = models.GetPlacard()
+	c.Data["abort"], _ = dto.GetPlacard()
 
 	c.TplName = "admin/placard/index.html"
 }
@@ -228,7 +229,7 @@ func (c *AdminIndexController) PlacardFormData() {
 			"errmsg": "数据丢失",
 		}
 	} else {
-		models.UpdatePlacard(data)
+		dto.UpdatePlacard(data)
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   0,
@@ -245,7 +246,7 @@ func (c *AdminIndexController) PlacardFormData() {
 // @router /admin/log/index [get]
 func (c *AdminIndexController) GetLogList() {
 
-	c.Data["num"], _ = models.CountLog()
+	c.Data["num"], _ = dto.CountLog()
 
 	c.TplName = "admin/log/index.html"
 }
@@ -267,10 +268,10 @@ func (c *AdminIndexController) GetLogPage() {
 
 	if page == 0 {
 
-		res, _ = models.SelectLog(1)
+		res, _ = dto.SelectLog(1)
 	} else {
 
-		res, _ = models.SelectLog(page)
+		res, _ = dto.SelectLog(page)
 	}
 
 	var data []LogInfo
@@ -300,7 +301,7 @@ func (c *AdminIndexController) DownLog() {
 
 	//获取数据
 
-	list, _ := models.FindLogAll()
+	list, _ := dto.FindLogAll()
 
 	file := c.SetToExcel("登录日志表"+time.Now().Format("2006-01-02"), "download/", list)
 
@@ -346,9 +347,9 @@ func (c *AdminIndexController) ReadExcel() {
 		logs.Warning(err)
 	}
 
-	var sheetData []dto.SheetName
+	var sheetData []entity.SheetName
 
-	sheetData = make([]dto.SheetName, 0)
+	sheetData = make([]entity.SheetName, 0)
 
 	var headData map[int]map[int]string
 
@@ -391,7 +392,7 @@ func (c *AdminIndexController) ReadExcel() {
 			}
 		}
 
-		data := dto.SheetName{Sheet: sheet.Name, HeadData: headData, ContentData: contentData} //把值放入结构体中
+		data := entity.SheetName{Sheet: sheet.Name, HeadData: headData, ContentData: contentData} //把值放入结构体中
 
 		sheetData = append(sheetData, data)
 
@@ -572,7 +573,7 @@ func (c *AdminIndexController) DeleteFile() {
 遍历日志目录下的文件
 @param key string 查询的文件 default
 */
-func (c *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
+func (c *AdminIndexController) ReadFile(key string) (list []entity.FileInfo) {
 
 	//设置默认可以访问的文件夹
 	arr := map[string]string{
@@ -594,15 +595,15 @@ func (c *AdminIndexController) ReadFile(key string) (list []dto.FileInfo) {
 @param string 目录
 @return [] 文件详情
 */
-func (c *AdminIndexController) readAll(path string) []dto.FileInfo {
+func (c *AdminIndexController) readAll(path string) []entity.FileInfo {
 
-	var all_file []dto.FileInfo
+	var all_file []entity.FileInfo
 
 	finfo, _ := ioutil.ReadDir(path)
 
 	for _, x := range finfo {
 
-		realPath := dto.FileInfo{FileName: x.Name(), FileSize: x.Size(), FilePath: path + "/" + x.Name(), FileSizeStr: c.GetToUnit(int(x.Size()))}
+		realPath := entity.FileInfo{FileName: x.Name(), FileSize: x.Size(), FilePath: path + "/" + x.Name(), FileSizeStr: c.GetToUnit(int(x.Size()))}
 
 		if x.IsDir() {
 

@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 	"strconv"
 )
@@ -15,7 +16,7 @@ type AdminLinkController struct {
 // @router /admin/link/index [get] 友情首页
 func (c *AdminLinkController) Index() {
 
-	c.Data["num"], _ = models.GetLinkTotal()
+	c.Data["num"], _ = dto.GetLinkTotal()
 
 	c.TplName = "admin/link/index.html"
 }
@@ -51,7 +52,7 @@ func (c *AdminLinkController) LinkAddForm() {
 		link.Sort, _ = strconv.Atoi(linkSort)
 		link.Status, _ = strconv.Atoi(linkStatus)
 
-		err := models.AddLinkData(link)
+		err := dto.AddLinkData(link)
 
 		if err == nil {
 
@@ -83,10 +84,10 @@ func (c *AdminLinkController) GetLinkIndex() {
 
 	if page == 0 {
 
-		res, _ = models.SelectLink(1)
+		res, _ = dto.SelectLink(1)
 	} else {
 
-		res, _ = models.SelectLink(page)
+		res, _ = dto.SelectLink(page)
 	}
 
 	c.Data["json"] = map[string]interface{}{
@@ -104,7 +105,7 @@ func (c *AdminLinkController) LinkInfo() {
 
 	c.Ctx.Input.Bind(&id, "id")
 
-	c.Data["link"], _ = models.FindLinkInfo(id)
+	c.Data["link"], _ = dto.FindLinkInfo(id)
 
 	c.TplName = "admin/link/edit.html"
 }
@@ -140,7 +141,7 @@ func (c *AdminLinkController) LinkFormData() {
 		link.Status, _ = strconv.Atoi(linkStatus)
 		link.ID = uint(ids)
 
-		err := models.SaveLink(link)
+		err := dto.SaveLink(link)
 
 		if err == nil {
 
@@ -175,7 +176,7 @@ func (c *AdminLinkController) LinkDel() {
 		}
 	} else {
 
-		err := models.DeleteLink(id)
+		err := dto.DeleteLink(id)
 
 		if err == nil {
 

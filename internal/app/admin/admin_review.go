@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 )
 
@@ -38,10 +39,10 @@ func (c *ReviewController) GetReviewPage() {
 
 	if page == 0 {
 
-		res, _ = models.SelectReview()
+		res, _ = dto.SelectReview()
 	} else {
 
-		res, _ = models.SelectReviewPage(page)
+		res, _ = dto.SelectReviewPage(page)
 	}
 
 	c.Data["json"] = map[string]interface{}{
@@ -58,7 +59,7 @@ func (c *ReviewController) GetReviewPage() {
 */
 func (c *ReviewController) getReviewCount() {
 
-	page, _ := models.ReviewCount()
+	page, _ := dto.ReviewCount()
 
 	c.Data["num"] = page
 }
@@ -82,7 +83,7 @@ func (c *ReviewController) DeleteReview() {
 
 	} else {
 
-		models.DeleteReview(id)
+		dto.DeleteReview(id)
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   "0",

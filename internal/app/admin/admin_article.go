@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/astaxie/beego/logs"
+	"mywork/internal/app/common/dto"
 	"mywork/internal/pkg"
 	"mywork/models"
 	"strconv"
@@ -88,7 +89,7 @@ func (c *ArticleController) Uploads() {
 // @router /admin/article/list [get] 文章列表页
 func (c *ArticleController) GetArticleList() {
 
-	size, _ := models.GetCountArticle()
+	size, _ := dto.GetCountArticle()
 
 	c.Data["page"] = size
 
@@ -114,7 +115,7 @@ func (c *ArticleController) GetArticleInfo() {
 		page = "0"
 	}
 
-	list, _ := models.SelectArticle(page) //查询接口数据
+	list, _ := dto.SelectArticle(page) //查询接口数据
 
 	var arr map[int]map[string]interface{} //存放数据
 
@@ -127,7 +128,7 @@ func (c *ArticleController) GetArticleInfo() {
 		arrData = make(map[string]interface{}, 11)
 
 		arrData["id"] = val.ID
-		arrData["tages"] = models.GetAidAndTagName(val.ID)
+		arrData["tages"] = dto.GetAidAndTagName(val.ID)
 		arrData["is_top"] = val.Is_top
 		arrData["is_copy"] = val.Priority
 		arrData["status"] = val.Status
@@ -139,7 +140,7 @@ func (c *ArticleController) GetArticleInfo() {
 
 		fid, _ := strconv.Atoi(val.Fid_Level)
 
-		arrData["level"], _ = models.GetMenuAndFindInfo(uint(fid)) //获取所属父类
+		arrData["level"], _ = dto.GetMenuAndFindInfo(uint(fid)) //获取所属父类
 
 		arr[key] = arrData
 	}
@@ -212,11 +213,11 @@ func (c *ArticleController) AddArticle() {
 		article.Fid_Level = menu
 		article.Priority, _ = strconv.Atoi(isCopy)
 
-		result, _ := models.AddArticle(article)
+		result, _ := dto.AddArticle(article)
 
 		ids := result.ID //获取新创建的id
 
-		models.CreateAidAndTag(tag, ids, c.User.ID)
+		dto.CreateAidAndTag(tag, ids, c.User.ID)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
@@ -290,9 +291,9 @@ func (c *ArticleController) EditArticle() {
 		article.Fid_Level = menu
 		article.Priority, _ = strconv.Atoi(is_copy)
 
-		models.EditArticle(article) //更新数据
+		dto.EditArticle(article) //更新数据
 
-		models.UpdateAidAndTag(tag, uint(id), c.User.ID) //更新关系表
+		dto.UpdateAidAndTag(tag, uint(id), c.User.ID) //更新关系表
 
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
@@ -317,9 +318,9 @@ func (c *ArticleController) ArticleEdit() {
 
 	//获取文章列表数据
 
-	artist, _ := models.FindArticleInfo(id)
+	artist, _ := dto.FindArticleInfo(id)
 
-	tagsIds := models.GetAidAndTagName(uint(id)) //当前文章启用的标签
+	tagsIds := dto.GetAidAndTagName(uint(id)) //当前文章启用的标签
 
 	menuData := c.GetMenuList(false) //获取列表
 
@@ -359,9 +360,9 @@ func (c *ArticleController) DelArticle() {
 
 	} else {
 
-		models.DeleArticle(id) //删除文章，
+		dto.DeleArticle(id) //删除文章，
 
-		models.DeleteArticleAndTag(id) //删除
+		dto.DeleteArticleAndTag(id) //删除
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   0,
@@ -378,7 +379,7 @@ func (c *ArticleController) DelArticle() {
 */
 func (c *ArticleController) getTag() {
 
-	list, _ := models.FindTagChecked()
+	list, _ := dto.FindTagChecked()
 
 	c.Data["Tag"] = list
 }

@@ -3,8 +3,9 @@ package home
 import (
 	"math/rand"
 	"mywork/internal/app/common"
+	"mywork/internal/app/common/dto"
 	"mywork/internal/pkg"
-	"mywork/internal/pkg/dto"
+	"mywork/internal/pkg/entity"
 	"mywork/models"
 	"time"
 )
@@ -26,7 +27,7 @@ type cat struct {
 	Level       int
 	Menu_status int
 	sort        int
-	Children    []*dto.Cat ``
+	Children    []*entity.Cat ``
 }
 
 /**
@@ -48,14 +49,14 @@ func (c *HomeBaseController) GetMenuList(flag bool) (data map[int]map[string]int
 	var menu []models.LiteAdminMenu
 	//是获取所有的还是获取选择的
 	if flag {
-		menu, _ = models.GetAll()
+		menu, _ = dto.GetAll()
 	} else {
-		menu, _ = models.GetMenuInfo() //根据条件获取
+		menu, _ = dto.GetMenuInfo() //根据条件获取
 	}
 
-	var list []dto.Cat
+	var list []entity.Cat
 
-	list = make([]dto.Cat, len(menu))
+	list = make([]entity.Cat, len(menu))
 
 	/*var listA []*Cat
 

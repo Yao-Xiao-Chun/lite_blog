@@ -1,8 +1,9 @@
 package admin
 
 import (
+	"mywork/internal/app/common/dto"
 	"mywork/internal/pkg"
-	"mywork/internal/pkg/dto"
+	"mywork/internal/pkg/entity"
 	"mywork/models"
 	"strconv"
 
@@ -87,7 +88,7 @@ func (c *AdminMenuController) MenuAddForm() {
 
 		menu.Menu_level = num //等级
 
-		models.SetMenu(menu)
+		dto.SetMenu(menu)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
@@ -116,7 +117,7 @@ func (c *AdminMenuController) DeleteMenu() {
 	} else {
 		ids, _ := strconv.Atoi(id)
 
-		models.DeleteMenu(uint(ids))
+		dto.DeleteMenu(uint(ids))
 
 		c.Data["json"] = map[string]interface{}{
 			"code":   "0",
@@ -143,7 +144,7 @@ func (c *AdminMenuController) EditMenu() {
 
 	ids, _ := strconv.Atoi(id)
 
-	list, _ := models.GetMenuAndFindInfo(uint(ids))
+	list, _ := dto.GetMenuAndFindInfo(uint(ids))
 
 	c.Data["list"] = list
 
@@ -196,7 +197,7 @@ func (c *AdminMenuController) EditPost() {
 
 		menu.Menu_level = num //等级
 
-		models.EditMenu(menu)
+		dto.EditMenu(menu)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
@@ -208,7 +209,7 @@ func (c *AdminMenuController) EditPost() {
 	c.ServeJSON()
 }
 
-func tree(list []*dto.Cat) string {
+func tree(list []*entity.Cat) string {
 
 	data := buildData(list)
 
@@ -225,9 +226,9 @@ func tree(list []*dto.Cat) string {
 /**
 结构生成可以维护的数据
 */
-func buildData(list []*dto.Cat) map[int]map[int]*dto.Cat {
+func buildData(list []*entity.Cat) map[int]map[int]*entity.Cat {
 
-	var data map[int]map[int]*dto.Cat = make(map[int]map[int]*dto.Cat)
+	var data map[int]map[int]*entity.Cat = make(map[int]map[int]*entity.Cat)
 
 	for _, v := range list {
 
@@ -237,7 +238,7 @@ func buildData(list []*dto.Cat) map[int]map[int]*dto.Cat {
 
 		if _, ok := data[fid]; !ok {
 
-			data[fid] = make(map[int]*dto.Cat)
+			data[fid] = make(map[int]*entity.Cat)
 		}
 
 		data[fid][id] = v
@@ -249,9 +250,9 @@ func buildData(list []*dto.Cat) map[int]map[int]*dto.Cat {
 /**
 结构树
 */
-func makeTreeCore(index int, data map[int]map[int]*dto.Cat) []*dto.Cat {
+func makeTreeCore(index int, data map[int]map[int]*entity.Cat) []*entity.Cat {
 
-	tmp := make([]*dto.Cat, 0)
+	tmp := make([]*entity.Cat, 0)
 
 	for id, item := range data[index] {
 
@@ -280,7 +281,7 @@ func (c *AdminMenuController) getFidAndLevel(fid string) (str string, num int) {
 
 		id, _ := strconv.Atoi(fid)
 
-		menkey, _ := models.GetMenuAndRoule(id)
+		menkey, _ := dto.GetMenuAndRoule(id)
 
 		num := strings.Count(menkey.Menu_key, "-")
 
@@ -312,18 +313,18 @@ func (c *AdminMenuController) GetMenuList(flag bool) (data map[int]map[string]in
 	var menu []models.LiteAdminMenu
 	//是获取所有的还是获取选择的
 	if flag {
-		menu, _ = models.GetAll()
+		menu, _ = dto.GetAll()
 	} else {
-		menu, _ = models.GetMenuInfo() //根据条件获取
+		menu, _ = dto.GetMenuInfo() //根据条件获取
 	}
 
-	var list []dto.Cat
+	var list []entity.Cat
 
-	list = make([]dto.Cat, len(menu))
+	list = make([]entity.Cat, len(menu))
 
-	/*var listA []*dto.Cat
+	/*var listA []*entity.Cat
 
-	listA = make([]*dto.Cat,len(menu))*/
+	listA = make([]*entity.Cat,len(menu))*/
 
 	for i, v := range menu {
 

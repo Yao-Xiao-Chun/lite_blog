@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"mime/multipart"
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 	"os"
 	"path"
@@ -56,7 +57,7 @@ func (c *UploadController) SetUpload() {
 		if ok := c.doneMergeFile(guid, suffix); ok {
 
 			//写入上传的小说
-			models.CreateFiction(models.LiteFiction{Name: name, Tags: tag, Status: 1, FileName: "download/" + guid + suffix, Users: c.User.Nikename})
+			dto.CreateFiction(models.LiteFiction{Name: name, Tags: tag, Status: 1, FileName: "download/" + guid + suffix, Users: c.User.Nikename})
 
 			c.Data["json"] = map[string]string{
 				"code": "0",
@@ -115,7 +116,7 @@ func (c *UploadController) UploadFileDone() {
 // @router /admin/upload/index [get] 文件上传首页
 func (c *UploadController) UploadIndex() {
 
-	list, _ := models.FindTagTypeTwo()
+	list, _ := dto.FindTagTypeTwo()
 
 	c.Data["Tag"] = list
 

@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/toolbox"
 	"mywork/bins"
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 	"strings"
 	"time"
@@ -34,7 +35,7 @@ type TaskData struct {
 // @router /admin/crontab/index [get] 定时任务列表
 func (c *CronTabController) Task() {
 
-	c.Data["num"], _ = models.CountPage()
+	c.Data["num"], _ = dto.CountPage()
 	c.TplName = "admin/crontab/index.html"
 }
 
@@ -66,7 +67,7 @@ func (c *CronTabController) Create() {
 		taskData.CreateName = c.User.Nikename
 		taskData.TaskId = data.Task
 
-		models.TaskAdd(taskData)
+		dto.TaskAdd(taskData)
 
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
@@ -91,7 +92,7 @@ func (c *CronTabController) GetTaskPage() {
 
 	c.Ctx.Input.Bind(&size, "size")
 
-	result, err := models.FindTask(page, 10)
+	result, err := dto.FindTask(page, 10)
 
 	if err != nil {
 		c.Data["json"] = map[string]interface{}{
@@ -121,11 +122,11 @@ func (c *CronTabController) CrontabDelete() {
 	c.Ctx.Input.Bind(&taskId, "id")
 
 	//检查次id是否在执行状态
-	resStatus, _ := models.FindInfoTask(taskId)
+	resStatus, _ := dto.FindInfoTask(taskId)
 
 	if resStatus.Status == 0 {
 		//可以删除
-		models.DeleteTask(taskId)
+		dto.DeleteTask(taskId)
 		c.Data["json"] = map[string]interface{}{
 			"code": "0",
 			"msg":  "删除成功",
@@ -151,13 +152,13 @@ func (c *CronTabController) StartTask() {
 
 	c.Ctx.Input.Bind(&taskId, "task_id")
 	//查询要启用的任务
-	result, _ := models.FindInfoTask(taskId)
+	result, _ := dto.FindInfoTask(taskId)
 
 	c.setTask(result.Frequency, result.TaskName, result.TaskId) //设定任务
 
 	//更新后台数据库
 	result.Status = 1
-	models.UpdateTaskStatus(result)
+	dto.UpdateTaskStatus(result)
 	//写入日志
 	c.ReadLog("用户："+c.User.Nikename+"开启定时任务:"+result.TaskName+"。", 3)
 	c.Data["json"] = map[string]interface{}{
@@ -179,14 +180,14 @@ func (c *CronTabController) StopTask() {
 	c.Ctx.Input.Bind(&taskId, "task_id")
 
 	//查询要启用的任务
-	result, _ := models.FindInfoTask(taskId)
+	result, _ := dto.FindInfoTask(taskId)
 
 	DeleteTask(result.TaskName)
 
 	//更新后台数据库
 	result.Status = 0
 
-	models.UpdateTaskStatus(result)
+	dto.UpdateTaskStatus(result)
 
 	c.ReadLog("用户："+c.User.Nikename+"停用定时任务:"+result.TaskName+"。", 3)
 
@@ -410,7 +411,7 @@ func (c *CronTabController) toTaskStr(data TaskData) string {
 */
 func (c *CronTabController) GetRunTask() bool {
 
-	list, err := models.RunTask()
+	list, err := dto.RunTask()
 
 	if err != nil {
 		return false
@@ -420,7 +421,7 @@ func (c *CronTabController) GetRunTask() bool {
 
 		val.Status = 0
 
-		models.UpdateTaskStatus(val)
+		dto.UpdateTaskStatus(val)
 
 		//写入日志
 		c.ReadLog("用户："+c.User.Nikename+"停止定时任务:"+val.TaskName+"。", 3)

@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"mime/multipart"
 	"mywork/internal/app/common"
+	"mywork/internal/app/common/dto"
 	"mywork/models"
 	"regexp"
 	"strings"
@@ -217,7 +218,7 @@ admin日志写入
 */
 func (c *AdminBaseController) ReadLog(content string, level int) {
 
-	models.InsertLog(content, level)
+	dto.InsertLog(content, level)
 }
 
 func (c *AdminBaseController) LogTypeStr(key int) string {

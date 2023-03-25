@@ -1,8 +1,9 @@
 package admin
 
 import (
-	"mywork/internal/pkg/dto"
-	"mywork/models"
+	"mywork/internal/app/common/dto"
+	models "mywork/internal/app/common/dto"
+	"mywork/internal/pkg/entity"
 )
 
 /**
@@ -15,7 +16,7 @@ type FileController struct {
 
 func (c *FileController) FileIndex() {
 
-	c.Data["num"], _ = models.CountFictionNum()
+	c.Data["num"], _ = dto.CountFictionNum()
 
 	c.TplName = "admin/fiction/index.html"
 }
@@ -59,15 +60,15 @@ func (c *FileController) FilePage() {
 			"msg":  "消息错误",
 		}
 	} else {
-		var res []dto.FictionList
+		var res []entity.FictionList
 
-		res = make([]dto.FictionList, 0)
+		res = make([]entity.FictionList, 0)
 
 		for _, val := range data {
 
 			ids, _ := models.FictionOperation(int(val.ID))
 
-			dataRes := dto.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
+			dataRes := entity.FictionList{LiteFiction: val, Times: val.CreatedAt.Format("2006-01-02 13:04:05"), DownloadNum: ids.DownloadNum}
 
 			if val.Tags != "" {
 
