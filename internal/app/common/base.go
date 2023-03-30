@@ -4,11 +4,13 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/meilisearch/meilisearch-go"
 	"github.com/satori/go.uuid"
 	"github.com/tabalt/ipquery"
 	"github.com/tealeg/xlsx"
 	"io"
 	"lite_blog/models"
+	"lite_blog/pkg/search"
 	"strconv"
 	"strings"
 	"time"
@@ -315,4 +317,10 @@ func (c *BaseController) GetToUnit(size int) string {
 	}
 
 	return ""
+}
+
+// GetSearchClient 获取搜索引擎客户端
+func (c *BaseController) GetSearchClient() *meilisearch.Client {
+
+	return search.SearchSDK
 }

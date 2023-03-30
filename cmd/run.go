@@ -9,6 +9,7 @@ import (
 	"lite_blog/routers"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Execute 初始化执行命令
@@ -107,15 +108,30 @@ func initSetSession() {
 //初始化搜索引擎
 func initSearch() {
 
-	fmt.Println("初始化搜索引擎配置")
 	host := beego.AppConfig.String("searchhost")
 	port := beego.AppConfig.String("searchport")
 	key := beego.AppConfig.String("searchkey")
+	fmt.Println(fmt.Sprintf("搜索引擎host:%v,端口：%v,master_key:%v", host, port, key))
 
 	ser := NewMeiliSearch(host, port, key)
 
 	search.SearchSDK = ser.OpenClient() //创建全局使用变量
 
 	fmt.Println("init search success...")
+
+	//开启搜索引擎监控
+	go func() {
+		for {
+			fmt.Println("ping search...")
+			_, err := search.SearchSDK.Health()
+
+			if err != nil {
+				_ = fmt.Errorf("搜索引擎错误！%v", err)
+			}
+
+			time.Sleep(time.Second * 2)
+		}
+
+	}()
 
 }

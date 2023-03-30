@@ -396,4 +396,5 @@ func (c *ArticleController) checkTag(str string) []string {
 	ids = strings.Split(str, ",")
 
 	return ids
+
 }
