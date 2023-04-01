@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/prometheus/common/log"
 	"lite_blog/models"
 	"lite_blog/pkg/search"
 	"lite_blog/routers"
@@ -111,7 +112,7 @@ func initSearch() {
 	host := beego.AppConfig.String("searchhost")
 	port := beego.AppConfig.String("searchport")
 	key := beego.AppConfig.String("searchkey")
-	fmt.Println(fmt.Sprintf("搜索引擎host:%v,端口：%v,master_key:%v", host, port, key))
+	log.Infoln(fmt.Sprintf("搜索引擎host:%v,端口：%v,master_key:%v", host, port, key))
 
 	ser := NewMeiliSearch(host, port, key)
 
@@ -120,18 +121,59 @@ func initSearch() {
 	fmt.Println("init search success...")
 
 	//开启搜索引擎监控
-	go func() {
-		for {
-			fmt.Println("ping search...")
-			_, err := search.SearchSDK.Health()
+	go openElasticsearchPing()
 
-			if err != nil {
-				_ = fmt.Errorf("搜索引擎错误！%v", err)
-			}
+}
 
-			time.Sleep(time.Second * 2)
+// 监听搜索引擎服务是否存活，不影响主线程
+func openElasticsearchPing() {
+
+	defer func() {
+		if r := recover(); r != nil {
+
+			log.Infoln("捕获错误准备重连搜索引擎...")
+			go tryReconnecting() //重新连接搜索引擎
 		}
-
 	}()
+
+	for {
+		log.Info("ping search...")
+		resp, err := search.SearchSDK.Health()
+
+		if err != nil {
+			_ = fmt.Errorf("搜索引擎错误！%v", err)
+		}
+		log.Infoln(fmt.Sprintf("搜索引擎运行状态...%v", resp.Status))
+
+		time.Sleep(time.Second * 2)
+
+	}
+
+}
+
+// 重新连接搜索引擎
+// 每10s重新连接一场
+func tryReconnecting() {
+	host := beego.AppConfig.String("searchhost")
+	port := beego.AppConfig.String("searchport")
+	key := beego.AppConfig.String("searchkey")
+
+	log.Infoln(fmt.Sprintf("搜索引擎host:%v,端口：%v,master_key:%v", host, port, key))
+
+	ser := NewMeiliSearch(host, port, key)
+
+	for {
+		if tmp := ser.OpenClient().IsHealthy(); tmp {
+			//重新连接成功
+			search.SearchSDK = ser.OpenClient()
+			log.Infoln("重新连接成功success.....")
+			go openElasticsearchPing()
+			break
+		}
+		//重连失败
+		log.Info(fmt.Sprintf("重新连接失败10s后重新尝试...."))
+
+		time.Sleep(time.Second * 10)
+	}
 
 }
