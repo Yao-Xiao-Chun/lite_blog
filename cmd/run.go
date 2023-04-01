@@ -31,7 +31,7 @@ func tip() {
 
 	gob.Register(models.LiteOauthUser{})
 
-	beego.Run("127.0.0.1:8089")
+	beego.Run(beego.AppConfig.String("httpport"))
 }
 
 func setTemplate() {
@@ -123,6 +123,7 @@ func initSearch() {
 	//开启搜索引擎监控
 	go openElasticsearchPing()
 
+	search.AutoSearchData()
 }
 
 // 监听搜索引擎服务是否存活，不影响主线程
