@@ -24,7 +24,7 @@ func AutoSearchData() {
 	if flag := SearchSDK.IsHealthy(); flag {
 		//准备更新数据
 		var arr []models.LiteArticle
-		err := model.Db.Select("title,descript,keywords").Order("id desc").Find(&arr).Error
+		err := model.Db.Select("title,descript,keywords,id").Order("id desc").Find(&arr).Error
 
 		if err != nil {
 			log.Error(fmt.Sprintf("同步数据引擎错误%v", err))
@@ -34,7 +34,12 @@ func AutoSearchData() {
 		documents := make([]entity.SearchFromEntity, 0)
 		for _, item := range arr {
 
-			documents = append(documents, entity.SearchFromEntity{Title: item.Title, Description: item.Descript, Keywords: item.Keywords})
+			documents = append(documents, entity.SearchFromEntity{
+				Title:       item.Title,
+				Description: item.Descript,
+				Keywords:    item.Keywords,
+				ID:          int(item.ID), //设置ID
+			})
 		}
 
 		_, err = index.AddDocuments(documents)

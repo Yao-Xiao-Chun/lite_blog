@@ -30,8 +30,8 @@ func tip() {
 	setTemplate()
 
 	gob.Register(models.LiteOauthUser{})
-
-	beego.Run(beego.AppConfig.String("httpport"))
+	log.Infoln(fmt.Sprintf("监听的端口号：%v", beego.AppConfig.String("httpport")))
+	beego.Run()
 }
 
 func setTemplate() {
