@@ -31,7 +31,7 @@ func tip() {
 
 	gob.Register(models.LiteOauthUser{})
 	log.Infoln(fmt.Sprintf("监听的端口号：%v", beego.AppConfig.String("httpport")))
-	beego.Run()
+	beego.Run("127.0.0.1:8081")
 }
 
 func setTemplate() {

@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"lite_blog/models"
+	"time"
 )
 
 var (
@@ -48,6 +49,15 @@ func init() {
 		fmt.Println(err)
 		panic("Mysql:连接数据库错误！请确认是否启动Mysql")
 	}
+
+	//设置一下mysql连接池
+	pool := Db.DB()
+	//最多连接100
+	pool.SetMaxOpenConns(100)
+	//空闲连接10
+	pool.SetMaxIdleConns(10)
+	pool.SetConnMaxLifetime(5 * time.Second)
+
 	//初始化
 	models.MigrateData(&MysqlSdk{})
 
